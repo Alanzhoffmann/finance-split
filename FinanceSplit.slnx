@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FinanceSplit.Domain/FinanceSplit.Domain.csproj" />
+  </Folder>
+</Solution>
