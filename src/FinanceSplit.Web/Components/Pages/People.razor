@@ -1,0 +1,73 @@
+@page "/people"
+@using FinanceSplit.Application.Services
+@using FinanceSplit.Contracts.Responses
+@inject PersonService PersonService
+
+<PageTitle>People</PageTitle>
+
+<h1>People</h1>
+
+<h2>Add Person</h2>
+<form method="post" @formname="add-person" @onsubmit="AddPerson">
+    <AntiforgeryToken />
+    <input type="text" @bind="NewPersonName" placeholder="Name" required />
+    <button type="submit">Add</button>
+</form>
+
+@if (AllPeople.Count > 0)
+{
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Salaries</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var person in AllPeople)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@string.Join(", ", person.Salaries.Select(s => $"{s.Date:yyyy-MM}: {s.Amount:C}"))</td>
+                    <td>
+                        <form method="post" @formname="@($"add-salary-{person.Id}")" @onsubmit="() => AddSalary(person.Id)">
+                            <AntiforgeryToken />
+                            <input type="hidden" name="personId" value="@person.Id" />
+                            <input type="month" @bind="SalaryDate" />
+                            <input type="number" step="0.01" @bind="SalaryAmount" placeholder="Amount" />
+                            <button type="submit">Add Salary</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IReadOnlyList<PersonResponse> AllPeople { get; set; } = [];
+    private string NewPersonName { get; set; } = string.Empty;
+    private DateOnly SalaryDate { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private decimal SalaryAmount { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllPeople = await PersonService.GetAllPeopleAsync();
+    }
+
+    private async Task AddPerson()
+    {
+        if (!string.IsNullOrWhiteSpace(NewPersonName))
+        {
+            await PersonService.CreatePersonAsync(NewPersonName);
+            NewPersonName = string.Empty;
+            AllPeople = await PersonService.GetAllPeopleAsync();
+        }
+    }
+
+    private async Task AddSalary(Guid personId)
+    {
+        if (SalaryAmount > 0)
+        {
+            await PersonService.AddSalaryAsync(personId, SalaryDate, SalaryAmount);
+            AllPeople = await PersonService.GetAllPeopleAsync();
+        }
+    }
+}

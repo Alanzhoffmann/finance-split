@@ -1,0 +1,96 @@
+@page "/transactions"
+@using FinanceSplit.Application.Services
+@using FinanceSplit.Contracts.Enums
+@using FinanceSplit.Contracts.Responses
+@inject PersonService PersonService
+@inject TransactionService TransactionService
+
+<PageTitle>Transactions</PageTitle>
+
+<h1>Transactions</h1>
+
+<h2>Create Transaction</h2>
+<form method="post" @formname="create-transaction" @onsubmit="CreateTransaction">
+    <AntiforgeryToken />
+    <div>
+        <label>Title: <input type="text" @bind="Title" required /></label>
+    </div>
+    <div>
+        <label>Amount: <input type="number" step="0.01" @bind="Amount" required /></label>
+    </div>
+    <div>
+        <label>Paid By:
+            <select @bind="PaidById">
+                @foreach (var person in People)
+                {
+                    <option value="@person.Id">@person.Name</option>
+                }
+            </select>
+        </label>
+    </div>
+    <div>
+        <label>Split Type:
+            <select @bind="SelectedSplitType">
+                <option value="@SplitType.Even">Even</option>
+                <option value="@SplitType.Ratio">Ratio (by salary)</option>
+                <option value="@SplitType.None">None (one person pays)</option>
+            </select>
+        </label>
+    </div>
+    <div>
+        <label>Participants:</label>
+        @foreach (var person in People)
+        {
+            <label>
+                <input type="checkbox" checked="@SelectedParticipantIds.Contains(person.Id)"
+                       @onchange="e => ToggleParticipant(person.Id, (bool)e.Value!)" />
+                @person.Name
+            </label>
+        }
+    </div>
+    <button type="submit">Create</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <p><strong>@Message</strong></p>
+}
+
+@code {
+    private IReadOnlyList<PersonResponse> People { get; set; } = [];
+    private string Title { get; set; } = string.Empty;
+    private decimal Amount { get; set; }
+    private Guid PaidById { get; set; }
+    private SplitType SelectedSplitType { get; set; } = SplitType.Even;
+    private HashSet<Guid> SelectedParticipantIds { get; set; } = [];
+    private string Message { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        People = await PersonService.GetAllPeopleAsync();
+        if (People.Count > 0)
+        {
+            PaidById = People[0].Id;
+            SelectedParticipantIds = People.Select(p => p.Id).ToHashSet();
+        }
+    }
+
+    private void ToggleParticipant(Guid id, bool selected)
+    {
+        if (selected) SelectedParticipantIds.Add(id);
+        else SelectedParticipantIds.Remove(id);
+    }
+
+    private async Task CreateTransaction()
+    {
+        var result = await TransactionService.CreateTransactionAsync(
+            Title, Amount, PaidById, SelectedSplitType, SelectedParticipantIds.ToList(), DateTime.UtcNow);
+
+        Message = result is not null
+            ? $"Transaction '{result.Title}' created."
+            : "Failed to create transaction.";
+
+        Title = string.Empty;
+        Amount = 0;
+    }
+}
