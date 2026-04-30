@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/FinanceSplit.Domain/FinanceSplit.Domain.csproj" />
   </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/FinanceSplit.Domain.Tests/FinanceSplit.Domain.Tests.csproj" />
+  </Folder>
 </Solution>
