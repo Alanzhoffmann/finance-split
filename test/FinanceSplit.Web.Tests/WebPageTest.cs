@@ -8,6 +8,7 @@ using TUnit.Playwright;
 
 namespace FinanceSplit.Web.Tests;
 
+[Category("E2E")]
 public abstract class WebPageTest : PageTest, IAsyncDisposable
 {
     protected WebTestFactory Factory { get; private set; } = null!;

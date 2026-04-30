@@ -1,4 +1,6 @@
 using FinanceSplit.Data;
+using FinanceSplit.Data.BackgroundServices;
+using FinanceSplit.Data.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +29,26 @@ public class WebTestFactory : TestWebApplicationFactory<Program>
             {
                 services.Remove(d);
             }
+
+            // Remove migration background service
+            var migrationDescriptor = services.FirstOrDefault(d => d.ImplementationType == typeof(MigrationBackgroundService));
+            if (migrationDescriptor is not null)
+            {
+                services.Remove(migrationDescriptor);
+            }
+
+            // Mark migrations as done
+            var stateDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IMigrationState));
+            if (stateDescriptor is not null)
+            {
+                services.Remove(stateDescriptor);
+            }
+            services.AddSingleton<IMigrationState>(new TestMigrationState());
         });
+    }
+
+    private class TestMigrationState : IMigrationState
+    {
+        public bool IsDone { get; set; } = true;
     }
 }
