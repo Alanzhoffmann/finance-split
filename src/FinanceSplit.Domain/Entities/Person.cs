@@ -11,7 +11,7 @@ public class Person : BaseEntity
 
     private readonly IList<Salary> _salaries = [];
 
-    public string Name { get; private set; } = string.Empty;
+    public string Name { get; private set; }
     public IEnumerable<Salary> Salaries => _salaries;
 
     public void AddSalary(Salary salary) => _salaries.Add(salary);
