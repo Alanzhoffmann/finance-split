@@ -30,6 +30,9 @@ public class WebTestFactory : TestWebApplicationFactory<Program>
                 services.Remove(d);
             }
 
+            // Add a default InMemory DB so service validation passes
+            services.AddDbContext<FinanceSplitDbContext>(options => options.UseInMemoryDatabase("WebTestDefault"));
+
             // Remove migration background service
             var migrationDescriptor = services.FirstOrDefault(d => d.ImplementationType == typeof(MigrationBackgroundService));
             if (migrationDescriptor is not null)
