@@ -37,11 +37,17 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Check formatting
+        run: dotnet csharpier check .
+
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test --no-build --configuration Release --verbosity normal --results-directory ./TestResults  -- --coverage --coverage-output-format cobertura --report-trx
+        run: dotnet test --no-build --configuration Release --verbosity normal --results-directory ./TestResults --filter 'FullyQualifiedName!~Web.Tests' -- --coverage --coverage-output-format cobertura --report-trx
 
       - name: Upload test results
         if: always()  # Run even if tests fail
@@ -57,9 +63,50 @@ jobs:
           name: coverage
           path: ./TestResults/*.cobertura.xml
           
+  e2e:
+    name: E2E Tests (Playwright)
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Install Playwright browsers
+        run: pwsh test/FinanceSplit.Web.Tests/bin/Release/net11.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run E2E tests
+        run: dotnet test test/FinanceSplit.Web.Tests --no-build --configuration Release --results-directory ./TestResults -- --report-trx
+
+      - name: Upload E2E test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: ./TestResults/*.trx
+
   publish-results:
     name: Publish Test Results
-    needs: build
+    needs: [build, e2e]
     runs-on: ubuntu-latest
     if: always()
 
@@ -67,7 +114,7 @@ jobs:
     - name: Download all test results
       uses: actions/download-artifact@v4
       with:
-        pattern: test-results
+        pattern: "*test-results"
         path: ./test-results
         merge-multiple: true
 

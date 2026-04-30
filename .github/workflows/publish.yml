@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, "release/v*"]
     tags: ["v*"]
 
 concurrency:
@@ -69,17 +69,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image name
-        id: image
-        run: echo "name=alanzhoffmann/finances-split" >> $GITHUB_OUTPUT
-
       - name: Publish container
         run: |
           dotnet publish src/FinanceSplit.Api/FinanceSplit.Api.csproj \
             -t:PublishContainer \
             -c Release \
             -p:ContainerRegistry=ghcr.io \
-            -p:ContainerRepository=${{ steps.image.outputs.name }} \
             -p:ContainerImageTags="${{ steps.tags.outputs.tags }}"
 
       - name: Create GitHub Release
