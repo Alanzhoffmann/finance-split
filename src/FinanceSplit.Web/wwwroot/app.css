@@ -36,3 +36,49 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.person-card {
+    border: 1px solid #45475a;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    background: #1e1e2e;
+    color: #cdd6f4;
+}
+
+.person-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #89b4fa;
+}
+
+.person-card dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    margin: 0;
+}
+
+.person-card dt {
+    font-weight: 600;
+    color: #a6adc8;
+}
+
+.person-card dd {
+    margin: 0;
+    text-align: right;
+}
+
+.person-card .positive {
+    color: #a6e3a1;
+}
+
+.person-card .negative {
+    color: #f38ba8;
+}

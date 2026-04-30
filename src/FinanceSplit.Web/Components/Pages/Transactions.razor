@@ -10,8 +10,7 @@
 <h1>Transactions</h1>
 
 <h2>Create Transaction</h2>
-<form method="post" @formname="create-transaction" @onsubmit="CreateTransaction">
-    <AntiforgeryToken />
+<form @onsubmit="CreateTransaction">
     <div>
         <label>Title: <input type="text" @bind="Title" required /></label>
     </div>

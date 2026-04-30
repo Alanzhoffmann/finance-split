@@ -8,8 +8,7 @@
 <h1>People</h1>
 
 <h2>Add Person</h2>
-<form method="post" @formname="add-person" @onsubmit="AddPerson">
-    <AntiforgeryToken />
+<form @onsubmit="AddPerson">
     <input type="text" @bind="NewPersonName" placeholder="Name" required />
     <button type="submit">Add</button>
 </form>
@@ -27,9 +26,7 @@
                     <td>@person.Name</td>
                     <td>@string.Join(", ", person.Salaries.Select(s => $"{s.Date:yyyy-MM}: {s.Amount:C}"))</td>
                     <td>
-                        <form method="post" @formname="@($"add-salary-{person.Id}")" @onsubmit="() => AddSalary(person.Id)">
-                            <AntiforgeryToken />
-                            <input type="hidden" name="personId" value="@person.Id" />
+                        <form @onsubmit="() => AddSalary(person.Id)">
                             <input type="month" @bind="SalaryDate" />
                             <input type="number" step="0.01" @bind="SalaryAmount" placeholder="Amount" />
                             <button type="submit">Add Salary</button>

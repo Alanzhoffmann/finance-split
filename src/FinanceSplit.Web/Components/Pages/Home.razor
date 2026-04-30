@@ -1,13 +1,105 @@
 ﻿@page "/"
+@using FinanceSplit.Application.Queries
+@using FinanceSplit.Application.Services
+@using FinanceSplit.Contracts.Enums
+@using FinanceSplit.Contracts.Responses
+@inject PersonService PersonService
+@inject ExpenseQueryService ExpenseQueryService
 
 <PageTitle>Finance Split</PageTitle>
 
-<h1>Finance Split</h1>
+<h1>Dashboard</h1>
 
-<p>Track shared expenses and calculate who owes whom each month.</p>
+<div>
+    <label>
+        Month:
+        <input type="month" @bind="SelectedMonth" @bind:after="LoadData" />
+    </label>
+</div>
 
-<ul>
-    <li><a href="/people">Manage People</a> — add people and their salaries</li>
-    <li><a href="/transactions">Transactions</a> — create one-off or recurring expenses</li>
-    <li><a href="/summary">Monthly Summary</a> — view balances and settlements</li>
-</ul>
+@if (People.Count == 0)
+{
+    <p>No people added yet. <a href="/people">Add people</a> to get started.</p>
+}
+else
+{
+    <div class="dashboard-grid">
+        @foreach (var person in People)
+        {
+            var salary = GetSalary(person);
+            var personalExpenses = GetPersonalExpenses(person.Id);
+            var sharedExpenses = GetSharedExpenses(person.Id);
+            var leftover = salary - personalExpenses - sharedExpenses;
+
+            <div class="person-card">
+                <h2>@person.Name</h2>
+                <dl>
+                    <dt>Salary</dt>
+                    <dd>@salary.ToString("C")</dd>
+
+                    <dt>Personal Expenses</dt>
+                    <dd>@personalExpenses.ToString("C")</dd>
+
+                    <dt>Shared Expenses</dt>
+                    <dd>@sharedExpenses.ToString("C")</dd>
+
+                    <dt>Leftover</dt>
+                    <dd class="@(leftover >= 0 ? "positive" : "negative")">@leftover.ToString("C")</dd>
+                </dl>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private DateOnly SelectedMonth { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private IReadOnlyList<PersonResponse> People { get; set; } = [];
+    private MonthlyExpenseSummaryResponse? Summary { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        People = await PersonService.GetAllPeopleAsync();
+        Summary = await ExpenseQueryService.GetMonthlySummaryAsync(SelectedMonth);
+    }
+
+    private decimal GetSalary(PersonResponse person)
+    {
+        var monthlySalary = person.Salaries
+            .Where(s => s.Date.Year == SelectedMonth.Year && s.Date.Month == SelectedMonth.Month)
+            .Select(s => s.Amount)
+            .FirstOrDefault();
+
+        if (monthlySalary > 0)
+            return monthlySalary;
+
+        // Fall back to the most recent salary before this month
+        return person.Salaries
+            .Where(s => s.Date <= SelectedMonth)
+            .OrderByDescending(s => s.Date)
+            .Select(s => s.Amount)
+            .FirstOrDefault();
+    }
+
+    private decimal GetPersonalExpenses(Guid personId)
+    {
+        if (Summary is null) return 0;
+
+        return Summary.Transactions
+            .Where(t => t.PaidBy.Id == personId && (t.SplitType == SplitType.None || t.SplitParticipants.Count == 1))
+            .Sum(t => t.Amount);
+    }
+
+    private decimal GetSharedExpenses(Guid personId)
+    {
+        if (Summary is null) return 0;
+
+        return Summary.Transactions
+            .Where(t => t.SplitParticipants.Any(p => p.Id == personId) && t.SplitType != SplitType.None && t.SplitParticipants.Count > 1)
+            .Sum(t => t.Amount / t.SplitParticipants.Count);
+    }
+}

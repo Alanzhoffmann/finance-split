@@ -7,8 +7,7 @@
 
 <h1>Monthly Summary</h1>
 
-<form method="post" @formname="select-month" @onsubmit="LoadSummary">
-    <AntiforgeryToken />
+<form @onsubmit="LoadSummary">
     <input type="month" @bind="SelectedMonth" />
     <button type="submit">Load</button>
 </form>

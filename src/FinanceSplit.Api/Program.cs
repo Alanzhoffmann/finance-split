@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDataServices(connectionString);
 builder.Services.AddApplicationServices();
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 var app = builder.Build();
 
@@ -30,7 +30,7 @@ app.MapTransactionEndpoints();
 app.MapExpenseEndpoints();
 app.MapImportEndpoints();
 
-app.MapRazorComponents<App>();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 app.Run();
 
