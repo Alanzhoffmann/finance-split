@@ -1,8 +1,8 @@
 using FinanceSplit.Api.Endpoints;
+using FinanceSplit.Api.Middleware;
 using FinanceSplit.Application;
 using FinanceSplit.Data;
 using FinanceSplit.Web.Components;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +20,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+
+app.UseMiddleware<MigrationMiddleware>();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
@@ -29,12 +31,6 @@ app.MapExpenseEndpoints();
 app.MapImportEndpoints();
 
 app.MapRazorComponents<App>();
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<FinanceSplitDbContext>();
-    await db.Database.EnsureCreatedAsync();
-}
 
 app.Run();
 
