@@ -1,3 +1,4 @@
+using FinanceSplit.Api.Endpoints;
 using FinanceSplit.Application;
 using FinanceSplit.Data;
 using FinanceSplit.Data.Interfaces;
@@ -6,7 +7,6 @@ using FinanceSplit.Domain.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Playwright;
 using TUnit.Core;
 using TUnit.Playwright;
 
@@ -32,14 +32,21 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
         builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
         builder.Services.AddApplicationServices();
         builder.Services.AddSingleton<IMigrationState>(new TestMigrationState());
-        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+        builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
         _app = builder.Build();
         _app.Urls.Add("http://127.0.0.1:0");
 
         _app.UseAntiforgery();
         _app.MapStaticAssets();
-        _app.MapRazorComponents<FinanceSplit.Web.Components.App>().AddInteractiveServerRenderMode();
+
+        _app.MapPersonEndpoints();
+        _app.MapTransactionEndpoints();
+        _app.MapExpenseEndpoints();
+
+        _app.MapRazorComponents<FinanceSplit.Api.Components.App>()
+            .AddInteractiveWebAssemblyRenderMode()
+            .AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
         await _app.StartAsync();
         BaseUrl = _app.Urls.First();
@@ -51,9 +58,7 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
 
     protected async Task NavigateToAsync(string path)
     {
-        await Page.GotoAsync($"{BaseUrl}{path}");
-        // Wait for Blazor SignalR connection to be established
-        await Page.WaitForFunctionAsync("() => document.querySelector('[blazor-enhanced-nav]') !== null || window.Blazor !== undefined");
+        await Page.GotoAsync($"{BaseUrl}{path}", new() { WaitUntil = Microsoft.Playwright.WaitUntilState.NetworkIdle });
     }
 
     public async ValueTask DisposeAsync()

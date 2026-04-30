@@ -1,9 +1,9 @@
 @page "/transactions"
-@using FinanceSplit.Application.Services
 @using FinanceSplit.Contracts.Enums
+@using FinanceSplit.Contracts.Requests
 @using FinanceSplit.Contracts.Responses
-@inject PersonService PersonService
-@inject TransactionService TransactionService
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
 
 <PageTitle>Transactions</PageTitle>
 
@@ -66,7 +66,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        People = await PersonService.GetAllPeopleAsync();
+        People = await Api.GetPeopleAsync();
         if (People.Count > 0)
         {
             PaidById = People[0].Id;
@@ -82,8 +82,10 @@
 
     private async Task CreateTransaction()
     {
-        var result = await TransactionService.CreateTransactionAsync(
+        var request = new CreateTransactionRequest(
             Title, Amount, PaidById, SelectedSplitType, SelectedParticipantIds.ToList(), DateTime.UtcNow);
+
+        var result = await Api.CreateTransactionAsync(request);
 
         Message = result is not null
             ? $"Transaction '{result.Title}' created."

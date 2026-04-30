@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="11.0.0-preview.3.26207.106" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FinanceSplit.Application\FinanceSplit.Application.csproj" />
     <ProjectReference Include="..\FinanceSplit.Web\FinanceSplit.Web.csproj" />
   </ItemGroup>

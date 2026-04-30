@@ -1,7 +1,7 @@
 @page "/people"
-@using FinanceSplit.Application.Services
 @using FinanceSplit.Contracts.Responses
-@inject PersonService PersonService
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
 
 <PageTitle>People</PageTitle>
 
@@ -46,16 +46,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        AllPeople = await PersonService.GetAllPeopleAsync();
+        AllPeople = await Api.GetPeopleAsync();
     }
 
     private async Task AddPerson()
     {
         if (!string.IsNullOrWhiteSpace(NewPersonName))
         {
-            await PersonService.CreatePersonAsync(NewPersonName);
+            await Api.CreatePersonAsync(NewPersonName);
             NewPersonName = string.Empty;
-            AllPeople = await PersonService.GetAllPeopleAsync();
+            AllPeople = await Api.GetPeopleAsync();
         }
     }
 
@@ -63,8 +63,8 @@
     {
         if (SalaryAmount > 0)
         {
-            await PersonService.AddSalaryAsync(personId, SalaryDate, SalaryAmount);
-            AllPeople = await PersonService.GetAllPeopleAsync();
+            await Api.AddSalaryAsync(personId, SalaryDate, SalaryAmount);
+            AllPeople = await Api.GetPeopleAsync();
         }
     }
 }

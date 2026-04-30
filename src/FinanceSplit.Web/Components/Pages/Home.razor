@@ -1,10 +1,8 @@
 ﻿@page "/"
-@using FinanceSplit.Application.Queries
-@using FinanceSplit.Application.Services
 @using FinanceSplit.Contracts.Enums
 @using FinanceSplit.Contracts.Responses
-@inject PersonService PersonService
-@inject ExpenseQueryService ExpenseQueryService
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
 
 <PageTitle>Finance Split</PageTitle>
 
@@ -63,8 +61,8 @@ else
 
     private async Task LoadData()
     {
-        People = await PersonService.GetAllPeopleAsync();
-        Summary = await ExpenseQueryService.GetMonthlySummaryAsync(SelectedMonth);
+        People = await Api.GetPeopleAsync();
+        Summary = await Api.GetMonthlySummaryAsync(SelectedMonth);
     }
 
     private decimal GetSalary(PersonResponse person)
@@ -77,7 +75,6 @@ else
         if (monthlySalary > 0)
             return monthlySalary;
 
-        // Fall back to the most recent salary before this month
         return person.Salaries
             .Where(s => s.Date <= SelectedMonth)
             .OrderByDescending(s => s.Date)

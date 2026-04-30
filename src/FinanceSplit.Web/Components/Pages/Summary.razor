@@ -1,7 +1,7 @@
 @page "/summary"
-@using FinanceSplit.Application.Queries
 @using FinanceSplit.Contracts.Responses
-@inject ExpenseQueryService ExpenseQueryService
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
 
 <PageTitle>Monthly Summary</PageTitle>
 
@@ -43,7 +43,7 @@ else if (HasLoaded)
 
     private async Task LoadSummary()
     {
-        Settlements = await ExpenseQueryService.GetSettlementsAsync(SelectedMonth);
+        Settlements = await Api.GetSettlementsAsync(SelectedMonth);
         HasLoaded = true;
     }
 }

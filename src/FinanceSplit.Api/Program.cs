@@ -1,8 +1,8 @@
+using FinanceSplit.Api.Components;
 using FinanceSplit.Api.Endpoints;
 using FinanceSplit.Api.Middleware;
 using FinanceSplit.Application;
 using FinanceSplit.Data;
-using FinanceSplit.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDataServices(connectionString);
 builder.Services.AddApplicationServices();
-builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
 var app = builder.Build();
 
@@ -30,7 +30,7 @@ app.MapTransactionEndpoints();
 app.MapExpenseEndpoints();
 app.MapImportEndpoints();
 
-app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveWebAssemblyRenderMode().AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
 app.Run();
 
