@@ -33,9 +33,7 @@ public class FinanceSplitTestFactory : TestWebApplicationFactory<Program>
             }
 
             // Add a default InMemory DB so service validation passes
-            services.AddDbContext<FinanceSplitDbContext>(options =>
-                options.UseInMemoryDatabase("TestDefault")
-            );
+            services.AddDbContext<FinanceSplitDbContext>(options => options.UseInMemoryDatabase("TestDefault"));
 
             // Remove migration background service (tests use InMemory DB)
             var migrationDescriptor = services.FirstOrDefault(d => d.ImplementationType == typeof(MigrationBackgroundService));
