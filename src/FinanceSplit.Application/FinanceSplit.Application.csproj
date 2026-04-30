@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\FinanceSplit.Domain\FinanceSplit.Domain.csproj" />
+    <ProjectReference Include="..\FinanceSplit.Data\FinanceSplit.Data.csproj" />
+    <ProjectReference Include="..\FinanceSplit.Contracts\FinanceSplit.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>
