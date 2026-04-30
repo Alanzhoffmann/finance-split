@@ -10,7 +10,7 @@ public class HomePageTests : WebPageTest
         await NavigateToAsync("/");
 
         var title = await Page.TitleAsync();
-        await Assert.That(title).Contains("FinanceSplit");
+        await Assert.That(title).Contains("Finance Split");
     }
 
     [Test]

@@ -31,9 +31,10 @@ public class PeoplePageTests : WebPageTest
         await NavigateToAsync("/people");
 
         await Page.GetByPlaceholder("Name").FillAsync("Alice");
-        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-        await Page.WaitForLoadStateAsync();
+        await Page.RunAndWaitForNavigationAsync(async () =>
+        {
+            await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+        });
 
         var cell = Page.GetByRole(Microsoft.Playwright.AriaRole.Cell, new() { Name = "Alice" });
         await Assert.That(await cell.CountAsync()).IsEqualTo(1);
@@ -45,9 +46,10 @@ public class PeoplePageTests : WebPageTest
         await NavigateToAsync("/people");
 
         await Page.GetByPlaceholder("Name").FillAsync("Bob");
-        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-        await Page.WaitForLoadStateAsync();
+        await Page.RunAndWaitForNavigationAsync(async () =>
+        {
+            await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+        });
 
         var table = Page.Locator("table");
         await Assert.That(await table.CountAsync()).IsEqualTo(1);
@@ -62,9 +64,10 @@ public class PeoplePageTests : WebPageTest
         await NavigateToAsync("/people");
 
         await Page.GetByPlaceholder("Name").FillAsync("Charlie");
-        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-        await Page.WaitForLoadStateAsync();
+        await Page.RunAndWaitForNavigationAsync(async () =>
+        {
+            await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+        });
 
         var salaryButton = Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add Salary" });
         await Assert.That(await salaryButton.CountAsync()).IsGreaterThanOrEqualTo(1);
