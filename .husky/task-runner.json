@@ -1,0 +1,21 @@
+{
+  "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+  "tasks": [
+    {
+      "name": "dotnet-tool-restore",
+      "group": "pre-commit-operations",
+      "command": "dotnet",
+      "args": ["tool", "restore"],
+      "include": ["**/*.cs"],
+      "exclude": ["*Migrations/*.cs"]
+    },
+    {
+      "name": "dotnet-csharpier-staged-files",
+      "group": "pre-commit-operations",
+      "command": "dotnet",
+      "args": ["csharpier", "format", "${staged}"],
+      "include": ["**/*.cs"],
+      "exclude": ["*Migrations/*.cs"]
+    }
+  ]
+}
