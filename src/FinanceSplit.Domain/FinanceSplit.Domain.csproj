@@ -4,4 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../FinanceSplit.Contracts/FinanceSplit.Contracts.csproj" />
+  </ItemGroup>
 </Project>
