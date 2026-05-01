@@ -74,6 +74,13 @@
                     <MudIconButton Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Success"
                                    Size="Size.Small" OnClick="() => OpenSalaryDialog(context)" />
                 </MudTooltip>
+                @if (context.Salaries.Any())
+                {
+                    <MudTooltip Text="Edit latest salary">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                                       Size="Size.Small" OnClick="() => OpenEditSalaryDialog(context)" />
+                    </MudTooltip>
+                }
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -109,6 +116,27 @@
 
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialog = await DialogService.ShowAsync<AddSalaryDialog>($"Add Salary for {person.Name}", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            AllPeople = await Api.GetPeopleAsync();
+        }
+    }
+
+    private async Task OpenEditSalaryDialog(PersonResponse person)
+    {
+        var latest = person.Salaries.OrderByDescending(s => s.Date).First();
+        var parameters = new DialogParameters<EditSalaryDialog>
+        {
+            { x => x.PersonId, person.Id },
+            { x => x.PersonName, person.Name },
+            { x => x.ExistingDate, latest.Date },
+            { x => x.ExistingAmount, latest.Amount },
+        };
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<EditSalaryDialog>($"Edit Salary for {person.Name}", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)

@@ -1,4 +1,6 @@
 using Bunit;
+using FinanceSplit.Contracts.Enums;
+using FinanceSplit.Contracts.Requests;
 using FinanceSplit.Web.Components.Pages;
 using TUnit.Core;
 
@@ -16,56 +18,57 @@ public class TransactionsComponentTests : ComponentTestBase
     }
 
     [Test]
-    public async Task TransactionsPage_RendersCreateForm()
+    public async Task TransactionsPage_RendersNewTransactionButton()
     {
         var cut = RenderWithProviders<Transactions>();
 
         var markup = cut.Markup;
-        await Assert.That(markup).Contains("Create Transaction");
-        await Assert.That(markup).Contains("Title");
-        await Assert.That(markup).Contains("Amount");
+        await Assert.That(markup).Contains("New Transaction");
     }
 
     [Test]
-    public async Task TransactionsPage_RendersSplitTypeOptions()
+    public async Task TransactionsPage_RendersMonthPicker()
     {
         var cut = RenderWithProviders<Transactions>();
 
         var markup = cut.Markup;
-        await Assert.That(markup).Contains("Split Type");
+        await Assert.That(markup).Contains("Month");
     }
 
     [Test]
-    public async Task TransactionsPage_ShowsParticipantChips_WhenPeopleExist()
+    public async Task TransactionsPage_ShowsNoTransactionsMessage_WhenEmpty()
     {
-        await MockApi.CreatePersonAsync("Alice");
-        await MockApi.CreatePersonAsync("Bob");
+        var cut = RenderWithProviders<Transactions>();
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("No transactions for this month");
+    }
+
+    [Test]
+    public async Task TransactionsPage_ShowsTransactionTable_WhenDataExists()
+    {
+        var alice = await MockApi.CreatePersonAsync("Alice");
+        var request = new CreateTransactionRequest("Groceries", 50m, alice!.Id, SplitType.None, [alice.Id], DateTime.UtcNow);
+        await MockApi.CreateTransactionAsync(request);
 
         var cut = RenderWithProviders<Transactions>();
 
         var markup = cut.Markup;
+        await Assert.That(markup).Contains("Groceries");
         await Assert.That(markup).Contains("Alice");
-        await Assert.That(markup).Contains("Bob");
-        await Assert.That(markup).Contains("Participants");
     }
 
     [Test]
-    public async Task TransactionsPage_ShowsPaidBySelect_WithPeople()
+    public async Task TransactionsPage_ShowsEditButton_ForTransaction()
     {
-        await MockApi.CreatePersonAsync("Alice");
+        var alice = await MockApi.CreatePersonAsync("Alice");
+        var request = new CreateTransactionRequest("Dinner", 30m, alice!.Id, SplitType.None, [alice.Id], DateTime.UtcNow);
+        await MockApi.CreateTransactionAsync(request);
 
         var cut = RenderWithProviders<Transactions>();
 
-        var markup = cut.Markup;
-        await Assert.That(markup).Contains("Paid By");
-    }
-
-    [Test]
-    public async Task TransactionsPage_RenderCreateButton()
-    {
-        var cut = RenderWithProviders<Transactions>();
-
-        var markup = cut.Markup;
-        await Assert.That(markup).Contains("Create Transaction");
+        // Edit icon button should be rendered in the Actions column
+        var editButtons = cut.FindAll("button.mud-icon-button");
+        await Assert.That(editButtons.Count).IsGreaterThanOrEqualTo(1);
     }
 }

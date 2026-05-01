@@ -61,6 +61,32 @@ public class MockApiClient : ApiClient
         return Task.FromResult<TransactionResponse?>(tx);
     }
 
+    public override Task<TransactionResponse?> UpdateTransactionAsync(Guid id, CreateTransactionRequest request, CancellationToken ct = default)
+    {
+        var idx = _transactions.FindIndex(t => t.Id == id);
+        if (idx < 0)
+            return Task.FromResult<TransactionResponse?>(null);
+
+        var paidBy = _people.FirstOrDefault(p => p.Id == request.PaidById);
+        if (paidBy is null)
+            return Task.FromResult<TransactionResponse?>(null);
+
+        var participants = _people.Where(p => request.ParticipantIds.Contains(p.Id)).ToList();
+        var updated = new TransactionResponse(
+            id,
+            request.Title,
+            string.Empty,
+            request.Amount,
+            request.Date ?? _transactions[idx].Date,
+            paidBy,
+            request.SplitType,
+            participants,
+            null
+        );
+        _transactions[idx] = updated;
+        return Task.FromResult<TransactionResponse?>(updated);
+    }
+
     public override Task<MonthlyExpenseSummaryResponse?> GetMonthlySummaryAsync(DateOnly month, CancellationToken ct = default)
     {
         var monthTx = _transactions.Where(t => t.Date.Year == month.Year && t.Date.Month == month.Month).ToList();

@@ -1,0 +1,109 @@
+@using FinanceSplit.Contracts.Enums
+@using FinanceSplit.Contracts.Requests
+@using FinanceSplit.Contracts.Responses
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Title" Label="Title" Required="true"
+                              RequiredError="Title is required" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="Amount" Label="Amount" Format="N2"
+                                 Min="0.01m" Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start" AdornmentText="$" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="PaidById" Label="Paid By" Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter" T="Guid">
+                    @foreach (var person in People)
+                    {
+                        <MudSelectItem Value="@person.Id">@person.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="SelectedSplitType" Label="Split Type" Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter" T="SplitType">
+                    <MudSelectItem Value="SplitType.Even">Even</MudSelectItem>
+                    <MudSelectItem Value="SplitType.Ratio">Ratio (by salary)</MudSelectItem>
+                    <MudSelectItem Value="SplitType.None">None (personal)</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Participants</MudText>
+                <MudChipSet T="string" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="_selectedChips" CheckMark="true" Color="Color.Primary" Variant="Variant.Text">
+                    @foreach (var person in People)
+                    {
+                        <MudChip Text="@person.Name" Value="@person.Id.ToString()" />
+                    }
+                </MudChipSet>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public IReadOnlyList<PersonResponse> People { get; set; } = [];
+
+    [Parameter]
+    public TransactionResponse? Transaction { get; set; }
+
+    private string Title { get; set; } = string.Empty;
+    private decimal Amount { get; set; }
+    private Guid PaidById { get; set; }
+    private SplitType SelectedSplitType { get; set; } = SplitType.Even;
+    private IReadOnlyCollection<string> _selectedChips = [];
+
+    protected override void OnInitialized()
+    {
+        if (Transaction is not null)
+        {
+            Title = Transaction.Title;
+            Amount = Transaction.Amount;
+            PaidById = Transaction.PaidBy.Id;
+            SelectedSplitType = Transaction.SplitType;
+            _selectedChips = Transaction.SplitParticipants.Select(p => p.Id.ToString()).ToList();
+        }
+        else if (People.Count > 0)
+        {
+            PaidById = People[0].Id;
+            _selectedChips = People.Select(p => p.Id.ToString()).ToList();
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(Title) || Amount <= 0 || Transaction is null) return;
+
+        var participantIds = _selectedChips.Select(Guid.Parse).ToList();
+        var request = new CreateTransactionRequest(
+            Title, Amount, PaidById, SelectedSplitType, participantIds, Transaction.Date);
+
+        var result = await Api.UpdateTransactionAsync(Transaction.Id, request);
+
+        if (result is not null)
+        {
+            Snackbar.Add($"Transaction '{result.Title}' updated", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add("Failed to update transaction", Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

@@ -57,4 +57,52 @@ public class TransactionService(ITransactionRepository transactionRepository, IP
         var transaction = await transactionRepository.GetByIdAsync(id, ct);
         return transaction?.ToResponse();
     }
+
+    public async Task<TransactionResponse?> UpdateTransactionAsync(
+        Guid id,
+        string title,
+        decimal amount,
+        Guid paidById,
+        SplitType splitType,
+        IReadOnlyList<Guid> participantIds,
+        DateTime? date = null,
+        CancellationToken ct = default
+    )
+    {
+        var transaction = await transactionRepository.GetByIdAsync(id, ct);
+        if (transaction is null)
+        {
+            return null;
+        }
+
+        var paidBy = await personRepository.GetByIdAsync(paidById, ct);
+        if (paidBy is null)
+        {
+            return null;
+        }
+
+        var participants = new List<Person>();
+        foreach (var pid in participantIds)
+        {
+            var p = await personRepository.GetByIdAsync(pid, ct);
+            if (p is null)
+            {
+                return null;
+            }
+
+            participants.Add(p);
+        }
+
+        var splitPay = splitType switch
+        {
+            SplitType.None => SplitPay.CreateNoneSplit(paidBy),
+            SplitType.Even => SplitPay.CreateEvenSplit(participants),
+            SplitType.Ratio => SplitPay.CreateRatioSplit(participants),
+            _ => SplitPay.CreateEvenSplit(participants),
+        };
+
+        transaction.Update(title, amount, paidBy, splitPay, date);
+        await transactionRepository.SaveChangesAsync(ct);
+        return transaction.ToResponse();
+    }
 }

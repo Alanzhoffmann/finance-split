@@ -43,6 +43,25 @@ public class Transaction : BaseEntity
     public DateTime Date { get; private set; }
     public string Description { get; private set; } = string.Empty;
     public Recurrence? Recurrence { get; private set; }
+
+    public void Update(string title, decimal amount, Person paidBy, SplitPay splitPay, DateTime? date = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
+        ArgumentNullException.ThrowIfNull(paidBy);
+
+        if (amount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
+        }
+
+        Title = title;
+        Amount = amount;
+        PaidBy = paidBy;
+        Date = date ?? Date;
+        SplitPay = splitPay;
+        _participants = splitPay.People.ToList();
+    }
+
     public SplitPay SplitPay
     {
         get
