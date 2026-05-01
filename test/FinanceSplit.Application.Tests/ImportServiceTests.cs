@@ -23,7 +23,7 @@ public class ImportServiceTests
 
         var request = new ImportBackupRequest("unknown-version", DateTimeOffset.UtcNow, new ImportPayload([], []));
 
-        await Assert.That(() => service.ImportAsync(request)).Throws<ArgumentException>();
+        await Assert.That(async () => await service.ImportAsync(request)).Throws<ArgumentException>();
     }
 
     [Test]

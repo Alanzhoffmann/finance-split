@@ -38,7 +38,7 @@ public class Transaction : BaseEntity
     public IReadOnlyCollection<Person> Participants => _participants;
 
     public string Title { get; private set; } = string.Empty;
-    public Person PaidBy { get; private set; }
+    public Person PaidBy { get; private set; } = null!;
     public decimal Amount { get; private set; }
     public DateTime Date { get; private set; }
     public string Description { get; private set; } = string.Empty;

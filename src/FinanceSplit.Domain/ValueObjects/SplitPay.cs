@@ -28,7 +28,7 @@ public record SplitPay
         SplitType = splitType;
     }
 
-    public IEnumerable<Person> People { get; private set; }
+    public IEnumerable<Person> People { get; private set; } = null!;
     public SplitType SplitType { get; private set; }
 
     public static SplitPay CreateNoneSplit(Person person) => new([person], SplitType.None);

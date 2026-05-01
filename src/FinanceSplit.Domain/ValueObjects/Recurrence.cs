@@ -16,7 +16,7 @@ public record Recurrence
         Termination = NormaliseAndValidate(StartMonth, termination);
     }
 
-    public DateOnly StartMonth { get; }
+    public DateOnly StartMonth { get; init; }
 
     /// <summary>
     /// The termination mode. Match on this to determine which UI option to show:
@@ -24,7 +24,7 @@ public record Recurrence
     /// <see cref="RecurrenceTermination.ByCount"/> → count,
     /// <see cref="RecurrenceTermination.ByDate"/> → date.
     /// </summary>
-    public RecurrenceTermination Termination { get; }
+    public RecurrenceTermination Termination { get; init; } = null!;
 
     public bool IsForever => Termination is RecurrenceTermination.Open;
 
