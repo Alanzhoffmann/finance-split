@@ -37,7 +37,7 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
         builder.Services.AddScoped<ApiClient>();
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(BaseUrl ?? "http://localhost") });
         builder.Services.AddMudServices();
-        builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
+        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
         _app = builder.Build();
         _app.Urls.Add("http://127.0.0.1:0");
@@ -51,7 +51,6 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
 
         _app.MapRazorComponents<FinanceSplit.Api.Components.App>()
             .AddInteractiveServerRenderMode()
-            .AddInteractiveWebAssemblyRenderMode()
             .AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
         await _app.StartAsync();

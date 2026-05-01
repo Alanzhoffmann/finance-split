@@ -11,9 +11,8 @@
 <MudPaper Class="pa-4 mb-4 d-flex align-center gap-2" Elevation="0">
     <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" OnClick="PreviousMonth"
                    Size="Size.Medium" Color="Color.Primary" />
-    <MudDatePicker Label="Month" @bind-Date="_selectedDate" @bind-Date:after="LoadData"
-                   OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Variant="Variant.Outlined"
-                   Style="max-width: 180px;" />
+    <MonthPicker @bind-Date="_selectedDate" @bind-Date:after="LoadData"
+                  Style="max-width: 180px;" />
     <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" OnClick="NextMonth"
                    Size="Size.Medium" Color="Color.Primary" />
 </MudPaper>
@@ -83,7 +82,7 @@ else
 }
 
 @code {
-    private DateTime? _selectedDate = DateTime.UtcNow.AddMonths(1).Date;
+    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private DateOnly SelectedMonth => _selectedDate.HasValue
         ? new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1)
         : new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);

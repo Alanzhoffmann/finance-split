@@ -4,8 +4,7 @@
 
 <MudDialog>
     <DialogContent>
-        <MudDatePicker Label="Month" @bind-Date="_selectedDate"
-                       OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Class="mb-4" />
+        <MonthPicker @bind-Date="_selectedDate" Class="mb-4" />
         <MudNumericField @bind-Value="Amount" Label="Amount" Format="N2"
                          Min="0.01m" Variant="Variant.Outlined"
                          Adornment="Adornment.Start" AdornmentText="$" />

@@ -1,0 +1,28 @@
+<MudDatePicker Label="@Label" @bind-Date="Date" @bind-Date:after="OnDateChanged"
+               OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM-yyyy"
+               Variant="@Variant" Style="@Style" Class="@Class" />
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Month";
+
+    [Parameter]
+    public DateTime? Date { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> DateChanged { get; set; }
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Outlined;
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private async Task OnDateChanged()
+    {
+        await DateChanged.InvokeAsync(Date);
+    }
+}

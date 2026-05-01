@@ -22,7 +22,7 @@ builder.Services.AddScoped(sp =>
     return new HttpClient { BaseAddress = new Uri(baseAddress) };
 });
 builder.Services.AddMudServices();
-builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 var app = builder.Build();
 
@@ -42,10 +42,7 @@ app.MapTransactionEndpoints();
 app.MapExpenseEndpoints();
 app.MapImportEndpoints();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode().AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
 app.Run();
 
