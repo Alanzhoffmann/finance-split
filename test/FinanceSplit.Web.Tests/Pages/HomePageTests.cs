@@ -14,17 +14,17 @@ public class HomePageTests : WebPageTest
     }
 
     [Test]
-    public async Task HomePage_HasNavigationLinks()
+    public async Task HomePage_HasNavigationDrawer()
     {
         await NavigateToAsync("/");
 
-        var peopleLink = Page.GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "People" });
+        var peopleLink = Page.GetByText("People");
         await Assert.That(await peopleLink.CountAsync()).IsGreaterThanOrEqualTo(1);
 
-        var transactionsLink = Page.GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Transactions" });
+        var transactionsLink = Page.GetByText("Transactions");
         await Assert.That(await transactionsLink.CountAsync()).IsGreaterThanOrEqualTo(1);
 
-        var summaryLink = Page.GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Summary" });
+        var summaryLink = Page.GetByText("Monthly Summary");
         await Assert.That(await summaryLink.CountAsync()).IsGreaterThanOrEqualTo(1);
     }
 }
