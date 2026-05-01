@@ -18,6 +18,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
             salary =>
             {
                 salary.ToTable("Salaries");
+                salary.Property<int>("Id").ValueGeneratedOnAdd();
                 salary.Property(s => s.Date).IsRequired();
                 salary.Property(s => s.Amount).HasPrecision(18, 2).IsRequired();
                 salary.WithOwner().HasForeignKey("PersonId");
