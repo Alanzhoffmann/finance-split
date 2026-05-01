@@ -4,6 +4,7 @@ using FinanceSplit.Data;
 using FinanceSplit.Data.Interfaces;
 using FinanceSplit.Data.Repositories;
 using FinanceSplit.Domain.Repositories;
+using FinanceSplit.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,9 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
         builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
         builder.Services.AddApplicationServices();
         builder.Services.AddSingleton<IMigrationState>(new TestMigrationState());
-        builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
+        builder.Services.AddScoped<ApiClient>();
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(BaseUrl ?? "http://localhost") });
+        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
         _app = builder.Build();
         _app.Urls.Add("http://127.0.0.1:0");
@@ -45,7 +48,7 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
         _app.MapExpenseEndpoints();
 
         _app.MapRazorComponents<FinanceSplit.Api.Components.App>()
-            .AddInteractiveWebAssemblyRenderMode()
+            .AddInteractiveServerRenderMode()
             .AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
         await _app.StartAsync();

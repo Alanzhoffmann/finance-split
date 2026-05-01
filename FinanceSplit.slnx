@@ -13,5 +13,6 @@
     <Project Path="test/FinanceSplit.Data.Tests/FinanceSplit.Data.Tests.csproj" />
     <Project Path="test/FinanceSplit.Domain.Tests/FinanceSplit.Domain.Tests.csproj" />
     <Project Path="test/FinanceSplit.Web.Tests/FinanceSplit.Web.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Web.ComponentTests/FinanceSplit.Web.ComponentTests.csproj" />
   </Folder>
 </Solution>

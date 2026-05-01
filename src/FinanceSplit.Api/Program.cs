@@ -3,6 +3,7 @@ using FinanceSplit.Api.Endpoints;
 using FinanceSplit.Api.Middleware;
 using FinanceSplit.Application;
 using FinanceSplit.Data;
+using FinanceSplit.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDataServices(connectionString);
 builder.Services.AddApplicationServices();
-builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
+builder.Services.AddScoped<ApiClient>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped(sp =>
+{
+    var accessor = sp.GetRequiredService<IHttpContextAccessor>();
+    var request = accessor.HttpContext?.Request;
+    var baseAddress = request is not null ? $"{request.Scheme}://{request.Host}" : "http://localhost";
+    return new HttpClient { BaseAddress = new Uri(baseAddress) };
+});
+builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
 
 var app = builder.Build();
 
@@ -30,7 +40,10 @@ app.MapTransactionEndpoints();
 app.MapExpenseEndpoints();
 app.MapImportEndpoints();
 
-app.MapRazorComponents<App>().AddInteractiveWebAssemblyRenderMode().AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(FinanceSplit.Web.Components.Routes).Assembly);
 
 app.Run();
 
