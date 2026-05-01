@@ -93,12 +93,12 @@ public class DashboardPageTests : WebPageTest
         await NavigateToAsync("/people");
 
         await Page.GetByPlaceholder("Name").FillAsync("Alice");
-        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add", Exact = true }).ClickAsync();
         var aliceCell = Page.GetByRole(Microsoft.Playwright.AriaRole.Cell, new() { Name = "Alice" });
         await aliceCell.WaitForAsync();
 
         await Page.GetByPlaceholder("Name").FillAsync("Bob");
-        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+        await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Add", Exact = true }).ClickAsync();
         var bobCell = Page.GetByRole(Microsoft.Playwright.AriaRole.Cell, new() { Name = "Bob" });
         await bobCell.WaitForAsync();
 
