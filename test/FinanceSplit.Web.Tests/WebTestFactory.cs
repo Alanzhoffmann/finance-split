@@ -4,6 +4,7 @@ using FinanceSplit.Data.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
 using TUnit.AspNetCore;
 
 namespace FinanceSplit.Web.Tests;
@@ -47,6 +48,9 @@ public class WebTestFactory : TestWebApplicationFactory<Program>
                 services.Remove(stateDescriptor);
             }
             services.AddSingleton<IMigrationState>(new TestMigrationState());
+
+            // Ensure MudBlazor services are registered (required for MudPopoverProvider)
+            services.AddMudServices();
         });
     }
 
