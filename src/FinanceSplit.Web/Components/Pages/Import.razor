@@ -16,12 +16,12 @@
     </MudText>
 
     <MudFileUpload T="IBrowserFile" Accept=".json" FilesChanged="OnFileSelected" MaximumFileCount="1">
-        <ActivatorContent>
+        <CustomContent>
             <MudButton Variant="Variant.Filled" Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.Upload">
                 Select Backup File
             </MudButton>
-        </ActivatorContent>
+        </CustomContent>
     </MudFileUpload>
 
     @if (!string.IsNullOrEmpty(_fileName))
