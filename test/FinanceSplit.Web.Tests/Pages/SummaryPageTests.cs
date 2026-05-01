@@ -37,9 +37,9 @@ public class SummaryPageTests : WebPageTest
         await NavigateToAsync("/summary");
 
         await Page.GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Load" }).ClickAsync();
-        await Page.WaitForLoadStateAsync();
 
         var noExpenses = Page.GetByText("No expenses for this month.");
+        await noExpenses.WaitForAsync();
         await Assert.That(await noExpenses.CountAsync()).IsEqualTo(1);
     }
 }
