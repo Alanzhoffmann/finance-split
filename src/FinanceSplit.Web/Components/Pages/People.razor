@@ -108,14 +108,14 @@
 
     private async Task OpenSalaryDialog(PersonResponse person)
     {
-        var parameters = new DialogParameters<AddSalaryDialog>
+        var parameters = new DialogParameters<SalaryDialog>
         {
             { x => x.PersonId, person.Id },
             { x => x.PersonName, person.Name },
         };
 
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<AddSalaryDialog>($"Add Salary for {person.Name}", parameters, options);
+        var dialog = await DialogService.ShowAsync<SalaryDialog>($"Add Salary for {person.Name}", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)
@@ -127,7 +127,7 @@
     private async Task OpenEditSalaryDialog(PersonResponse person)
     {
         var latest = person.Salaries.OrderByDescending(s => s.Date).First();
-        var parameters = new DialogParameters<EditSalaryDialog>
+        var parameters = new DialogParameters<SalaryDialog>
         {
             { x => x.PersonId, person.Id },
             { x => x.PersonName, person.Name },
@@ -136,7 +136,7 @@
         };
 
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<EditSalaryDialog>($"Edit Salary for {person.Name}", parameters, options);
+        var dialog = await DialogService.ShowAsync<SalaryDialog>($"Edit Salary for {person.Name}", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)

@@ -26,8 +26,27 @@
     [Parameter]
     public string PersonName { get; set; } = string.Empty;
 
-    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    [Parameter]
+    public DateOnly? ExistingDate { get; set; }
+
+    [Parameter]
+    public decimal ExistingAmount { get; set; }
+
+    private DateTime? _selectedDate;
     private decimal Amount { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (ExistingDate.HasValue)
+        {
+            _selectedDate = new DateTime(ExistingDate.Value.Year, ExistingDate.Value.Month, 1);
+            Amount = ExistingAmount;
+        }
+        else
+        {
+            _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        }
+    }
 
     private async Task Submit()
     {
@@ -35,7 +54,7 @@
 
         var date = new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1);
         await Api.AddSalaryAsync(PersonId, date, Amount);
-        Snackbar.Add($"Salary added for {PersonName}", Severity.Success);
+        Snackbar.Add($"Salary saved for {PersonName}", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 

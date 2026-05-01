@@ -91,13 +91,13 @@ else if (HasLoaded)
 
     private async Task OpenCreateDialog()
     {
-        var parameters = new DialogParameters<CreateTransactionDialog>
+        var parameters = new DialogParameters<TransactionDialog>
         {
             { x => x.People, People },
         };
 
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<CreateTransactionDialog>("New Transaction", parameters, options);
+        var dialog = await DialogService.ShowAsync<TransactionDialog>("New Transaction", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)
@@ -108,14 +108,14 @@ else if (HasLoaded)
 
     private async Task OpenEditDialog(TransactionResponse transaction)
     {
-        var parameters = new DialogParameters<EditTransactionDialog>
+        var parameters = new DialogParameters<TransactionDialog>
         {
             { x => x.People, People },
             { x => x.Transaction, transaction },
         };
 
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<EditTransactionDialog>($"Edit: {transaction.Title}", parameters, options);
+        var dialog = await DialogService.ShowAsync<TransactionDialog>($"Edit: {transaction.Title}", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)

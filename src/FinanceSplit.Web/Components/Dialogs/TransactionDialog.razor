@@ -62,7 +62,9 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Create</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">
+            @(IsEditMode ? "Save" : "Create")
+        </MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -73,6 +75,11 @@
     [Parameter]
     public IReadOnlyList<PersonResponse> People { get; set; } = [];
 
+    [Parameter]
+    public TransactionResponse? Transaction { get; set; }
+
+    private bool IsEditMode => Transaction is not null;
+
     private string Title { get; set; } = string.Empty;
     private decimal Amount { get; set; }
     private Guid PaidById { get; set; }
@@ -82,7 +89,16 @@
 
     protected override void OnInitialized()
     {
-        if (People.Count > 0)
+        if (Transaction is not null)
+        {
+            Title = Transaction.Title;
+            Amount = Transaction.Amount;
+            PaidById = Transaction.PaidBy.Id;
+            SelectedSplitType = Transaction.SplitType;
+            _selectedChips = Transaction.SplitParticipants.Select(p => p.Id.ToString()).ToList();
+            NoneParticipantId = Transaction.SplitParticipants.FirstOrDefault()?.Id ?? PaidById;
+        }
+        else if (People.Count > 0)
         {
             PaidById = People[0].Id;
             NoneParticipantId = People[0].Id;
@@ -110,19 +126,40 @@
         if (string.IsNullOrWhiteSpace(Title) || Amount <= 0) return;
 
         var participantIds = GetParticipantIds();
-        var request = new CreateTransactionRequest(
-            Title, Amount, PaidById, SelectedSplitType, participantIds, DateTime.UtcNow);
 
-        var result = await Api.CreateTransactionAsync(request);
-
-        if (result is not null)
+        if (IsEditMode)
         {
-            Snackbar.Add($"Transaction '{result.Title}' created", Severity.Success);
-            MudDialog.Close(DialogResult.Ok(true));
+            var request = new CreateTransactionRequest(
+                Title, Amount, PaidById, SelectedSplitType, participantIds, Transaction!.Date);
+
+            var result = await Api.UpdateTransactionAsync(Transaction.Id, request);
+
+            if (result is not null)
+            {
+                Snackbar.Add($"Transaction '{result.Title}' updated", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Snackbar.Add("Failed to update transaction", Severity.Error);
+            }
         }
         else
         {
-            Snackbar.Add("Failed to create transaction", Severity.Error);
+            var request = new CreateTransactionRequest(
+                Title, Amount, PaidById, SelectedSplitType, participantIds, DateTime.UtcNow);
+
+            var result = await Api.CreateTransactionAsync(request);
+
+            if (result is not null)
+            {
+                Snackbar.Add($"Transaction '{result.Title}' created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Snackbar.Add("Failed to create transaction", Severity.Error);
+            }
         }
     }
 
