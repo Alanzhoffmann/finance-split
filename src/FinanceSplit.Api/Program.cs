@@ -7,7 +7,7 @@ using FinanceSplit.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=financesplit.db";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=/data/financesplit.db";
 
 builder.Services.AddDataServices(connectionString);
 builder.Services.AddApplicationServices();
