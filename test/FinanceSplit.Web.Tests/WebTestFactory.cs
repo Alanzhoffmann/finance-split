@@ -51,7 +51,6 @@ public class WebTestFactory : TestWebApplicationFactory<Program>
 
             // Ensure MudBlazor services are registered (required for MudPopoverProvider)
             services.AddMudServices();
-            services.AddMudPopoverService();
         });
     }
 

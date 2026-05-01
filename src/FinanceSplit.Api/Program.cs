@@ -22,7 +22,6 @@ builder.Services.AddScoped(sp =>
     return new HttpClient { BaseAddress = new Uri(baseAddress) };
 });
 builder.Services.AddMudServices();
-builder.Services.AddMudPopoverService();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
 
 var app = builder.Build();
