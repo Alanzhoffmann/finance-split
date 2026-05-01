@@ -4,7 +4,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ContainerRepository>alanzhoffmann/finances-split</ContainerRepository>
-    <ContainerUser>root</ContainerUser>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,12 +1,37 @@
 ﻿@inherits LayoutComponentBase
 
-<nav style="padding: 1rem; background: #1e1e2e; color: #cdd6f4;">
-    <a href="/" style="color: #89b4fa; margin-right: 1rem;">Dashboard</a>
-    <a href="/people" style="color: #89b4fa; margin-right: 1rem;">People</a>
-    <a href="/transactions" style="color: #89b4fa; margin-right: 1rem;">Transactions</a>
-    <a href="/summary" style="color: #89b4fa;">Monthly Summary</a>
-</nav>
+<MudThemeProvider IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<main style="padding: 1rem;">
-    @Body
-</main>
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-3">Finance Split</MudText>
+        <MudSpacer />
+        <MudTooltip Text="Dashboard">
+            <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Inherit" Href="/" />
+        </MudTooltip>
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/people" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.People">People</MudNavLink>
+            <MudNavLink Href="/transactions" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Receipt">Transactions</MudNavLink>
+            <MudNavLink Href="/summary" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Summarize">Monthly Summary</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent Class="pa-4">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}
