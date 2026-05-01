@@ -20,6 +20,14 @@ public class ApiClient(HttpClient http)
         return await response.Content.ReadFromJsonAsync<PersonResponse>(ct);
     }
 
+    public virtual async Task<PersonResponse?> UpdatePersonNameAsync(Guid personId, string name, CancellationToken ct = default)
+    {
+        var response = await http.PutAsJsonAsync($"/api/people/{personId}/name", new UpdatePersonNameRequest(name), ct);
+        if (!response.IsSuccessStatusCode)
+            return null;
+        return await response.Content.ReadFromJsonAsync<PersonResponse>(ct);
+    }
+
     public virtual async Task<PersonResponse?> AddSalaryAsync(Guid personId, DateOnly date, decimal amount, CancellationToken ct = default)
     {
         var response = await http.PostAsJsonAsync($"/api/people/{personId}/salaries", new AddSalaryRequest(date, amount), ct);

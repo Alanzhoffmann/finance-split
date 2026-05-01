@@ -39,7 +39,15 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">
-                <MudText Typo="Typo.body1">@context.Name</MudText>
+                @if (_editingPersonId == context.Id)
+                {
+                    <MudTextField @bind-Value="_editingName" Variant="Variant.Text" Margin="Margin.Dense"
+                                  Immediate="true" OnKeyDown="OnEditKeyDown" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1">@context.Name</MudText>
+                }
             </MudTd>
             <MudTd DataLabel="Current Salary">
                 @{
@@ -70,6 +78,24 @@
                 }
             </MudTd>
             <MudTd DataLabel="Actions">
+                @if (_editingPersonId == context.Id)
+                {
+                    <MudTooltip Text="Save name">
+                        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success"
+                                       Size="Size.Small" OnClick="SaveName" />
+                    </MudTooltip>
+                    <MudTooltip Text="Cancel">
+                        <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default"
+                                       Size="Size.Small" OnClick="CancelEditName" />
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudTooltip Text="Edit name">
+                        <MudIconButton Icon="@Icons.Material.Filled.DriveFileRenameOutline" Color="Color.Warning"
+                                       Size="Size.Small" OnClick="() => StartEditName(context)" />
+                    </MudTooltip>
+                }
                 <MudTooltip Text="Add salary record">
                     <MudIconButton Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Success"
                                    Size="Size.Small" OnClick="() => OpenSalaryDialog(context)" />
@@ -90,6 +116,8 @@
     private MudForm? _addPersonForm;
     private IReadOnlyList<PersonResponse> AllPeople { get; set; } = [];
     private string NewPersonName { get; set; } = string.Empty;
+    private Guid? _editingPersonId;
+    private string _editingName = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,6 +132,37 @@
         Snackbar.Add($"Added {NewPersonName}", Severity.Success);
         NewPersonName = string.Empty;
         AllPeople = await Api.GetPeopleAsync();
+    }
+
+    private void StartEditName(PersonResponse person)
+    {
+        _editingPersonId = person.Id;
+        _editingName = person.Name;
+    }
+
+    private void CancelEditName()
+    {
+        _editingPersonId = null;
+        _editingName = string.Empty;
+    }
+
+    private async Task SaveName()
+    {
+        if (_editingPersonId is null || string.IsNullOrWhiteSpace(_editingName)) return;
+
+        await Api.UpdatePersonNameAsync(_editingPersonId.Value, _editingName);
+        Snackbar.Add("Name updated", Severity.Success);
+        _editingPersonId = null;
+        _editingName = string.Empty;
+        AllPeople = await Api.GetPeopleAsync();
+    }
+
+    private async Task OnEditKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await SaveName();
+        else if (e.Key == "Escape")
+            CancelEditName();
     }
 
     private async Task OpenSalaryDialog(PersonResponse person)
