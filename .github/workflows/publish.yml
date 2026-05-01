@@ -57,9 +57,9 @@ jobs:
           VERSION="${{ steps.nbgv.outputs.version }}"
 
           if [ "$PUBLIC_RELEASE" = "true" ]; then
-            echo "tags=latest%3B${VERSION}" >> $GITHUB_OUTPUT
+            echo "tags=latest;${VERSION}" >> $GITHUB_OUTPUT
           else
-            echo "tags=beta%3Bbeta-${VERSION}" >> $GITHUB_OUTPUT
+            echo "tags=beta;beta-${VERSION}" >> $GITHUB_OUTPUT
           fi
 
       - name: Log in to GitHub Container Registry
@@ -70,12 +70,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish container
+        env:
+          ContainerImageTags: ${{ steps.tags.outputs.tags }}
         run: |
           dotnet publish src/FinanceSplit.Api/FinanceSplit.Api.csproj \
             -t:PublishContainer \
             -c Release \
-            -p:ContainerRegistry=ghcr.io \
-            -p:ContainerImageTags="${{ steps.tags.outputs.tags }}"
+            -p:ContainerRegistry=ghcr.io
 
       - name: Create GitHub Release
         if: steps.nbgv.outputs.public_release == 'true'
