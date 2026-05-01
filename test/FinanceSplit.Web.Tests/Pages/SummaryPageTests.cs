@@ -9,8 +9,7 @@ public class SummaryPageTests : WebPageTest
     {
         await NavigateToAsync("/summary");
 
-        var heading = Page.GetByText("Monthly Summary").First;
-        await heading.WaitForAsync();
+        var heading = Page.GetByRole(Microsoft.Playwright.AriaRole.Heading, new() { Name = "Monthly Summary" });
         await Assert.That(await heading.CountAsync()).IsGreaterThanOrEqualTo(1);
     }
 

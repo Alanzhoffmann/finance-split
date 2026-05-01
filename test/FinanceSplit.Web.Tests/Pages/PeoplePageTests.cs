@@ -9,8 +9,7 @@ public class PeoplePageTests : WebPageTest
     {
         await NavigateToAsync("/people");
 
-        var heading = Page.GetByText("People").First;
-        await heading.WaitForAsync();
+        var heading = Page.GetByRole(Microsoft.Playwright.AriaRole.Heading, new() { Name = "People" });
         await Assert.That(await heading.CountAsync()).IsGreaterThanOrEqualTo(1);
     }
 

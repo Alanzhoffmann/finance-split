@@ -9,8 +9,7 @@ public class DashboardPageTests : WebPageTest
     {
         await NavigateToAsync("/");
 
-        var heading = Page.GetByText("Dashboard").First;
-        await heading.WaitForAsync();
+        var heading = Page.GetByRole(Microsoft.Playwright.AriaRole.Heading, new() { Name = "Dashboard" });
         await Assert.That(await heading.CountAsync()).IsGreaterThanOrEqualTo(1);
     }
 
