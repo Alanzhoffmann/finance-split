@@ -9,14 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=/data/financesplit.db";
 
-// Ensure the directory for the SQLite database exists
-var dataSource = connectionString.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase);
-var dbDir = Path.GetDirectoryName(dataSource);
-if (!string.IsNullOrEmpty(dbDir))
-{
-    Directory.CreateDirectory(dbDir);
-}
-
 builder.Services.AddDataServices(connectionString);
 builder.Services.AddApplicationServices();
 builder.Services.AddScoped<ApiClient>();

@@ -17,6 +17,14 @@ public class MigrationBackgroundService(IServiceProvider serviceProvider, ILogge
 
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<FinanceSplitDbContext>();
+
+            var dbPath = dbContext.Database.GetConnectionString()?.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase);
+            var dbDir = Path.GetDirectoryName(dbPath);
+            if (!string.IsNullOrEmpty(dbDir))
+            {
+                Directory.CreateDirectory(dbDir);
+            }
+
             await dbContext.Database.MigrateAsync(stoppingToken);
 
             logger.LogMigrationsCompleted();
