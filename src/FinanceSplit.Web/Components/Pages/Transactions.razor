@@ -4,94 +4,123 @@
 @using FinanceSplit.Contracts.Responses
 @using FinanceSplit.Web.Services
 @inject ApiClient Api
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Transactions</PageTitle>
 
-<h1>Transactions</h1>
+<MudText Typo="Typo.h4" Class="mb-4">Transactions</MudText>
 
-<h2>Create Transaction</h2>
-<form @onsubmit="CreateTransaction">
-    <div>
-        <label>Title: <input type="text" @bind="Title" required /></label>
-    </div>
-    <div>
-        <label>Amount: <input type="number" step="0.01" @bind="Amount" required /></label>
-    </div>
-    <div>
-        <label>Paid By:
-            <select @bind="PaidById">
-                @foreach (var person in People)
-                {
-                    <option value="@person.Id">@person.Name</option>
-                }
-            </select>
-        </label>
-    </div>
-    <div>
-        <label>Split Type:
-            <select @bind="SelectedSplitType">
-                <option value="@SplitType.Even">Even</option>
-                <option value="@SplitType.Ratio">Ratio (by salary)</option>
-                <option value="@SplitType.None">None (one person pays)</option>
-            </select>
-        </label>
-    </div>
-    <div>
-        <label>Participants:</label>
-        @foreach (var person in People)
-        {
-            <label>
-                <input type="checkbox" checked="@SelectedParticipantIds.Contains(person.Id)"
-                       @onchange="e => ToggleParticipant(person.Id, (bool)e.Value!)" />
-                @person.Name
-            </label>
-        }
-    </div>
-    <button type="submit">Create</button>
-</form>
+<MudPaper Class="pa-4 mb-4" Elevation="1">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudDatePicker Label="Month" @bind-Date="_selectedDate" @bind-Date:after="LoadTransactions"
+                           OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+                New Transaction
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
-@if (!string.IsNullOrEmpty(Message))
+@if (MonthTransactions.Count > 0)
 {
-    <p><strong>@Message</strong></p>
+    <MudTable Items="MonthTransactions" Hover="true" Striped="true" Elevation="1" Dense="true">
+        <HeaderContent>
+            <MudTh>Title</MudTh>
+            <MudTh>Amount</MudTh>
+            <MudTh>Paid By</MudTh>
+            <MudTh>Split</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Title">
+                <MudText Typo="Typo.body1">@context.Title</MudText>
+            </MudTd>
+            <MudTd DataLabel="Amount">
+                <MudText Typo="Typo.body2" Color="Color.Primary"><strong>@context.Amount.ToString("C")</strong></MudText>
+            </MudTd>
+            <MudTd DataLabel="Paid By">
+                <MudChip T="string" Color="Color.Info" Size="Size.Small">@context.PaidBy.Name</MudChip>
+            </MudTd>
+            <MudTd DataLabel="Split">
+                <MudTooltip Text="@string.Join(", ", context.SplitParticipants.Select(p => p.Name))">
+                    <MudChip T="string" Color="Color.Default" Size="Size.Small">
+                        @context.SplitType (@context.SplitParticipants.Count)
+                    </MudChip>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="Actions">
+                <MudTooltip Text="Edit transaction">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                                   Size="Size.Small" OnClick="() => OpenEditDialog(context)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else if (HasLoaded)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-4">No transactions for this month.</MudAlert>
 }
 
 @code {
+    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private DateOnly SelectedMonth => _selectedDate.HasValue
+        ? new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1)
+        : new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private IReadOnlyList<PersonResponse> People { get; set; } = [];
-    private string Title { get; set; } = string.Empty;
-    private decimal Amount { get; set; }
-    private Guid PaidById { get; set; }
-    private SplitType SelectedSplitType { get; set; } = SplitType.Even;
-    private HashSet<Guid> SelectedParticipantIds { get; set; } = [];
-    private string Message { get; set; } = string.Empty;
+    private IReadOnlyCollection<TransactionResponse> MonthTransactions { get; set; } = [];
+    private bool HasLoaded { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         People = await Api.GetPeopleAsync();
-        if (People.Count > 0)
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        var summary = await Api.GetMonthlySummaryAsync(SelectedMonth);
+        MonthTransactions = summary?.Transactions ?? [];
+        HasLoaded = true;
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters<TransactionDialog>
         {
-            PaidById = People[0].Id;
-            SelectedParticipantIds = People.Select(p => p.Id).ToHashSet();
+            { x => x.People, People },
+        };
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<TransactionDialog>("New Transaction", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await LoadTransactions();
         }
     }
 
-    private void ToggleParticipant(Guid id, bool selected)
+    private async Task OpenEditDialog(TransactionResponse transaction)
     {
-        if (selected) SelectedParticipantIds.Add(id);
-        else SelectedParticipantIds.Remove(id);
-    }
+        var parameters = new DialogParameters<TransactionDialog>
+        {
+            { x => x.People, People },
+            { x => x.Transaction, transaction },
+        };
 
-    private async Task CreateTransaction()
-    {
-        var request = new CreateTransactionRequest(
-            Title, Amount, PaidById, SelectedSplitType, SelectedParticipantIds.ToList(), DateTime.UtcNow);
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<TransactionDialog>($"Edit: {transaction.Title}", parameters, options);
+        var result = await dialog.Result;
 
-        var result = await Api.CreateTransactionAsync(request);
-
-        Message = result is not null
-            ? $"Transaction '{result.Title}' created."
-            : "Failed to create transaction.";
-
-        Title = string.Empty;
-        Amount = 0;
+        if (result is not null && !result.Canceled)
+        {
+            await LoadTransactions();
+        }
     }
 }

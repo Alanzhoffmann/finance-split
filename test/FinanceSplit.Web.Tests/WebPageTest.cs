@@ -8,6 +8,7 @@ using FinanceSplit.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
 using TUnit.Core;
 using TUnit.Playwright;
 
@@ -35,6 +36,7 @@ public abstract class WebPageTest : PageTest, IAsyncDisposable
         builder.Services.AddSingleton<IMigrationState>(new TestMigrationState());
         builder.Services.AddScoped<ApiClient>();
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(BaseUrl ?? "http://localhost") });
+        builder.Services.AddMudServices();
         builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
 
         _app = builder.Build();

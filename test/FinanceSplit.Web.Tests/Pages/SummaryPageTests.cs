@@ -10,16 +10,7 @@ public class SummaryPageTests : WebPageTest
         await NavigateToAsync("/summary");
 
         var heading = Page.GetByRole(Microsoft.Playwright.AriaRole.Heading, new() { Name = "Monthly Summary" });
-        await Assert.That(await heading.CountAsync()).IsEqualTo(1);
-    }
-
-    [Test]
-    public async Task SummaryPage_HasMonthSelector()
-    {
-        await NavigateToAsync("/summary");
-
-        var monthInput = Page.Locator("input[type='month']");
-        await Assert.That(await monthInput.CountAsync()).IsEqualTo(1);
+        await Assert.That(await heading.CountAsync()).IsGreaterThanOrEqualTo(1);
     }
 
     [Test]

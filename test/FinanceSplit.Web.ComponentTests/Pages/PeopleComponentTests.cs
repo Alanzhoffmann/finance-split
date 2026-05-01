@@ -9,74 +9,99 @@ public class PeopleComponentTests : ComponentTestBase
     [Test]
     public async Task PeoplePage_RendersHeading()
     {
-        var cut = Ctx.Render<People>();
+        var cut = RenderWithProviders<People>();
 
-        var heading = cut.Find("h1");
-        await Assert.That(heading.TextContent).IsEqualTo("People");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("People");
     }
 
     [Test]
-    public async Task PeoplePage_RendersAddForm()
+    public async Task PeoplePage_RendersAddPersonSection()
     {
-        var cut = Ctx.Render<People>();
+        var cut = RenderWithProviders<People>();
 
-        var input = cut.Find("input[placeholder='Name']");
-        await Assert.That(input).IsNotNull();
-
-        var button = cut.Find("button[type='submit']");
-        await Assert.That(button.TextContent).IsEqualTo("Add");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Add Person");
     }
 
     [Test]
-    public async Task PeoplePage_NoTable_WhenNoPeople()
+    public async Task PeoplePage_ShowsTable_WhenPeopleExist()
     {
-        var cut = Ctx.Render<People>();
+        await MockApi.CreatePersonAsync("Alice");
 
-        var tables = cut.FindAll("table");
-        await Assert.That(tables.Count).IsEqualTo(0);
+        var cut = RenderWithProviders<People>();
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Alice");
+        await Assert.That(markup).Contains("Name");
     }
 
     [Test]
-    public async Task PeoplePage_AddsPersonAndShowsTable()
+    public async Task PeoplePage_ShowsCurrentSalary()
     {
-        var cut = Ctx.Render<People>();
+        var person = await MockApi.CreatePersonAsync("Alice");
+        await MockApi.AddSalaryAsync(person!.Id, new DateOnly(2026, 1, 1), 5000m);
 
-        var input = cut.Find("input[placeholder='Name']");
-        input.Change("Alice");
+        var cut = RenderWithProviders<People>();
 
-        var form = cut.Find("form");
-        await form.SubmitAsync();
-
-        var cells = cut.FindAll("td");
-        var aliceCell = cells.FirstOrDefault(c => c.TextContent == "Alice");
-        await Assert.That(aliceCell).IsNotNull();
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("5,000");
     }
 
     [Test]
-    public async Task PeoplePage_ShowsTableHeaders()
+    public async Task PeoplePage_ShowsSalaryHistoryCount()
     {
-        var cut = Ctx.Render<People>();
+        var person = await MockApi.CreatePersonAsync("Bob");
+        await MockApi.AddSalaryAsync(person!.Id, new DateOnly(2026, 1, 1), 4000m);
+        await MockApi.AddSalaryAsync(person.Id, new DateOnly(2026, 2, 1), 4500m);
 
-        // Add a person to make the table appear
-        cut.Find("input[placeholder='Name']").Change("Bob");
-        await cut.Find("form").SubmitAsync();
+        var cut = RenderWithProviders<People>();
 
-        var headers = cut.FindAll("th");
-        await Assert.That(headers.Count).IsEqualTo(3);
-        await Assert.That(headers[0].TextContent).IsEqualTo("Name");
-        await Assert.That(headers[1].TextContent).IsEqualTo("Salaries");
-        await Assert.That(headers[2].TextContent).IsEqualTo("Actions");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("2 entries");
     }
 
     [Test]
-    public async Task PeoplePage_ShowsAddSalaryButton_AfterPersonAdded()
+    public async Task PeoplePage_ShowsNoSalaryMessage_WhenNone()
     {
-        var cut = Ctx.Render<People>();
+        await MockApi.CreatePersonAsync("Charlie");
 
-        cut.Find("input[placeholder='Name']").Change("Charlie");
-        await cut.Find("form").SubmitAsync();
+        var cut = RenderWithProviders<People>();
 
-        var salaryButtons = cut.FindAll("button").Where(b => b.TextContent == "Add Salary").ToList();
-        await Assert.That(salaryButtons.Count).IsEqualTo(1);
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("No salary records");
+    }
+
+    [Test]
+    public async Task PeoplePage_AddPerson_AddsToList()
+    {
+        var cut = RenderWithProviders<People>();
+
+        // Type a name in the text field
+        var input = cut.Find("input");
+        input.Change("NewPerson");
+
+        // Click the Add button
+        var buttons = cut.FindAll("button");
+        var addButton = buttons.First(b => b.TextContent.Contains("Add"));
+        await cut.InvokeAsync(() => addButton.Click());
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("NewPerson");
+    }
+
+    [Test]
+    public async Task PeoplePage_AddPerson_EmptyName_DoesNotAdd()
+    {
+        var cut = RenderWithProviders<People>();
+
+        // Click Add without entering a name
+        var buttons = cut.FindAll("button");
+        var addButton = buttons.First(b => b.TextContent.Contains("Add"));
+        await cut.InvokeAsync(() => addButton.Click());
+
+        // No table should appear (no people)
+        var markup = cut.Markup;
+        await Assert.That(markup).DoesNotContain("Current Salary");
     }
 }

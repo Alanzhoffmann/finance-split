@@ -4,6 +4,7 @@ using FinanceSplit.Api.Middleware;
 using FinanceSplit.Application;
 using FinanceSplit.Data;
 using FinanceSplit.Web.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddScoped(sp =>
     var baseAddress = request is not null ? $"{request.Scheme}://{request.Host}" : "http://localhost";
     return new HttpClient { BaseAddress = new Uri(baseAddress) };
 });
+builder.Services.AddMudServices();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddInteractiveWebAssemblyComponents();
 
 var app = builder.Build();

@@ -72,4 +72,64 @@ public class ExpenseQueryServiceTests
         await Assert.That(settlement.To.Name).IsEqualTo("Alice");
         await Assert.That(settlement.Amount).IsEqualTo(50m);
     }
+
+    [Test]
+    public async Task GetMonthlySummaryAsync_WithTransactions_ShouldReturnSummary()
+    {
+        var (db, queryService, txService, personService) = CreateServices();
+        await using var _ = db;
+
+        var alice = await personService.CreatePersonAsync("Alice");
+        var bob = await personService.CreatePersonAsync("Bob");
+
+        await personService.AddSalaryAsync(alice.Id, new DateOnly(2026, 4, 1), 5000m);
+        await personService.AddSalaryAsync(bob.Id, new DateOnly(2026, 4, 1), 5000m);
+
+        await txService.CreateTransactionAsync(
+            "Groceries",
+            80m,
+            alice.Id,
+            SplitType.Even,
+            [alice.Id, bob.Id],
+            date: new DateTime(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc)
+        );
+
+        var summary = await queryService.GetMonthlySummaryAsync(new DateOnly(2026, 4, 1));
+
+        await Assert.That(summary.Transactions.Count).IsEqualTo(1);
+        await Assert.That(summary.Settlements.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task GetSettlementsAsync_RatioSplit_ShouldReturnProportionalSettlement()
+    {
+        var (db, queryService, txService, personService) = CreateServices();
+        await using var _ = db;
+
+        var alice = await personService.CreatePersonAsync("Alice");
+        var bob = await personService.CreatePersonAsync("Bob");
+
+        // Alice earns 3x more than Bob
+        await personService.AddSalaryAsync(alice.Id, new DateOnly(2026, 4, 1), 6000m);
+        await personService.AddSalaryAsync(bob.Id, new DateOnly(2026, 4, 1), 2000m);
+
+        // Alice paid 800, split by ratio
+        await txService.CreateTransactionAsync(
+            "Rent",
+            800m,
+            alice.Id,
+            SplitType.Ratio,
+            [alice.Id, bob.Id],
+            date: new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc)
+        );
+
+        var settlements = await queryService.GetSettlementsAsync(new DateOnly(2026, 4, 1));
+
+        await Assert.That(settlements.Count).IsEqualTo(1);
+        var settlement = settlements.First();
+        await Assert.That(settlement.From.Name).IsEqualTo("Bob");
+        await Assert.That(settlement.To.Name).IsEqualTo("Alice");
+        // Bob pays 200 (25% of 800)
+        await Assert.That(settlement.Amount).IsEqualTo(200m);
+    }
 }

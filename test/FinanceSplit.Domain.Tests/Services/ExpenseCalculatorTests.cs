@@ -17,9 +17,7 @@ public class ExpenseCalculatorTests
             new Transaction(title: "Groceries", amount: 100m, paidBy: alice, splitPay: SplitPay.CreateEvenSplit([alice, bob]), date: month),
         };
 
-        var calculator = new ExpenseCalculator();
-
-        var settlements = calculator.CalculateSettlements(transactions);
+        var settlements = ExpenseCalculator.CalculateSettlements(transactions);
 
         await Assert.That(settlements.Count).IsEqualTo(1);
         var settlement = settlements.Single();
@@ -37,9 +35,7 @@ public class ExpenseCalculatorTests
             new Transaction(title: "Personal", amount: 75m, paidBy: alice, splitPay: SplitPay.CreateNoneSplit(alice), date: new DateTime(2026, 4, 3)),
         };
 
-        var calculator = new ExpenseCalculator();
-
-        var settlements = calculator.CalculateSettlements(transactions);
+        var settlements = ExpenseCalculator.CalculateSettlements(transactions);
 
         await Assert.That(settlements).IsEmpty();
     }
@@ -58,9 +54,7 @@ public class ExpenseCalculatorTests
             new Transaction(title: "Rent", amount: 120m, paidBy: alice, splitPay: SplitPay.CreateRatioSplit([alice, bob]), date: new DateTime(2026, 4, 5)),
         };
 
-        var calculator = new ExpenseCalculator();
-
-        var settlements = calculator.CalculateSettlements(transactions);
+        var settlements = ExpenseCalculator.CalculateSettlements(transactions);
 
         await Assert.That(settlements.Count).IsEqualTo(1);
         var settlement = settlements.Single();
@@ -98,9 +92,7 @@ public class ExpenseCalculatorTests
             ),
         };
 
-        var calculator = new ExpenseCalculator();
-
-        var settlements = calculator.CalculateSettlements(monthTransactions).OrderBy(s => s.From.Name).ThenBy(s => s.To.Name).ToArray();
+        var settlements = ExpenseCalculator.CalculateSettlements(monthTransactions).OrderBy(s => s.From.Name).ThenBy(s => s.To.Name).ToArray();
 
         await Assert.That(settlements.Length).IsEqualTo(2);
         await Assert.That(settlements[0].From.Name).IsEqualTo("Charlie");
@@ -124,12 +116,10 @@ public class ExpenseCalculatorTests
             new Transaction("May", 20m, bob, SplitPay.CreateEvenSplit([alice, bob]), new DateTime(2026, 5, 1)),
         };
 
-        var calculator = new ExpenseCalculator();
-
         var thrown = false;
         try
         {
-            calculator.BuildMonthlySummary(transactions);
+            ExpenseCalculator.BuildMonthlySummary(transactions);
         }
         catch (InvalidOperationException)
         {
@@ -154,10 +144,8 @@ public class ExpenseCalculatorTests
             recurrence: Recurrence.Forever(new DateOnly(2026, 1, 1))
         );
 
-        var calculator = new ExpenseCalculator();
-
         // Calculate for April even though the transaction started in January
-        var settlements = calculator.CalculateSettlements(new DateOnly(2026, 4, 1), [rent]);
+        var settlements = ExpenseCalculator.CalculateSettlements(new DateOnly(2026, 4, 1), [rent]);
 
         await Assert.That(settlements.Count).IsEqualTo(1);
         var settlement = settlements.Single();
@@ -182,12 +170,10 @@ public class ExpenseCalculatorTests
             recurrence: Recurrence.ForMonths(new DateOnly(2026, 1, 1), 3)
         );
 
-        var calculator = new ExpenseCalculator();
-
         var thrown = false;
         try
         {
-            calculator.BuildMonthlySummary(new DateOnly(2026, 4, 1), [loan]);
+            ExpenseCalculator.BuildMonthlySummary(new DateOnly(2026, 4, 1), [loan]);
         }
         catch (InvalidOperationException)
         {
@@ -222,9 +208,7 @@ public class ExpenseCalculatorTests
             date: new DateTime(2026, 4, 15)
         );
 
-        var calculator = new ExpenseCalculator();
-
-        var settlements = calculator.CalculateSettlements(new DateOnly(2026, 4, 1), [rent, dinner]);
+        var settlements = ExpenseCalculator.CalculateSettlements(new DateOnly(2026, 4, 1), [rent, dinner]);
 
         // Alice paid 800 rent, owes 30 from dinner → net +770 credit
         // Bob paid 60 dinner, owes 400 from rent → net -340 debit
@@ -251,10 +235,8 @@ public class ExpenseCalculatorTests
             recurrence: Recurrence.ForMonths(new DateOnly(2026, 1, 1), 3)
         );
 
-        var calculator = new ExpenseCalculator();
-
         // March is the last valid month (3rd occurrence)
-        var settlements = calculator.CalculateSettlements(new DateOnly(2026, 3, 1), [subscription]);
+        var settlements = ExpenseCalculator.CalculateSettlements(new DateOnly(2026, 3, 1), [subscription]);
 
         await Assert.That(settlements.Count).IsEqualTo(1);
         await Assert.That(settlements.Single().Amount).IsEqualTo(10m);

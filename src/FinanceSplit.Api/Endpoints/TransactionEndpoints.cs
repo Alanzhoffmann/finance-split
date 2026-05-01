@@ -58,5 +58,24 @@ public static class TransactionEndpoints
                     : Results.Created($"/api/transactions/{transaction.Id}", transaction);
             }
         );
+
+        group.MapPut(
+            "/{id:guid}",
+            async (Guid id, CreateTransactionRequest request, TransactionService service, CancellationToken ct) =>
+            {
+                var transaction = await service.UpdateTransactionAsync(
+                    id,
+                    request.Title,
+                    request.Amount,
+                    request.PaidById,
+                    request.SplitType,
+                    request.ParticipantIds,
+                    request.Date,
+                    ct
+                );
+
+                return transaction is null ? Results.NotFound() : Results.Ok(transaction);
+            }
+        );
     }
 }
