@@ -71,4 +71,37 @@ public class PeopleComponentTests : ComponentTestBase
         var markup = cut.Markup;
         await Assert.That(markup).Contains("No salary records");
     }
+
+    [Test]
+    public async Task PeoplePage_AddPerson_AddsToList()
+    {
+        var cut = RenderWithProviders<People>();
+
+        // Type a name in the text field
+        var input = cut.Find("input");
+        input.Change("NewPerson");
+
+        // Click the Add button
+        var buttons = cut.FindAll("button");
+        var addButton = buttons.First(b => b.TextContent.Contains("Add"));
+        await cut.InvokeAsync(() => addButton.Click());
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("NewPerson");
+    }
+
+    [Test]
+    public async Task PeoplePage_AddPerson_EmptyName_DoesNotAdd()
+    {
+        var cut = RenderWithProviders<People>();
+
+        // Click Add without entering a name
+        var buttons = cut.FindAll("button");
+        var addButton = buttons.First(b => b.TextContent.Contains("Add"));
+        await cut.InvokeAsync(() => addButton.Click());
+
+        // No table should appear (no people)
+        var markup = cut.Markup;
+        await Assert.That(markup).DoesNotContain("Current Salary");
+    }
 }

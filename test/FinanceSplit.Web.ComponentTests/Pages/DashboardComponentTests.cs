@@ -70,4 +70,28 @@ public class DashboardComponentTests : ComponentTestBase
         var link = cut.Find("a[href='/people']");
         await Assert.That(link.TextContent).Contains("Add people");
     }
+
+    [Test]
+    public async Task Dashboard_PersonCard_ShowsSalaryAmount()
+    {
+        var person = await MockApi.CreatePersonAsync("Alice");
+        await MockApi.AddSalaryAsync(person!.Id, new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), 6000m);
+
+        var cut = RenderWithProviders<Home>();
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("6,000");
+    }
+
+    [Test]
+    public async Task Dashboard_PersonCard_ShowsZeroWhenNoSalary()
+    {
+        await MockApi.CreatePersonAsync("Bob");
+
+        var cut = RenderWithProviders<Home>();
+
+        var markup = cut.Markup;
+        // With no salary, amount is 0 formatted as currency
+        await Assert.That(markup).Contains("0.00");
+    }
 }

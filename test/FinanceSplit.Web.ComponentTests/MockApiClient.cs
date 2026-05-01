@@ -1,3 +1,4 @@
+using FinanceSplit.Contracts.Enums;
 using FinanceSplit.Contracts.Requests;
 using FinanceSplit.Contracts.Responses;
 using FinanceSplit.Web.Services;
@@ -7,6 +8,8 @@ namespace FinanceSplit.Web.ComponentTests;
 public class MockApiClient : ApiClient
 {
     private readonly List<PersonResponse> _people = [];
+    private readonly List<TransactionResponse> _transactions = [];
+    private readonly List<ExpenseSettlementResponse> _settlements = [];
 
     public MockApiClient()
         : base(new HttpClient()) { }
@@ -38,17 +41,45 @@ public class MockApiClient : ApiClient
 
     public override Task<TransactionResponse?> CreateTransactionAsync(CreateTransactionRequest request, CancellationToken ct = default)
     {
-        return Task.FromResult<TransactionResponse?>(null);
+        var paidBy = _people.FirstOrDefault(p => p.Id == request.PaidById);
+        if (paidBy is null)
+            return Task.FromResult<TransactionResponse?>(null);
+
+        var participants = _people.Where(p => request.ParticipantIds.Contains(p.Id)).ToList();
+        var tx = new TransactionResponse(
+            Guid.NewGuid(),
+            request.Title,
+            string.Empty,
+            request.Amount,
+            request.Date ?? DateTime.UtcNow,
+            paidBy,
+            request.SplitType,
+            participants,
+            null
+        );
+        _transactions.Add(tx);
+        return Task.FromResult<TransactionResponse?>(tx);
     }
 
     public override Task<MonthlyExpenseSummaryResponse?> GetMonthlySummaryAsync(DateOnly month, CancellationToken ct = default)
     {
-        var summary = new MonthlyExpenseSummaryResponse(Guid.Empty, month, [], new Dictionary<PersonResponse, decimal>(), []);
+        var monthTx = _transactions.Where(t => t.Date.Year == month.Year && t.Date.Month == month.Month).ToList();
+        var netBalances = new Dictionary<PersonResponse, decimal>();
+        foreach (var person in _people)
+        {
+            netBalances[person] = 0m;
+        }
+        var summary = new MonthlyExpenseSummaryResponse(Guid.Empty, month, monthTx, netBalances, _settlements);
         return Task.FromResult<MonthlyExpenseSummaryResponse?>(summary);
     }
 
     public override Task<IReadOnlyCollection<ExpenseSettlementResponse>> GetSettlementsAsync(DateOnly month, CancellationToken ct = default)
     {
-        return Task.FromResult<IReadOnlyCollection<ExpenseSettlementResponse>>([]);
+        return Task.FromResult<IReadOnlyCollection<ExpenseSettlementResponse>>(_settlements);
+    }
+
+    public void AddSettlement(ExpenseSettlementResponse settlement)
+    {
+        _settlements.Add(settlement);
     }
 }

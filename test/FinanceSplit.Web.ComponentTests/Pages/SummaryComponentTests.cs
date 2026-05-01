@@ -56,4 +56,23 @@ public class SummaryComponentTests : ComponentTestBase
         var markup = cut.Markup;
         await Assert.That(markup).DoesNotContain("No expenses for this month");
     }
+
+    [Test]
+    public async Task SummaryPage_ShowsSettlements_WhenDataExists()
+    {
+        var alice = new PersonResponse(Guid.NewGuid(), "Alice", []);
+        var bob = new PersonResponse(Guid.NewGuid(), "Bob", []);
+        MockApi.AddSettlement(new ExpenseSettlementResponse(bob, alice, 50m));
+
+        var cut = RenderWithProviders<Summary>();
+
+        var buttons = cut.FindAll("button");
+        var loadButton = buttons.First(b => b.TextContent.Contains("Load"));
+        await cut.InvokeAsync(() => loadButton.Click());
+
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Alice");
+        await Assert.That(markup).Contains("Bob");
+        await Assert.That(markup).Contains("Settlements");
+    }
 }
