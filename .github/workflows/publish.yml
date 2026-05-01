@@ -57,9 +57,9 @@ jobs:
           VERSION="${{ steps.nbgv.outputs.version }}"
 
           if [ "$PUBLIC_RELEASE" = "true" ]; then
-            echo "tags=latest;${VERSION}" >> $GITHUB_OUTPUT
+            echo "tags=latest%3B${VERSION}" >> $GITHUB_OUTPUT
           else
-            echo "tags=beta;beta-${VERSION}" >> $GITHUB_OUTPUT
+            echo "tags=beta%3Bbeta-${VERSION}" >> $GITHUB_OUTPUT
           fi
 
       - name: Log in to GitHub Container Registry
