@@ -5,39 +5,63 @@
 
 <PageTitle>Monthly Summary</PageTitle>
 
-<h1>Monthly Summary</h1>
+<MudText Typo="Typo.h4" Class="mb-4">Monthly Summary</MudText>
 
-<form @onsubmit="LoadSummary">
-    <input type="month" @bind="SelectedMonth" />
-    <button type="submit">Load</button>
-</form>
+<MudPaper Class="pa-4 mb-4" Elevation="1">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudDatePicker Label="Select Month" @bind-Date="_selectedDate"
+                           OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search" OnClick="LoadSummary">
+                Load
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 @if (Settlements.Count > 0)
 {
-    <h2>Settlements for @SelectedMonth.ToString("yyyy-MM")</h2>
-    <table>
-        <thead>
-            <tr><th>From</th><th>To</th><th>Amount</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var s in Settlements)
-            {
-                <tr>
-                    <td>@s.From.Name</td>
-                    <td>@s.To.Name</td>
-                    <td>@s.Amount.ToString("C")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudText Typo="Typo.h6" Class="mb-2">Settlements for @SelectedMonth.ToString("yyyy-MM")</MudText>
+    <MudTable Items="Settlements" Hover="true" Striped="true" Elevation="1">
+        <HeaderContent>
+            <MudTh>From</MudTh>
+            <MudTh>To</MudTh>
+            <MudTh>Amount</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="From">
+                <MudTooltip Text="@($"{context.From.Name} owes money")">
+                    <MudChip T="string" Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.ArrowUpward">
+                        @context.From.Name
+                    </MudChip>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="To">
+                <MudTooltip Text="@($"{context.To.Name} receives money")">
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.ArrowDownward">
+                        @context.To.Name
+                    </MudChip>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="Amount">
+                <MudText Typo="Typo.body1" Color="Color.Primary"><strong>@context.Amount.ToString("C")</strong></MudText>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 else if (HasLoaded)
 {
-    <p>No expenses for this month.</p>
+    <MudAlert Severity="Severity.Info" Class="mt-4">No expenses for this month.</MudAlert>
 }
 
 @code {
-    private DateOnly SelectedMonth { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private DateOnly SelectedMonth => _selectedDate.HasValue
+        ? new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1)
+        : new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private IReadOnlyCollection<ExpenseSettlementResponse> Settlements { get; set; } = [];
     private bool HasLoaded { get; set; }
 

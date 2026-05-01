@@ -6,22 +6,20 @@
 
 <PageTitle>Finance Split</PageTitle>
 
-<h1>Dashboard</h1>
+<MudText Typo="Typo.h4" Class="mb-4">Dashboard</MudText>
 
-<div>
-    <label>
-        Month:
-        <input type="month" @bind="SelectedMonth" @bind:after="LoadData" />
-    </label>
-</div>
+<MudDatePicker Label="Month" @bind-Date="_selectedDate" @bind-Date:after="LoadData"
+               OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Class="mb-4" Style="max-width: 200px;" />
 
 @if (People.Count == 0)
 {
-    <p>No people added yet. <a href="/people">Add people</a> to get started.</p>
+    <MudAlert Severity="Severity.Info" Class="mt-4">
+        No people added yet. <MudLink Href="/people">Add people</MudLink> to get started.
+    </MudAlert>
 }
 else
 {
-    <div class="dashboard-grid">
+    <MudGrid>
         @foreach (var person in People)
         {
             var salary = GetSalary(person);
@@ -29,28 +27,59 @@ else
             var sharedExpenses = GetSharedExpenses(person.Id);
             var leftover = salary - personalExpenses - sharedExpenses;
 
-            <div class="person-card">
-                <h2>@person.Name</h2>
-                <dl>
-                    <dt>Salary</dt>
-                    <dd>@salary.ToString("C")</dd>
-
-                    <dt>Personal Expenses</dt>
-                    <dd>@personalExpenses.ToString("C")</dd>
-
-                    <dt>Shared Expenses</dt>
-                    <dd>@sharedExpenses.ToString("C")</dd>
-
-                    <dt>Leftover</dt>
-                    <dd class="@(leftover >= 0 ? "positive" : "negative")">@leftover.ToString("C")</dd>
-                </dl>
-            </div>
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Elevation="2" Class="person-card">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@person.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudTooltip Text="Monthly financial overview">
+                                <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" Size="Size.Small" />
+                            </MudTooltip>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudSimpleTable Dense="true" Hover="true" Bordered="false">
+                            <tbody>
+                                <tr>
+                                    <td><MudText Typo="Typo.body2">Salary</MudText></td>
+                                    <td><MudText Typo="Typo.body2" Align="Align.End">@salary.ToString("C")</MudText></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <MudTooltip Text="Expenses paid solely by this person">
+                                            <MudText Typo="Typo.body2">Personal Expenses</MudText>
+                                        </MudTooltip>
+                                    </td>
+                                    <td><MudText Typo="Typo.body2" Align="Align.End" Color="Color.Warning">@personalExpenses.ToString("C")</MudText></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <MudTooltip Text="This person's share of shared expenses">
+                                            <MudText Typo="Typo.body2">Shared Expenses</MudText>
+                                        </MudTooltip>
+                                    </td>
+                                    <td><MudText Typo="Typo.body2" Align="Align.End" Color="Color.Info">@sharedExpenses.ToString("C")</MudText></td>
+                                </tr>
+                                <tr>
+                                    <td><MudText Typo="Typo.body2"><strong>Leftover</strong></MudText></td>
+                                    <td><MudText Typo="Typo.body2" Align="Align.End" Color="@(leftover >= 0 ? Color.Success : Color.Error)"><strong>@leftover.ToString("C")</strong></MudText></td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
         }
-    </div>
+    </MudGrid>
 }
 
 @code {
-    private DateOnly SelectedMonth { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private DateOnly SelectedMonth => _selectedDate.HasValue
+        ? new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1)
+        : new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private IReadOnlyList<PersonResponse> People { get; set; } = [];
     private MonthlyExpenseSummaryResponse? Summary { get; set; }
 

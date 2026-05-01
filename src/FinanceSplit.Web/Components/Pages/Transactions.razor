@@ -4,56 +4,70 @@
 @using FinanceSplit.Contracts.Responses
 @using FinanceSplit.Web.Services
 @inject ApiClient Api
+@inject ISnackbar Snackbar
 
 <PageTitle>Transactions</PageTitle>
 
-<h1>Transactions</h1>
+<MudText Typo="Typo.h4" Class="mb-4">Transactions</MudText>
 
-<h2>Create Transaction</h2>
-<form @onsubmit="CreateTransaction">
-    <div>
-        <label>Title: <input type="text" @bind="Title" required /></label>
-    </div>
-    <div>
-        <label>Amount: <input type="number" step="0.01" @bind="Amount" required /></label>
-    </div>
-    <div>
-        <label>Paid By:
-            <select @bind="PaidById">
+<MudPaper Class="pa-4" Elevation="1">
+    <MudText Typo="Typo.h6" Class="mb-3">Create Transaction</MudText>
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudTextField @bind-Value="Title" Label="Title" Required="true"
+                          RequiredError="Title is required" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudNumericField @bind-Value="Amount" Label="Amount" Format="N2"
+                             Min="0.01m" Variant="Variant.Outlined"
+                             Adornment="Adornment.Start" AdornmentText="$" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect @bind-Value="PaidById" Label="Paid By" Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter" T="Guid">
                 @foreach (var person in People)
                 {
-                    <option value="@person.Id">@person.Name</option>
+                    <MudSelectItem Value="@person.Id">@person.Name</MudSelectItem>
                 }
-            </select>
-        </label>
-    </div>
-    <div>
-        <label>Split Type:
-            <select @bind="SelectedSplitType">
-                <option value="@SplitType.Even">Even</option>
-                <option value="@SplitType.Ratio">Ratio (by salary)</option>
-                <option value="@SplitType.None">None (one person pays)</option>
-            </select>
-        </label>
-    </div>
-    <div>
-        <label>Participants:</label>
-        @foreach (var person in People)
-        {
-            <label>
-                <input type="checkbox" checked="@SelectedParticipantIds.Contains(person.Id)"
-                       @onchange="e => ToggleParticipant(person.Id, (bool)e.Value!)" />
-                @person.Name
-            </label>
-        }
-    </div>
-    <button type="submit">Create</button>
-</form>
-
-@if (!string.IsNullOrEmpty(Message))
-{
-    <p><strong>@Message</strong></p>
-}
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect @bind-Value="SelectedSplitType" Label="Split Type" Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter" T="SplitType">
+                <MudSelectItem Value="SplitType.Even">
+                    <MudTooltip Text="Split evenly among all participants" Placement="Placement.Right">
+                        <ChildContent>Even</ChildContent>
+                    </MudTooltip>
+                </MudSelectItem>
+                <MudSelectItem Value="SplitType.Ratio">
+                    <MudTooltip Text="Split proportionally by salary" Placement="Placement.Right">
+                        <ChildContent>Ratio (by salary)</ChildContent>
+                    </MudTooltip>
+                </MudSelectItem>
+                <MudSelectItem Value="SplitType.None">
+                    <MudTooltip Text="One person pays entirely" Placement="Placement.Right">
+                        <ChildContent>None (personal)</ChildContent>
+                    </MudTooltip>
+                </MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.subtitle1" Class="mb-2">Participants</MudText>
+            <MudChipSet T="string" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="_selectedChips" CheckMark="true" Color="Color.Primary" Variant="Variant.Text">
+                @foreach (var person in People)
+                {
+                    <MudChip Text="@person.Name" Value="@person.Id.ToString()" />
+                }
+            </MudChipSet>
+        </MudItem>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add" OnClick="CreateTransaction">
+                Create Transaction
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 @code {
     private IReadOnlyList<PersonResponse> People { get; set; } = [];
@@ -61,8 +75,7 @@
     private decimal Amount { get; set; }
     private Guid PaidById { get; set; }
     private SplitType SelectedSplitType { get; set; } = SplitType.Even;
-    private HashSet<Guid> SelectedParticipantIds { get; set; } = [];
-    private string Message { get; set; } = string.Empty;
+    private IReadOnlyCollection<string> _selectedChips = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,28 +83,30 @@
         if (People.Count > 0)
         {
             PaidById = People[0].Id;
-            SelectedParticipantIds = People.Select(p => p.Id).ToHashSet();
+            _selectedChips = People.Select(p => p.Id.ToString()).ToList();
         }
-    }
-
-    private void ToggleParticipant(Guid id, bool selected)
-    {
-        if (selected) SelectedParticipantIds.Add(id);
-        else SelectedParticipantIds.Remove(id);
     }
 
     private async Task CreateTransaction()
     {
+        if (string.IsNullOrWhiteSpace(Title) || Amount <= 0) return;
+
+        var participantIds = _selectedChips.Select(Guid.Parse).ToList();
+
         var request = new CreateTransactionRequest(
-            Title, Amount, PaidById, SelectedSplitType, SelectedParticipantIds.ToList(), DateTime.UtcNow);
+            Title, Amount, PaidById, SelectedSplitType, participantIds, DateTime.UtcNow);
 
         var result = await Api.CreateTransactionAsync(request);
 
-        Message = result is not null
-            ? $"Transaction '{result.Title}' created."
-            : "Failed to create transaction.";
-
-        Title = string.Empty;
-        Amount = 0;
+        if (result is not null)
+        {
+            Snackbar.Add($"Transaction '{result.Title}' created", Severity.Success);
+            Title = string.Empty;
+            Amount = 0;
+        }
+        else
+        {
+            Snackbar.Add("Failed to create transaction", Severity.Error);
+        }
     }
 }

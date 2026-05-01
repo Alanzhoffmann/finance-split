@@ -2,47 +2,87 @@
 @using FinanceSplit.Contracts.Responses
 @using FinanceSplit.Web.Services
 @inject ApiClient Api
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>People</PageTitle>
 
-<h1>People</h1>
+<MudText Typo="Typo.h4" Class="mb-4">People</MudText>
 
-<h2>Add Person</h2>
-<form @onsubmit="AddPerson">
-    <input type="text" @bind="NewPersonName" placeholder="Name" required />
-    <button type="submit">Add</button>
-</form>
+<MudPaper Class="pa-4 mb-4" Elevation="1">
+    <MudText Typo="Typo.h6" Class="mb-2">Add Person</MudText>
+    <MudForm @ref="_addPersonForm">
+        <MudGrid>
+            <MudItem xs="12" sm="8">
+                <MudTextField @bind-Value="NewPersonName" Label="Name" Placeholder="Enter name"
+                              Required="true" RequiredError="Name is required"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="4" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.PersonAdd" OnClick="AddPerson">
+                    Add
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+</MudPaper>
 
 @if (AllPeople.Count > 0)
 {
-    <table>
-        <thead>
-            <tr><th>Name</th><th>Salaries</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var person in AllPeople)
-            {
-                <tr>
-                    <td>@person.Name</td>
-                    <td>@string.Join(", ", person.Salaries.Select(s => $"{s.Date:yyyy-MM}: {s.Amount:C}"))</td>
-                    <td>
-                        <form @onsubmit="() => AddSalary(person.Id)">
-                            <input type="month" @bind="SalaryDate" />
-                            <input type="number" step="0.01" @bind="SalaryAmount" placeholder="Amount" />
-                            <button type="submit">Add Salary</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="AllPeople" Hover="true" Striped="true" Elevation="1" Dense="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Current Salary</MudTh>
+            <MudTh>Salary History</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">
+                <MudText Typo="Typo.body1">@context.Name</MudText>
+            </MudTd>
+            <MudTd DataLabel="Current Salary">
+                @{
+                    var latestSalary = context.Salaries.OrderByDescending(s => s.Date).FirstOrDefault();
+                }
+                <MudText Typo="Typo.body2">
+                    @(latestSalary is not null ? latestSalary.Amount.ToString("C") : "Not set")
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Salary History">
+                @if (context.Salaries.Any())
+                {
+                    <MudTooltip>
+                        <ChildContent>
+                            <MudChip T="string" Color="Color.Info" Size="Size.Small">@context.Salaries.Count entries</MudChip>
+                        </ChildContent>
+                        <TooltipContent>
+                            @foreach (var s in context.Salaries.OrderByDescending(s => s.Date))
+                            {
+                                <MudText Typo="Typo.caption">@s.Date.ToString("yyyy-MM"): @s.Amount.ToString("C")</MudText><br />
+                            }
+                        </TooltipContent>
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Warning">No salary records</MudText>
+                }
+            </MudTd>
+            <MudTd DataLabel="Actions">
+                <MudTooltip Text="Add salary record">
+                    <MudIconButton Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Success"
+                                   Size="Size.Small" OnClick="() => OpenSalaryDialog(context)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {
+    private MudForm? _addPersonForm;
     private IReadOnlyList<PersonResponse> AllPeople { get; set; } = [];
     private string NewPersonName { get; set; } = string.Empty;
-    private DateOnly SalaryDate { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-    private decimal SalaryAmount { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,19 +91,28 @@
 
     private async Task AddPerson()
     {
-        if (!string.IsNullOrWhiteSpace(NewPersonName))
-        {
-            await Api.CreatePersonAsync(NewPersonName);
-            NewPersonName = string.Empty;
-            AllPeople = await Api.GetPeopleAsync();
-        }
+        if (string.IsNullOrWhiteSpace(NewPersonName)) return;
+
+        await Api.CreatePersonAsync(NewPersonName);
+        Snackbar.Add($"Added {NewPersonName}", Severity.Success);
+        NewPersonName = string.Empty;
+        AllPeople = await Api.GetPeopleAsync();
     }
 
-    private async Task AddSalary(Guid personId)
+    private async Task OpenSalaryDialog(PersonResponse person)
     {
-        if (SalaryAmount > 0)
+        var parameters = new DialogParameters<AddSalaryDialog>
         {
-            await Api.AddSalaryAsync(personId, SalaryDate, SalaryAmount);
+            { x => x.PersonId, person.Id },
+            { x => x.PersonName, person.Name },
+        };
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<AddSalaryDialog>($"Add Salary for {person.Name}", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
             AllPeople = await Api.GetPeopleAsync();
         }
     }

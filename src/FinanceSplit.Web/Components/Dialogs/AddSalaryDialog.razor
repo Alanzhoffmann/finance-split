@@ -1,0 +1,43 @@
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudDatePicker Label="Month" @bind-Date="_selectedDate"
+                       OpenTo="OpenTo.Month" FixDay="1" DateFormat="yyyy-MM" Class="mb-4" />
+        <MudNumericField @bind-Value="Amount" Label="Amount" Format="N2"
+                         Min="0.01m" Variant="Variant.Outlined"
+                         Adornment="Adornment.Start" AdornmentText="$" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public Guid PersonId { get; set; }
+
+    [Parameter]
+    public string PersonName { get; set; } = string.Empty;
+
+    private DateTime? _selectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private decimal Amount { get; set; }
+
+    private async Task Submit()
+    {
+        if (Amount <= 0 || _selectedDate is null) return;
+
+        var date = new DateOnly(_selectedDate.Value.Year, _selectedDate.Value.Month, 1);
+        await Api.AddSalaryAsync(PersonId, date, Amount);
+        Snackbar.Add($"Salary added for {PersonName}", Severity.Success);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
