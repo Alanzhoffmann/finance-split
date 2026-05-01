@@ -1,0 +1,90 @@
+@page "/import"
+@using System.Text.Json
+@using FinanceSplit.Contracts.Requests
+@using FinanceSplit.Contracts.Responses
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
+@inject ISnackbar Snackbar
+
+<PageTitle>Import</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Import Backup</MudText>
+
+<MudPaper Class="pa-4" Elevation="1">
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Upload a JSON backup file from the previous Finance Split service to import people, salaries, and transactions.
+    </MudText>
+
+    <MudFileUpload T="IBrowserFile" Accept=".json" FilesChanged="OnFileSelected" MaximumFileCount="1">
+        <ActivatorContent>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Upload">
+                Select Backup File
+            </MudButton>
+        </ActivatorContent>
+    </MudFileUpload>
+
+    @if (!string.IsNullOrEmpty(_fileName))
+    {
+        <MudText Typo="Typo.body2" Class="mt-2">Selected: @_fileName</MudText>
+    }
+
+    @if (_importing)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mt-4" />
+    }
+
+    @if (_result is not null)
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4">
+            Import complete: @_result.PeopleImported people, @_result.SalaryRecordsImported salary records, @_result.TransactionsImported transactions.
+        </MudAlert>
+    }
+</MudPaper>
+
+@code {
+    private string _fileName = string.Empty;
+    private bool _importing;
+    private ImportBackupResponse? _result;
+
+    private async Task OnFileSelected(IBrowserFile file)
+    {
+        _fileName = file.Name;
+        _importing = true;
+        _result = null;
+
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var request = await JsonSerializer.DeserializeAsync<ImportBackupRequest>(stream, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            });
+
+            if (request is null)
+            {
+                Snackbar.Add("Invalid backup file format", Severity.Error);
+                return;
+            }
+
+            _result = await Api.ImportBackupAsync(request);
+
+            if (_result is not null)
+            {
+                Snackbar.Add("Import completed successfully!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Import failed", Severity.Error);
+            }
+        }
+        catch (JsonException)
+        {
+            Snackbar.Add("Could not parse backup file. Ensure it is valid JSON.", Severity.Error);
+        }
+        finally
+        {
+            _importing = false;
+        }
+    }
+}

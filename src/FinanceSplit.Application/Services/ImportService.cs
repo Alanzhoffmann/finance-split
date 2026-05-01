@@ -77,7 +77,9 @@ public class ImportService(FinanceSplitDbContext db)
                 continue;
             }
 
-            var date = new DateTime(importTx.Year, importTx.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            // Transactions are paid from the previous month's salary, so place them in the next month
+            var originalDate = new DateTime(importTx.Year, importTx.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var date = originalDate.AddMonths(1);
 
             var exists = await db.Transactions.AnyAsync(t => t.Title == importTx.Name && t.Amount == importTx.Value && t.Date == date, ct);
 

@@ -54,4 +54,12 @@ public class ApiClient(HttpClient http)
         var result = await http.GetFromJsonAsync<List<ExpenseSettlementResponse>>($"/api/expenses/settlements/{month.Year}/{month.Month}", ct);
         return result ?? [];
     }
+
+    public virtual async Task<ImportBackupResponse?> ImportBackupAsync(ImportBackupRequest request, CancellationToken ct = default)
+    {
+        var response = await http.PostAsJsonAsync("/api/import/backup", request, ct);
+        if (!response.IsSuccessStatusCode)
+            return null;
+        return await response.Content.ReadFromJsonAsync<ImportBackupResponse>(ct);
+    }
 }
