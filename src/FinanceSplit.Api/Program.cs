@@ -28,7 +28,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
-    app.UseHttpsRedirection();
+    // app.UseHttpsRedirection();
 }
 
 app.UseMiddleware<MigrationMiddleware>();
