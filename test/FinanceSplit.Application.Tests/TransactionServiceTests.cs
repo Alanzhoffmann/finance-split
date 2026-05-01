@@ -131,4 +131,49 @@ public class TransactionServiceTests
 
         await Assert.That(result).IsNull();
     }
+
+    [Test]
+    public async Task CreateTransactionAsync_RatioSplit_ShouldSetSplitType()
+    {
+        var (db, txService, personService) = CreateServices();
+        await using var _ = db;
+
+        var alice = await personService.CreatePersonAsync("Alice");
+        var bob = await personService.CreatePersonAsync("Bob");
+
+        var result = await txService.CreateTransactionAsync(
+            "Rent",
+            1000m,
+            alice.Id,
+            SplitType.Ratio,
+            [alice.Id, bob.Id],
+            date: new DateTime(2026, 4, 15, 0, 0, 0, DateTimeKind.Utc)
+        );
+
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.SplitType).IsEqualTo(SplitType.Ratio);
+    }
+
+    [Test]
+    public async Task CreateTransactionAsync_WithRecurrence_ShouldSetRecurrence()
+    {
+        var (db, txService, personService) = CreateServices();
+        await using var _ = db;
+
+        var alice = await personService.CreatePersonAsync("Alice");
+        var recurrence = Domain.ValueObjects.Recurrence.Forever(new DateOnly(2026, 4, 1));
+
+        var result = await txService.CreateTransactionAsync(
+            "Netflix",
+            15m,
+            alice.Id,
+            SplitType.None,
+            [alice.Id],
+            date: new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+            recurrence: recurrence
+        );
+
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.Recurrence).IsNotNull();
+    }
 }
