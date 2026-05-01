@@ -34,15 +34,30 @@
                     <MudSelectItem Value="SplitType.None">None (personal)</MudSelectItem>
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12">
-                <MudText Typo="Typo.subtitle1" Class="mb-2">Participants</MudText>
-                <MudChipSet T="string" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="_selectedChips" CheckMark="true" Color="Color.Primary" Variant="Variant.Text">
-                    @foreach (var person in People)
-                    {
-                        <MudChip Text="@person.Name" Value="@person.Id.ToString()" />
-                    }
-                </MudChipSet>
-            </MudItem>
+            @if (SelectedSplitType == SplitType.None)
+            {
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="NoneParticipantId" Label="Expense For" Variant="Variant.Outlined"
+                               AnchorOrigin="Origin.BottomCenter" T="Guid">
+                        @foreach (var person in People)
+                        {
+                            <MudSelectItem Value="@person.Id">@person.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+            else if (People.Count > 2)
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Participants</MudText>
+                    <MudChipSet T="string" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="_selectedChips" CheckMark="true" Color="Color.Primary" Variant="Variant.Text">
+                        @foreach (var person in People)
+                        {
+                            <MudChip Text="@person.Name" Value="@person.Id.ToString()" />
+                        }
+                    </MudChipSet>
+                </MudItem>
+            }
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -64,6 +79,7 @@
     private string Title { get; set; } = string.Empty;
     private decimal Amount { get; set; }
     private Guid PaidById { get; set; }
+    private Guid NoneParticipantId { get; set; }
     private SplitType SelectedSplitType { get; set; } = SplitType.Even;
     private IReadOnlyCollection<string> _selectedChips = [];
 
@@ -76,19 +92,36 @@
             PaidById = Transaction.PaidBy.Id;
             SelectedSplitType = Transaction.SplitType;
             _selectedChips = Transaction.SplitParticipants.Select(p => p.Id.ToString()).ToList();
+            NoneParticipantId = Transaction.SplitParticipants.FirstOrDefault()?.Id ?? PaidById;
         }
         else if (People.Count > 0)
         {
             PaidById = People[0].Id;
+            NoneParticipantId = People[0].Id;
             _selectedChips = People.Select(p => p.Id.ToString()).ToList();
         }
+    }
+
+    private List<Guid> GetParticipantIds()
+    {
+        if (SelectedSplitType == SplitType.None)
+        {
+            return [NoneParticipantId];
+        }
+
+        if (People.Count <= 2)
+        {
+            return People.Select(p => p.Id).ToList();
+        }
+
+        return _selectedChips.Select(Guid.Parse).ToList();
     }
 
     private async Task Submit()
     {
         if (string.IsNullOrWhiteSpace(Title) || Amount <= 0 || Transaction is null) return;
 
-        var participantIds = _selectedChips.Select(Guid.Parse).ToList();
+        var participantIds = GetParticipantIds();
         var request = new CreateTransactionRequest(
             Title, Amount, PaidById, SelectedSplitType, participantIds, Transaction.Date);
 
