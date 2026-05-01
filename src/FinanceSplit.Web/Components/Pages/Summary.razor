@@ -1,0 +1,49 @@
+@page "/summary"
+@using FinanceSplit.Contracts.Responses
+@using FinanceSplit.Web.Services
+@inject ApiClient Api
+
+<PageTitle>Monthly Summary</PageTitle>
+
+<h1>Monthly Summary</h1>
+
+<form @onsubmit="LoadSummary">
+    <input type="month" @bind="SelectedMonth" />
+    <button type="submit">Load</button>
+</form>
+
+@if (Settlements.Count > 0)
+{
+    <h2>Settlements for @SelectedMonth.ToString("yyyy-MM")</h2>
+    <table>
+        <thead>
+            <tr><th>From</th><th>To</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Settlements)
+            {
+                <tr>
+                    <td>@s.From.Name</td>
+                    <td>@s.To.Name</td>
+                    <td>@s.Amount.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (HasLoaded)
+{
+    <p>No expenses for this month.</p>
+}
+
+@code {
+    private DateOnly SelectedMonth { get; set; } = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private IReadOnlyCollection<ExpenseSettlementResponse> Settlements { get; set; } = [];
+    private bool HasLoaded { get; set; }
+
+    private async Task LoadSummary()
+    {
+        Settlements = await Api.GetSettlementsAsync(SelectedMonth);
+        HasLoaded = true;
+    }
+}

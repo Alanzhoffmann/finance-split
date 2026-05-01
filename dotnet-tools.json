@@ -8,6 +8,27 @@
         "csharpier"
       ],
       "rollForward": false
+    },
+    "nbgv": {
+      "version": "3.7.115",
+      "commands": [
+        "nbgv"
+      ],
+      "rollForward": false
+    },
+    "husky": {
+      "version": "0.9.1",
+      "commands": [
+        "husky"
+      ],
+      "rollForward": false
+    },
+    "dotnet-ef": {
+      "version": "10.0.7",
+      "commands": [
+        "dotnet-ef"
+      ],
+      "rollForward": false
     }
   }
 }

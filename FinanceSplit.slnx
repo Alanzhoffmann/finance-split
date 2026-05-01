@@ -1,5 +1,18 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/FinanceSplit.Api/FinanceSplit.Api.csproj" />
+    <Project Path="src/FinanceSplit.Application/FinanceSplit.Application.csproj" />
+    <Project Path="src/FinanceSplit.Contracts/FinanceSplit.Contracts.csproj" />
+    <Project Path="src/FinanceSplit.Data/FinanceSplit.Data.csproj" />
     <Project Path="src/FinanceSplit.Domain/FinanceSplit.Domain.csproj" />
+    <Project Path="src/FinanceSplit.Web/FinanceSplit.Web.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/FinanceSplit.Api.Tests/FinanceSplit.Api.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Application.Tests/FinanceSplit.Application.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Data.Tests/FinanceSplit.Data.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Domain.Tests/FinanceSplit.Domain.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Web.Tests/FinanceSplit.Web.Tests.csproj" />
+    <Project Path="test/FinanceSplit.Web.ComponentTests/FinanceSplit.Web.ComponentTests.csproj" />
   </Folder>
 </Solution>
