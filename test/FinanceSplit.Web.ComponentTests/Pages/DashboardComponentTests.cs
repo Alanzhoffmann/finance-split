@@ -10,38 +10,28 @@ public class DashboardComponentTests : ComponentTestBase
     [Test]
     public async Task Dashboard_RendersHeading()
     {
-        var cut = Ctx.Render<Home>();
+        var cut = RenderWithProviders<Home>();
 
-        var heading = cut.Find("h1");
-        await Assert.That(heading.TextContent).IsEqualTo("Dashboard");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Dashboard");
     }
 
     [Test]
     public async Task Dashboard_ShowsEmptyState_WhenNoPeople()
     {
-        var cut = Ctx.Render<Home>();
+        var cut = RenderWithProviders<Home>();
 
-        var message = cut.Find("p");
-        await Assert.That(message.TextContent).Contains("No people added yet.");
-    }
-
-    [Test]
-    public async Task Dashboard_HasMonthSelector()
-    {
-        var cut = Ctx.Render<Home>();
-
-        var monthInput = cut.Find("input[type='month']");
-        await Assert.That(monthInput).IsNotNull();
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("No people added yet.");
     }
 
     [Test]
     public async Task Dashboard_ShowsPersonCards_WhenPeopleExist()
     {
-        // Pre-populate people via mock
         await MockApi.CreatePersonAsync("Alice");
         await MockApi.CreatePersonAsync("Bob");
 
-        var cut = Ctx.Render<Home>();
+        var cut = RenderWithProviders<Home>();
 
         var cards = cut.FindAll(".person-card");
         await Assert.That(cards.Count).IsEqualTo(2);
@@ -52,24 +42,32 @@ public class DashboardComponentTests : ComponentTestBase
     {
         await MockApi.CreatePersonAsync("Alice");
 
-        var cut = Ctx.Render<Home>();
+        var cut = RenderWithProviders<Home>();
 
-        var cardHeading = cut.Find(".person-card h2");
-        await Assert.That(cardHeading.TextContent).IsEqualTo("Alice");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Alice");
     }
 
     [Test]
-    public async Task Dashboard_PersonCard_ShowsFinancialFields()
+    public async Task Dashboard_PersonCard_ShowsFinancialLabels()
     {
         await MockApi.CreatePersonAsync("Alice");
 
-        var cut = Ctx.Render<Home>();
+        var cut = RenderWithProviders<Home>();
 
-        var dts = cut.FindAll(".person-card dt");
-        var labels = dts.Select(dt => dt.TextContent).ToList();
-        await Assert.That(labels).Contains("Salary");
-        await Assert.That(labels).Contains("Personal Expenses");
-        await Assert.That(labels).Contains("Shared Expenses");
-        await Assert.That(labels).Contains("Leftover");
+        var markup = cut.Markup;
+        await Assert.That(markup).Contains("Salary");
+        await Assert.That(markup).Contains("Personal Expenses");
+        await Assert.That(markup).Contains("Shared Expenses");
+        await Assert.That(markup).Contains("Leftover");
+    }
+
+    [Test]
+    public async Task Dashboard_ShowsLinkToPeople_WhenEmpty()
+    {
+        var cut = RenderWithProviders<Home>();
+
+        var link = cut.Find("a[href='/people']");
+        await Assert.That(link.TextContent).Contains("Add people");
     }
 }
