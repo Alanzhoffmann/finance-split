@@ -6,7 +6,7 @@ public record TransactionResponse(
     Guid Id,
     string Name,
     decimal Value,
-    DateTime Date,
+    DateOnly Date,
     SplitType SplitType,
     TransactionPersonResponse PaidBy,
     bool IsRecurring,

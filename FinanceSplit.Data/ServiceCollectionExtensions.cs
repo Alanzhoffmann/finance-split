@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<MigrationBackgroundService>();
 
         services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<ITransactionService, TransactionService>();
 
         return services;
     }
