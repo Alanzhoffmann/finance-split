@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Api.Endpoints;
+using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -12,12 +13,15 @@ public static class ApplicationBuilderExtensions
     public static void AddApiServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<IWeatherService, WeatherService>();
+        builder.Services.AddScoped<IPersonService, MockPersonService>();
     }
 
     public static void UseApiServices(this IApplicationBuilder app) { }
 
     public static void MapApiEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        endpoints.MapPersonEndpoints();
+
         endpoints.MapGet(
             "api/weather",
             async (

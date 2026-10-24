@@ -1,0 +1,26 @@
+<MudCard>
+    <MudCardHeader><MudText Typo="Typo.h4">@Person.Name</MudText></MudCardHeader>
+    <MudCardContent>
+        <MudTable Items="Person.Incomes" Dense GroupBy="_groupDefinition">
+            <HeaderContent>
+                <MudTh>Month</MudTh>
+                <MudTh>Amount</MudTh>
+                <MudTh>Type</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
+                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                <MudTd DataLabel="Type">@context.Type</MudTd>
+                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" /></MudTd>
+            </RowTemplate>
+            <GroupFooterTemplate>
+                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
+            </GroupFooterTemplate>
+        </MudTable>
+    </MudCardContent>
+    <MudCardActions>
+    </MudCardActions>
+</MudCard>

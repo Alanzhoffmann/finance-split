@@ -1,0 +1,25 @@
+﻿@page "/people"
+
+<PageTitle>People</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
+
+@if (People == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else if (People.Count == 0)
+{
+    <MudText>No one is in</MudText>
+}
+else
+{
+    <MudGrid>
+        @foreach (var person in People)
+        {
+            <MudItem md="4" sm="6" xs="12">
+                <PersonCard Person="person" />
+            </MudItem>
+        }
+    </MudGrid>
+}
