@@ -1,6 +1,8 @@
-﻿using FinanceSplit.Data.BackgroundServices;
+﻿using FinanceSplit.Contracts.Services;
+using FinanceSplit.Data.BackgroundServices;
 using FinanceSplit.Data.Interfaces;
 using FinanceSplit.Data.Internal;
+using FinanceSplit.Data.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMigrationState>(sp => sp.GetRequiredService<MigrationState>());
 
         services.AddHostedService<MigrationBackgroundService>();
+
+        services.AddScoped<IPersonService, PersonService>();
 
         return services;
     }

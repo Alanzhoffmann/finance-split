@@ -15,7 +15,6 @@ public static class ApplicationBuilderExtensions
     public static void AddApiServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<IWeatherService, WeatherService>();
-        builder.Services.AddScoped<IPersonService, MockPersonService>();
         builder.Services.AddScoped<ITransactionService, MockTransactionService>();
 
         builder.Services.AddDatabase();

@@ -2,4 +2,4 @@
 
 namespace FinanceSplit.Contracts.DTOs;
 
-public record IncomeRecordResponse(Guid Id, DateTime Month, decimal Amount, IncomeType Type);
+public record IncomeRecordResponse(Guid Id, DateOnly Month, decimal Amount, IncomeType Type);
