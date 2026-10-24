@@ -11,6 +11,6 @@ public partial class PeopleList(IPersonService personService)
 
     protected override async Task OnInitializedAsync()
     {
-        People = await personService.GetPeopleAsync();
+        People ??= await personService.GetPeopleAsync();
     }
 }

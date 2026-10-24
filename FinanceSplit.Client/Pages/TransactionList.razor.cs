@@ -11,6 +11,6 @@ public partial class TransactionList(ITransactionService transactionService)
 
     protected override async Task OnInitializedAsync()
     {
-        Transactions = await transactionService.GetTransactionsAsync();
+        Transactions ??= await transactionService.GetTransactionsAsync();
     }
 }

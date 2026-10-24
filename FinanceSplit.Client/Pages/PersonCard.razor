@@ -14,7 +14,7 @@
                 <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
                 <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
                 <MudTd DataLabel="Type">@context.Type</MudTd>
-                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" /></MudTd>
+                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" /></MudTd>
             </RowTemplate>
             <GroupFooterTemplate>
                 <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
