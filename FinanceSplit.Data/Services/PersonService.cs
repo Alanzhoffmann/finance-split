@@ -1,5 +1,7 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.Commands;
+using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
+using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
@@ -22,4 +24,18 @@ internal class PersonService(AppDbContext context) : IPersonService
                     .ToList()
             ))
             .ToListAsync(cancellationToken: cancellationToken);
+
+    public async Task<PersonResponse?> CreatePersonAsync(
+        CreatePersonCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var person = new Person { Name = command.Name };
+
+        context.Add(person);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new PersonResponse(person.Id, person.Name, []);
+    }
 }

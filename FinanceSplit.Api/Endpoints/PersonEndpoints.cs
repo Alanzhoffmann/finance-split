@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Commands;
+using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -17,6 +18,19 @@ internal static class PersonEndpoints
             {
                 var people = await service.GetPeopleAsync(cancellationToken);
                 return TypedResults.Ok(people);
+            }
+        );
+
+        group.MapPost(
+            "",
+            async (
+                CreatePersonCommand command,
+                IPersonService service,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var person = await service.CreatePersonAsync(command, cancellationToken);
+                return TypedResults.Ok(person);
             }
         );
 
