@@ -1,6 +1,6 @@
-using MudBlazor.Services;
-using FinanceSplit.Client.Pages;
+using FinanceSplit.Api;
 using FinanceSplit.Components;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,14 +12,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.AddApiServices();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseWebAssemblyDebugging();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -29,8 +27,11 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
+
+app.UseApiServices();
+
+app.MapApiEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
