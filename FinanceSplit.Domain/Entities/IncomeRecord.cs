@@ -4,7 +4,7 @@ namespace FinanceSplit.Domain.Entities;
 
 public class IncomeRecord : BaseEntity
 {
-    public required DateTime Month { get; init; }
+    public required DateOnly Month { get; init; }
     public required decimal Amount { get; init; }
     public IncomeType Type { get; init; } = IncomeType.Salary;
 
@@ -17,7 +17,7 @@ public class IncomeRecord : BaseEntity
         new()
         {
             Amount = amount,
-            Month = new DateTime(year, month, 1),
+            Month = new DateOnly(year, month, 1),
             Type = type,
         };
 }
