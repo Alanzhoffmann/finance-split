@@ -1,4 +1,5 @@
 ﻿using FinanceSplit.Api.Endpoints;
+using FinanceSplit.Api.Middlewares;
 using FinanceSplit.Contracts.Services;
 using FinanceSplit.Data;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +21,10 @@ public static class ApplicationBuilderExtensions
         builder.Services.AddDatabase();
     }
 
-    public static void UseApiServices(this IApplicationBuilder app) { }
+    public static void UseApiServices(this IApplicationBuilder app)
+    {
+        app.UseMiddleware<MigrationMiddleware>();
+    }
 
     public static void MapApiEndpoints(this IEndpointRouteBuilder endpoints)
     {
