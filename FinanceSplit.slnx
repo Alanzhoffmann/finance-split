@@ -2,5 +2,7 @@
   <Project Path="FinanceSplit.Api/FinanceSplit.Api.csproj" />
   <Project Path="FinanceSplit.Client/FinanceSplit.Client.csproj" />
   <Project Path="FinanceSplit.Contracts/FinanceSplit.Contracts.csproj" />
+  <Project Path="FinanceSplit.Data/FinanceSplit.Data.csproj" />
+  <Project Path="FinanceSplit.Domain/FinanceSplit.Domain.csproj" />
   <Project Path="FinanceSplit/FinanceSplit.csproj" />
 </Solution>
