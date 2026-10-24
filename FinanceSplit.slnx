@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FinanceSplit.Client/FinanceSplit.Client.csproj" />
+  <Project Path="FinanceSplit/FinanceSplit.csproj" />
+</Solution>
