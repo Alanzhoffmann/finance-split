@@ -1,6 +1,6 @@
 @page "/weather"
 @using FinanceSplit.Contracts.DTOs
-@inject FinanceSplit.Contracts.Services.IWeatherSevice WeatherSevice
+@inject FinanceSplit.Contracts.Services.IWeatherService WeatherService
 
 <PageTitle>Weather</PageTitle>
 
@@ -38,6 +38,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Forecasts = await WeatherSevice.GetWeatherForecastsAsync();
+        Forecasts = await WeatherService.GetWeatherForecastsAsync();
     }
 }
