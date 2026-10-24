@@ -14,6 +14,7 @@ public static class ApplicationBuilderExtensions
     {
         builder.Services.AddScoped<IWeatherService, WeatherService>();
         builder.Services.AddScoped<IPersonService, MockPersonService>();
+        builder.Services.AddScoped<ITransactionService, MockTransactionService>();
     }
 
     public static void UseApiServices(this IApplicationBuilder app) { }
@@ -21,6 +22,7 @@ public static class ApplicationBuilderExtensions
     public static void MapApiEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPersonEndpoints();
+        endpoints.MapTransactionEndpoints();
 
         endpoints.MapGet(
             "api/weather",

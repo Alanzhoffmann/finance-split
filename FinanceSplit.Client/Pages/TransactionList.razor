@@ -1,0 +1,39 @@
+﻿@page "/transactions"
+
+<PageTitle>Transactions</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
+
+@if (Transactions == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="Transactions" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Value</MudTh>
+            <MudTh>Split</MudTh>
+            <MudTh>Paid by</MudTh>
+            <MudTh>Shared with</MudTh>
+            <MudTh>Recurring</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Value">@context.Value</MudTd>
+            <MudTd DataLabel="Split">@context.SplitType</MudTd>
+            <MudTd DataLabel="Paid by">@context.PaidBy.Name</MudTd>
+            <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Name))</MudTd>
+            <MudTd DataLabel="Recurring">@(context.IsRecurring ? "Yes" : "No")</MudTd>
+            <MudTd>
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" />
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 50, 100 }" />
+        </PagerContent>
+    </MudTable>
+}

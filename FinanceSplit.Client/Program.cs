@@ -14,5 +14,6 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 await builder.Build().RunAsync();
