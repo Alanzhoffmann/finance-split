@@ -55,6 +55,36 @@ internal static class PersonEndpoints
             }
         );
 
+        group.MapPersonIncomeEndpoints();
+
+        return group;
+    }
+
+    private static RouteGroupBuilder MapPersonIncomeEndpoints(this IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup("{personId:guid}/income");
+
+        group.MapPost(
+            "",
+            async (
+                Guid PersonId,
+                CreateIncomeRecordCommand command,
+                IPersonService service,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                var income = await service.CreateIncomeRecordAsync(
+                    command with
+                    {
+                        PersonId = PersonId,
+                    },
+                    cancellationToken
+                );
+
+                return income is null ? Results.NotFound() : TypedResults.Ok(income);
+            }
+        );
+
         return group;
     }
 }

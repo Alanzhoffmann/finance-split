@@ -55,4 +55,28 @@ internal class PersonService(AppDbContext context) : IPersonService
 
         return new PersonResponse(person.Id, person.Name, []);
     }
+
+    public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
+        CreateIncomeRecordCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var person = await context.People.FindAsync([command.PersonId], cancellationToken);
+        if (person is null)
+        {
+            return null;
+        }
+
+        var newIncome = new IncomeRecord
+        {
+            Amount = command.Amount,
+            Month = command.Month,
+            Type = command.Type,
+        };
+        person.IncomeRecords.Add(newIncome);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new(newIncome.Id, newIncome.Month, newIncome.Amount, newIncome.Type);
+    }
 }

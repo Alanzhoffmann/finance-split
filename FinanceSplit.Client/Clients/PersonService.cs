@@ -52,8 +52,27 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
     }
 
+    public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
+        CreateIncomeRecordCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.PostAsJsonAsync(
+            $"api/person/{command.PersonId}/income",
+            command,
+            SerializerContext.Default.CreateIncomeRecordCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            SerializerContext.Default.IncomeRecordResponse,
+            cancellationToken
+        );
+    }
+
     [JsonSerializable(typeof(IReadOnlyList<PersonResponse>))]
     [JsonSerializable(typeof(CreatePersonCommand))]
     [JsonSerializable(typeof(UpdatePersonCommand))]
+    [JsonSerializable(typeof(CreateIncomeRecordCommand))]
     partial class SerializerContext : JsonSerializerContext;
 }
