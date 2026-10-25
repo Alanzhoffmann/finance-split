@@ -14,12 +14,15 @@ public partial class IncomeRecordDialog(IPersonService personService)
     [EditorRequired]
     public PersonResponse Person { get; set; }
 
+    [Parameter]
+    public IncomeRecordResponse? IncomeRecord { get; set; }
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
     private IncomeRecordModel Model
     {
-        get => field ??= new(Person);
+        get => field ??= new(Person, IncomeRecord);
         set;
     }
 
@@ -34,14 +37,14 @@ public partial class IncomeRecordDialog(IPersonService personService)
 
     protected override void OnParametersSet()
     {
-        Model = new(Person);
+        Model = new(Person, IncomeRecord);
     }
 
-    private async Task SavePerson()
+    private async Task SaveIncome()
     {
         if (!IsEditing)
         {
-            var newPerson = await personService.CreateIncomeRecordAsync(
+            var newIncome = await personService.CreateIncomeRecordAsync(
                 new CreateIncomeRecordCommand(
                     Model.PersonId,
                     Model.Amount,
@@ -50,23 +53,29 @@ public partial class IncomeRecordDialog(IPersonService personService)
                 )
             );
 
-            if (newPerson is not null)
+            if (newIncome is not null)
             {
-                MudDialog.Close(DialogResult.Ok(newPerson));
+                MudDialog.Close(DialogResult.Ok(newIncome));
                 return;
             }
         }
         else
         {
-            //var updatedPerson = await personService.UpdatePersonAsync(
-            //    new UpdatePersonCommand(Model.PersonId!.Value, Model.Amount!)
-            //);
+            var updatedIncome = await personService.UpdateIncomeRecordAsync(
+                new UpdateIncomeRecordCommand(
+                    Model.Id!.Value,
+                    Model.PersonId,
+                    Model.Amount,
+                    Model.Month,
+                    Model.IncomeType
+                )
+            );
 
-            //if (updatedPerson is not null)
-            //{
-            //    MudDialog.Close(DialogResult.Ok(updatedPerson));
-            //    return;
-            //}
+            if (updatedIncome is not null)
+            {
+                MudDialog.Close(DialogResult.Ok(updatedIncome));
+                return;
+            }
         }
 
         MudDialog.Cancel();

@@ -61,4 +61,20 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
             People = await personService.GetPeopleAsync();
         }
     }
+
+    private async Task OpenEditIncomeDialog(
+        PersonResponse person,
+        IncomeRecordResponse incomeRecord
+    )
+    {
+        var dialog = await dialogService.ShowAsync<IncomeRecordDialog>(
+            new DialogParameters { ["Person"] = person, ["IncomeRecord"] = incomeRecord }
+        );
+        var result = await dialog.Result;
+
+        if (!result?.Canceled ?? false)
+        {
+            People = await personService.GetPeopleAsync();
+        }
+    }
 }

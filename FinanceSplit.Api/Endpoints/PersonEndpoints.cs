@@ -85,6 +85,29 @@ internal static class PersonEndpoints
             }
         );
 
+        group.MapPut(
+            "{id:guid}",
+            async (
+                Guid Id,
+                Guid PersonId,
+                UpdateIncomeRecordCommand command,
+                IPersonService service,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                var income = await service.UpdateIncomeRecordAsync(
+                    command with
+                    {
+                        Id = Id,
+                        PersonId = PersonId,
+                    },
+                    cancellationToken
+                );
+
+                return income is null ? Results.NotFound() : TypedResults.Ok(income);
+            }
+        );
+
         return group;
     }
 }

@@ -67,16 +67,42 @@ internal class PersonService(AppDbContext context) : IPersonService
             return null;
         }
 
-        var newIncome = new IncomeRecord
-        {
-            Amount = command.Amount,
-            Month = command.Month,
-            Type = command.Type,
-        };
+        var newIncome = IncomeRecord.ForMonth(
+            command.Month.Month,
+            command.Month.Year,
+            command.Amount,
+            command.Type
+        );
         person.IncomeRecords.Add(newIncome);
 
         await context.SaveChangesAsync(cancellationToken);
 
         return new(newIncome.Id, newIncome.Month, newIncome.Amount, newIncome.Type);
+    }
+
+    public async Task<IncomeRecordResponse?> UpdateIncomeRecordAsync(
+        UpdateIncomeRecordCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var person = await context
+            .People.Include(p => p.IncomeRecords.Where(i => i.Id == command.Id))
+            .FirstOrDefaultAsync(p => p.Id == command.PersonId, cancellationToken);
+        if (person is null)
+        {
+            return null;
+        }
+
+        var incomeRecord = person.IncomeRecords.FirstOrDefault();
+        if (incomeRecord is null)
+        {
+            return null;
+        }
+
+        incomeRecord.Update(command.Amount, command.Month, command.Type);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new(incomeRecord.Id, incomeRecord.Month, incomeRecord.Amount, incomeRecord.Type);
     }
 }

@@ -17,7 +17,7 @@ public partial class PersonDialog(IPersonService personService)
 
     private EditPersonModel Model
     {
-        get => field ??= new();
+        get => field ??= new(Person);
         set;
     }
 

@@ -4,9 +4,32 @@ namespace FinanceSplit.Domain.Entities;
 
 public class IncomeRecord : BaseEntity
 {
-    public required DateOnly Month { get; init; }
-    public required decimal Amount { get; init; }
-    public IncomeType Type { get; init; } = IncomeType.Salary;
+    private DateOnly _month;
+    private decimal _amount;
+    private IncomeType _type = IncomeType.Salary;
+
+    public required DateOnly Month
+    {
+        get => _month;
+        init => _month = value;
+    }
+    public required decimal Amount
+    {
+        get => _amount;
+        init => _amount = value;
+    }
+    public IncomeType Type
+    {
+        get => _type;
+        init => _type = value;
+    }
+
+    public void Update(decimal amount, DateOnly month, IncomeType type)
+    {
+        _amount = amount;
+        _month = month;
+        _type = type;
+    }
 
     public static IncomeRecord ForMonth(
         int month,

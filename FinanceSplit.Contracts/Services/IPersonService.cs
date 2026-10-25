@@ -23,4 +23,9 @@ public interface IPersonService
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     );
+
+    Task<IncomeRecordResponse?> UpdateIncomeRecordAsync(
+        UpdateIncomeRecordCommand command,
+        CancellationToken cancellationToken = default
+    );
 }
