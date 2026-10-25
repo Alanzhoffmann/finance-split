@@ -12,7 +12,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
     ) =>
         await client.GetFromJsonAsync(
             "api/person",
-            SerializerContext.Default.IReadOnlyListPersonResponse,
+            PersonSerializerContext.Default.IReadOnlyListPersonResponse,
             cancellationToken: cancellationToken
         );
 
@@ -24,12 +24,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         var response = await client.PostAsJsonAsync(
             "api/person",
             command,
-            SerializerContext.Default.CreatePersonCommand,
+            PersonSerializerContext.Default.CreatePersonCommand,
             cancellationToken
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            SerializerContext.Default.PersonResponse,
+            PersonSerializerContext.Default.PersonResponse,
             cancellationToken
         );
     }
@@ -42,12 +42,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         var response = await client.PutAsJsonAsync(
             $"api/person/{command.Id}",
             command,
-            SerializerContext.Default.UpdatePersonCommand,
+            PersonSerializerContext.Default.UpdatePersonCommand,
             cancellationToken
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            SerializerContext.Default.PersonResponse,
+            PersonSerializerContext.Default.PersonResponse,
             cancellationToken
         );
     }
@@ -60,12 +60,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         var response = await client.PostAsJsonAsync(
             $"api/person/{command.PersonId}/income",
             command,
-            SerializerContext.Default.CreateIncomeRecordCommand,
+            PersonSerializerContext.Default.CreateIncomeRecordCommand,
             cancellationToken
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            SerializerContext.Default.IncomeRecordResponse,
+            PersonSerializerContext.Default.IncomeRecordResponse,
             cancellationToken
         );
     }
@@ -78,12 +78,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         var response = await client.PutAsJsonAsync(
             $"api/person/{command.PersonId}/income/",
             command,
-            SerializerContext.Default.UpdateIncomeRecordCommand,
+            PersonSerializerContext.Default.UpdateIncomeRecordCommand,
             cancellationToken
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            SerializerContext.Default.IncomeRecordResponse,
+            PersonSerializerContext.Default.IncomeRecordResponse,
             cancellationToken
         );
     }
@@ -93,5 +93,5 @@ internal partial class PersonService(HttpClient client) : IPersonService
     [JsonSerializable(typeof(UpdatePersonCommand))]
     [JsonSerializable(typeof(CreateIncomeRecordCommand))]
     [JsonSerializable(typeof(UpdateIncomeRecordCommand))]
-    partial class SerializerContext : JsonSerializerContext;
+    partial class PersonSerializerContext : JsonSerializerContext;
 }

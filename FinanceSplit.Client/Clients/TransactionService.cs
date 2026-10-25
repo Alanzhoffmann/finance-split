@@ -1,9 +1,10 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using System.Text.Json.Serialization;
+using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 
 namespace FinanceSplit.Client.Clients;
 
-public class TransactionService(HttpClient client) : ITransactionService
+internal partial class TransactionService(HttpClient client) : ITransactionService
 {
     public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
         DateTime? month = null,
@@ -11,9 +12,32 @@ public class TransactionService(HttpClient client) : ITransactionService
     )
     {
         var route = month is not null ? $"api/transaction?month={month}" : "api/transaction";
-        return await client.GetFromJsonAsync<IReadOnlyList<TransactionResponse>>(
+        return await client.GetFromJsonAsync(
             route,
+            TransactionSerializerContext.Default.IReadOnlyListTransactionResponse,
             cancellationToken: cancellationToken
         );
     }
+
+    public async Task<TransactionResponse?> CreateTransactionAsync(
+        CreateTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.PostAsJsonAsync(
+            "api/transaction",
+            command,
+            TransactionSerializerContext.Default.CreateTransactionCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            TransactionSerializerContext.Default.TransactionResponse,
+            cancellationToken
+        );
+    }
+
+    [JsonSerializable(typeof(IReadOnlyList<TransactionResponse>))]
+    [JsonSerializable(typeof(CreateTransactionCommand))]
+    partial class TransactionSerializerContext : JsonSerializerContext;
 }

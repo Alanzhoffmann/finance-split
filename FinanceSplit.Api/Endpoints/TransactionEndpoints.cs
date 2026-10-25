@@ -27,6 +27,23 @@ internal static class TransactionEndpoints
             }
         );
 
+        group.MapPost(
+            "",
+            async (
+                CreateTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.CreateTransactionAsync(
+                    command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
         return group;
     }
 }

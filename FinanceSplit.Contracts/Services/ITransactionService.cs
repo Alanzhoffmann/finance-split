@@ -8,4 +8,9 @@ public interface ITransactionService
         DateTime? month = null,
         CancellationToken cancellationToken = default
     );
+
+    Task<TransactionResponse?> CreateTransactionAsync(
+        CreateTransactionCommand command,
+        CancellationToken cancellationToken = default
+    );
 }
