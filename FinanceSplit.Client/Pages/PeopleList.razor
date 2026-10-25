@@ -4,7 +4,7 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
 
-<MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
+<MudButton Class="mb-4" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
 
 @if (People == null)
 {
@@ -20,7 +20,33 @@ else
         @foreach (var person in People)
         {
             <MudItem md="4" sm="6" xs="12">
-                <PersonCard Person="person" />
+                <MudCard>
+                    <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText><MudSpacer /><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => EditPerson(person))" /></MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="person.Incomes" Dense GroupBy="_groupDefinition">
+                            <HeaderContent>
+                                <MudTh>Month</MudTh>
+                                <MudTh>Amount</MudTh>
+                                <MudTh>Type</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                            </GroupHeaderTemplate>
+                            <RowTemplate>
+                                <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
+                                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                                <MudTd DataLabel="Type">@context.Type</MudTd>
+                                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" /></MudTd>
+                            </RowTemplate>
+                            <GroupFooterTemplate>
+                                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
+                            </GroupFooterTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudSpacer /><MudIconButton Icon="@Icons.Material.Outlined.Add" Color="Color.Primary" Variant="Variant.Filled" />
+                    </MudCardActions>
+                </MudCard>
             </MudItem>
         }
     </MudGrid>
