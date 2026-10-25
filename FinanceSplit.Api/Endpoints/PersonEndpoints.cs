@@ -34,6 +34,27 @@ internal static class PersonEndpoints
             }
         );
 
+        group.MapPut(
+            "{id:guid}",
+            async (
+                Guid Id,
+                UpdatePersonCommand command,
+                IPersonService service,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                var person = await service.UpdatePersonAsync(
+                    command with
+                    {
+                        Id = Id,
+                    },
+                    cancellationToken
+                );
+
+                return person is null ? Results.NotFound() : TypedResults.Ok(person);
+            }
+        );
+
         return group;
     }
 }

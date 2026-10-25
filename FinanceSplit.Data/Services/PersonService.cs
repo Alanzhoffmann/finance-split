@@ -36,4 +36,23 @@ internal class PersonService(AppDbContext context) : IPersonService
 
         return new PersonResponse(person.Id, person.Name, []);
     }
+
+    public async Task<PersonResponse?> UpdatePersonAsync(
+        UpdatePersonCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var person = await context.People.FindAsync([command.Id], cancellationToken);
+
+        if (person is null)
+        {
+            return null;
+        }
+
+        person.UpdateName(command.Name);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new PersonResponse(person.Id, person.Name, []);
+    }
 }

@@ -1,9 +1,12 @@
 ﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@Title</MudText>
+    </TitleContent>
     <DialogContent>
-        <MudTextField @bind-Value="@Model.Name" For="@(() => Model.Name)" />
+        <MudTextField Label="Name" @bind-Value="@Model.Name" For="@(() => Model.Name)" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="SavePerson">@(IsEditing ? "Edit" : "Create")</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SavePerson">@SubmitLabel</MudButton>
     </DialogActions>
 </MudDialog>

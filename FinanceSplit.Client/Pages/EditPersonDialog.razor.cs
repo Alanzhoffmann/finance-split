@@ -13,9 +13,11 @@ public partial class EditPersonDialog(IPersonService personService)
 
     private EditPersonModel Model { get; set; } = new();
 
-    private Guid? Id { get; set; }
+    private bool IsEditing => Model.Id is not null;
 
-    private bool IsEditing => Id is not null;
+    private string Title => IsEditing ? $"Edit person {Model.Name}" : "Create person";
+
+    private string SubmitLabel => IsEditing ? "Edit" : "Create";
 
     private void Cancel() => MudDialog.Cancel();
 
@@ -26,12 +28,33 @@ public partial class EditPersonDialog(IPersonService personService)
             var newPerson = await personService.CreatePersonAsync(
                 new CreatePersonCommand(Model.Name!)
             );
-            MudDialog.Close(DialogResult.Ok(newPerson));
+
+            if (newPerson is not null)
+            {
+                MudDialog.Close(DialogResult.Ok(newPerson));
+                return;
+            }
         }
+        else
+        {
+            var updatedPerson = await personService.UpdatePersonAsync(
+                new UpdatePersonCommand(Model.Id!.Value, Model.Name!)
+            );
+
+            if (updatedPerson is not null)
+            {
+                MudDialog.Close(DialogResult.Ok(updatedPerson));
+                return;
+            }
+        }
+
+        MudDialog.Cancel();
     }
 
     class EditPersonModel
     {
+        public Guid? Id { get; set; }
+
         [Required]
         public string? Name { get; set; }
     }

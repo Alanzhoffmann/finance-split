@@ -13,4 +13,9 @@ public interface IPersonService
         CreatePersonCommand command,
         CancellationToken cancellationToken = default
     );
+
+    Task<PersonResponse?> UpdatePersonAsync(
+        UpdatePersonCommand command,
+        CancellationToken cancellationToken = default
+    );
 }
