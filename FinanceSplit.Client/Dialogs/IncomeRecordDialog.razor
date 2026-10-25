@@ -1,0 +1,14 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Label="Amount" @bind-Value="@Model.Amount" For="@(() => Model.Amount)" />
+        <MudTextField Label="Month" @bind-Value="@Model.Month" For="@(() => Model.Month)" />
+        <MudTextField Label="Type" @bind-Value="@Model.IncomeType" For="@(() => Model.IncomeType)" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SavePerson">@SubmitLabel</MudButton>
+    </DialogActions>
+</MudDialog>

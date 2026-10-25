@@ -5,9 +5,9 @@ using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace FinanceSplit.Client.Pages;
+namespace FinanceSplit.Client.Dialogs;
 
-public partial class EditPersonDialog(IPersonService personService)
+public partial class PersonDialog(IPersonService personService)
 {
     [Parameter]
     public PersonResponse? Person { get; set; }

@@ -1,3 +1,4 @@
+using FinanceSplit.Client.Dialogs;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
@@ -25,7 +26,7 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
 
     private async Task OpenCreatePersonDialog()
     {
-        var dialog = await dialogService.ShowAsync<EditPersonDialog>();
+        var dialog = await dialogService.ShowAsync<PersonDialog>();
         var result = await dialog.Result;
 
         if (!result?.Canceled ?? false)
@@ -34,12 +35,25 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
         }
     }
 
-    private async Task EditPerson(PersonResponse person)
+    private async Task OpenEditPersonDialog(PersonResponse person)
     {
-        var dialog = await dialogService.ShowAsync<EditPersonDialog>(
-            new DialogParameters { { "Person", person } }
+        var dialog = await dialogService.ShowAsync<PersonDialog>(
+            new DialogParameters { ["Person"] = person }
         );
 
+        var result = await dialog.Result;
+
+        if (!result?.Canceled ?? false)
+        {
+            People = await personService.GetPeopleAsync();
+        }
+    }
+
+    private async Task OpenAddIncomeDialog(PersonResponse person)
+    {
+        var dialog = await dialogService.ShowAsync<IncomeRecordDialog>(
+            new DialogParameters { ["Person"] = person }
+        );
         var result = await dialog.Result;
 
         if (!result?.Canceled ?? false)
