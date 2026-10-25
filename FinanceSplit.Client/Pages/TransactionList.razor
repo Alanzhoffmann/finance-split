@@ -4,6 +4,8 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
 
+<MudButton Class="mb-4" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreateTransactionDialog">Add transaction</MudButton>
+
 @if (Transactions == null)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />

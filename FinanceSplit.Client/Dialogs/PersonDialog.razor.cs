@@ -15,7 +15,7 @@ public partial class PersonDialog(IPersonService personService)
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
-    private EditPersonModel Model
+    private PersonModel Model
     {
         get => field ??= new(Person);
         set;
@@ -64,9 +64,9 @@ public partial class PersonDialog(IPersonService personService)
         MudDialog.Cancel();
     }
 
-    class EditPersonModel
+    class PersonModel
     {
-        public EditPersonModel(PersonResponse? person = null)
+        public PersonModel(PersonResponse? person = null)
         {
             if (person is not null)
             {

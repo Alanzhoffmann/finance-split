@@ -1,0 +1,33 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="@Model.Name" For="@(() => Model.Name)" />
+        <MudDatePicker Label="Date" @bind-Date="@Model.Date" For="@(() => Model.Date)" />
+        <MudNumericField Label="Value" @bind-Value="@Model.Value" For="@(() => Model.Value)" Culture="_enGb" Format="C" />
+        <MudSelect Label="Paid by" T="Guid" @bind-Value="@Model.PaidByPersonId" For="@(() => Model.PaidByPersonId)">
+            @foreach (var person in People)
+            {
+                <MudSelectItem Value="person.Id">@person.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudCheckBox Label="IsRecurring" @bind-Value="@Model.IsRecurring" For="@(() => Model.IsRecurring)" />
+        <MudSelect Label="Split type" @bind-Value="@Model.SplitType" For="@(() => Model.SplitType)">
+            @foreach (var type in SplitTypes)
+            {
+                <MudSelectItem Value="type">@type</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect Label="Shared with" T="Guid" MultiSelectionTextFunc="GetMultiSelectionText" MultiSelection SelectAll @bind-SelectedValues="@Model.SharedWithIds">
+            @foreach (var person in People)
+            {
+                <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SaveTransaction">@SubmitLabel</MudButton>
+    </DialogActions>
+</MudDialog>

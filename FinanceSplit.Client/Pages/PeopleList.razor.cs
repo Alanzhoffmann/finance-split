@@ -8,6 +8,7 @@ namespace FinanceSplit.Client.Pages;
 
 public partial class PeopleList(IPersonService personService, IDialogService dialogService)
 {
+    private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
     private readonly TableGroupDefinition<IncomeRecordResponse> _groupDefinition = new()
     {
         GroupName = "Month",
@@ -26,7 +27,7 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
 
     private async Task OpenCreatePersonDialog()
     {
-        var dialog = await dialogService.ShowAsync<PersonDialog>();
+        var dialog = await dialogService.ShowAsync<PersonDialog>(_dialogOptions);
         var result = await dialog.Result;
 
         if (!result?.Canceled ?? false)
@@ -38,7 +39,8 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
     private async Task OpenEditPersonDialog(PersonResponse person)
     {
         var dialog = await dialogService.ShowAsync<PersonDialog>(
-            new DialogParameters { ["Person"] = person }
+            new DialogParameters { ["Person"] = person },
+            _dialogOptions
         );
 
         var result = await dialog.Result;
@@ -52,7 +54,8 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
     private async Task OpenAddIncomeDialog(PersonResponse person)
     {
         var dialog = await dialogService.ShowAsync<IncomeRecordDialog>(
-            new DialogParameters { ["Person"] = person }
+            new DialogParameters { ["Person"] = person },
+            _dialogOptions
         );
         var result = await dialog.Result;
 
@@ -68,7 +71,8 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
     )
     {
         var dialog = await dialogService.ShowAsync<IncomeRecordDialog>(
-            new DialogParameters { ["Person"] = person, ["IncomeRecord"] = incomeRecord }
+            new DialogParameters { ["Person"] = person, ["IncomeRecord"] = incomeRecord },
+            _dialogOptions
         );
         var result = await dialog.Result;
 
