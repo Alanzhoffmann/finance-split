@@ -12,15 +12,13 @@ internal class PersonService(AppDbContext context) : IPersonService
         CancellationToken cancellationToken = default
     ) =>
         await context
-            .People.Select(p => new PersonResponse(
+            .People.OrderBy(p => p.Name)
+            .Select(p => new PersonResponse(
                 p.Id,
                 p.Name,
-                p.IncomeRecords.Select(i => new IncomeRecordResponse(
-                        i.Id,
-                        i.Month,
-                        i.Amount,
-                        i.Type
-                    ))
+                p.IncomeRecords.OrderBy(i => i.Month)
+                    .ThenBy(i => i.Type)
+                    .Select(i => new IncomeRecordResponse(i.Id, i.Month, i.Amount, i.Type))
                     .ToList()
             ))
             .ToListAsync(cancellationToken: cancellationToken);

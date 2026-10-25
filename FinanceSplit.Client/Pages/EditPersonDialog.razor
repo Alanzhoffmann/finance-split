@@ -1,0 +1,9 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="@Model.Name" For="@(() => Model.Name)" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SavePerson">@(IsEditing ? "Edit" : "Create")</MudButton>
+    </DialogActions>
+</MudDialog>

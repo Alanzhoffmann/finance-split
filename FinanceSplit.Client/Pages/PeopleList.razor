@@ -4,6 +4,8 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
 
+<MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
+
 @if (People == null)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
