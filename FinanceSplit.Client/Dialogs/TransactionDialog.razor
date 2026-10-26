@@ -12,7 +12,6 @@
                 <MudSelectItem Value="person.Id">@person.Name</MudSelectItem>
             }
         </MudSelect>
-        <MudCheckBox Label="IsRecurring" @bind-Value="@Model.IsRecurring" For="@(() => Model.IsRecurring)" />
         <MudSelect Label="Split type" @bind-Value="@Model.SplitType" For="@(() => Model.SplitType)">
             @foreach (var type in SplitTypes)
             {
@@ -25,6 +24,7 @@
                 <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
             }
         </MudSelect>
+        <MudCheckBox Label="Is recurring" @bind-Value="@Model.IsRecurring" For="@(() => Model.IsRecurring)" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

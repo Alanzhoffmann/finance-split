@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using FinanceSplit.Contracts.Commands;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Enums;
@@ -10,6 +11,10 @@ namespace FinanceSplit.Client.Dialogs;
 
 public partial class IncomeRecordDialog(IPersonService personService)
 {
+    private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
+
+    private static IReadOnlyList<IncomeType> IncomeTypes => Enum.GetValues<IncomeType>();
+
     [Parameter]
     [EditorRequired]
     public PersonResponse Person { get; set; }
@@ -44,14 +49,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
     {
         if (!IsEditing)
         {
-            var newIncome = await personService.CreateIncomeRecordAsync(
-                new CreateIncomeRecordCommand(
-                    Model.PersonId,
-                    Model.Amount,
-                    Model.Month,
-                    Model.IncomeType
-                )
-            );
+            var newIncome = await personService.CreateIncomeRecordAsync(Model.CreateCommand);
 
             if (newIncome is not null)
             {
@@ -61,15 +59,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
         }
         else
         {
-            var updatedIncome = await personService.UpdateIncomeRecordAsync(
-                new UpdateIncomeRecordCommand(
-                    Model.Id!.Value,
-                    Model.PersonId,
-                    Model.Amount,
-                    Model.Month,
-                    Model.IncomeType
-                )
-            );
+            var updatedIncome = await personService.UpdateIncomeRecordAsync(Model.UpdateCommand);
 
             if (updatedIncome is not null)
             {
@@ -91,7 +81,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
             {
                 Id = incomeRecord.Id;
                 Amount = incomeRecord.Amount;
-                Month = incomeRecord.Month;
+                Month = new DateTime(incomeRecord.Month, TimeOnly.MinValue);
                 IncomeType = incomeRecord.Type;
             }
         }
@@ -104,8 +94,41 @@ public partial class IncomeRecordDialog(IPersonService personService)
         public decimal Amount { get; set; }
 
         [Required]
-        public DateOnly Month { get; set; }
+        public DateTime? Month { get; set; } = DateTime.Today;
 
         public IncomeType IncomeType { get; set; } = IncomeType.Salary;
+
+        public CreateIncomeRecordCommand CreateCommand
+        {
+            get
+            {
+                if (Month is null)
+                {
+                    throw new ArgumentNullException(nameof(Month));
+                }
+
+                var month = DateOnly.FromDateTime(Month.Value);
+                return new CreateIncomeRecordCommand(PersonId, Amount, month, IncomeType);
+            }
+        }
+
+        public UpdateIncomeRecordCommand UpdateCommand
+        {
+            get
+            {
+                if (!Id.HasValue)
+                {
+                    throw new ArgumentNullException(nameof(Id));
+                }
+
+                if (Month is null)
+                {
+                    throw new ArgumentNullException(nameof(Month));
+                }
+
+                var month = DateOnly.FromDateTime(Month.Value);
+                return new UpdateIncomeRecordCommand(Id.Value, PersonId, Amount, month, IncomeType);
+            }
+        }
     }
 }
