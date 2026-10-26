@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <ContainerRepository>alanzhoffmann/finances-split</ContainerRepository>
   </PropertyGroup>
 
   <ItemGroup>
