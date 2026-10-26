@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using FinanceSplit.Contracts.Commands;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 
@@ -37,7 +38,26 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         );
     }
 
+    public async Task<TransactionResponse?> UpdateTransactionAsync(
+        UpdateTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.PutAsJsonAsync(
+            $"api/transaction/{command.Id}",
+            command,
+            TransactionSerializerContext.Default.UpdateTransactionCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            TransactionSerializerContext.Default.TransactionResponse,
+            cancellationToken
+        );
+    }
+
     [JsonSerializable(typeof(IReadOnlyList<TransactionResponse>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
+    [JsonSerializable(typeof(UpdateTransactionCommand))]
     partial class TransactionSerializerContext : JsonSerializerContext;
 }

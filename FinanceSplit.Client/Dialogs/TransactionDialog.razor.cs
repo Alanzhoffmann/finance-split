@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using FinanceSplit.Contracts.Commands;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Enums;
 using FinanceSplit.Contracts.Services;
@@ -66,15 +67,15 @@ public partial class TransactionDialog(
         }
         else
         {
-            //var updatedPerson = await service.UpdatePersonAsync(
-            //    new UpdatePersonCommand(Model.Id!.Value, Model.Name!)
-            //);
+            var updatedTransaction = await transactionService.UpdateTransactionAsync(
+                Model.UpdateCommand
+            );
 
-            //if (updatedPerson is not null)
-            //{
-            //    MudDialog.Close(DialogResult.Ok(updatedPerson));
-            //    return;
-            //}
+            if (updatedTransaction is not null)
+            {
+                MudDialog.Close(DialogResult.Ok(updatedTransaction));
+                return;
+            }
         }
 
         MudDialog.Cancel();
@@ -96,6 +97,12 @@ public partial class TransactionDialog(
             {
                 Id = transaction.Id;
                 Name = transaction.Name;
+                Date = transaction.Date.ToDateTime(TimeOnly.MinValue);
+                Value = transaction.Value;
+                PaidByPersonId = transaction.PaidBy.Id;
+                IsRecurring = transaction.IsRecurring;
+                SplitType = transaction.SplitType;
+                SharedWithIds = [.. transaction.SharedWith.Select(p => p.Id)];
             }
         }
 
@@ -135,6 +142,29 @@ public partial class TransactionDialog(
                     IsRecurring,
                     SplitType,
                     sharedWith
+                );
+            }
+        }
+
+        public UpdateTransactionCommand UpdateCommand
+        {
+            get
+            {
+                if (!Id.HasValue)
+                {
+                    throw new NullReferenceException("Id is null");
+                }
+
+                var createCommand = CreateCommand;
+                return new UpdateTransactionCommand(
+                    Id.Value,
+                    createCommand.Name,
+                    createCommand.Date,
+                    createCommand.Value,
+                    createCommand.PaidByPersonId,
+                    createCommand.IsRecurring,
+                    createCommand.SplitType,
+                    createCommand.SharedWithIds
                 );
             }
         }

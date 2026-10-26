@@ -30,7 +30,7 @@ else
             <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Name))</MudTd>
             <MudTd DataLabel="Recurring">@(context.IsRecurring ? "Yes" : "No")</MudTd>
             <MudTd>
-                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" />
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditTransactionDialog(context))" />
                 <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" />
             </MudTd>
         </RowTemplate>

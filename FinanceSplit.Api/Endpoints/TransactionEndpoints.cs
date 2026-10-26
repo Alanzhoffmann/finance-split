@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Commands;
+using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -37,6 +38,27 @@ internal static class TransactionEndpoints
             {
                 var transaction = await transactionService.CreateTransactionAsync(
                     command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
+        group.MapPut(
+            "{id:guid}",
+            async (
+                Guid Id,
+                UpdateTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.UpdateTransactionAsync(
+                    command with
+                    {
+                        Id = Id,
+                    },
                     cancellationToken
                 );
 

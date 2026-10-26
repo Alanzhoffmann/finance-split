@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.Commands;
+using FinanceSplit.Contracts.DTOs;
 
 namespace FinanceSplit.Contracts.Services;
 
@@ -11,6 +12,11 @@ public interface ITransactionService
 
     Task<TransactionResponse?> CreateTransactionAsync(
         CreateTransactionCommand command,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<TransactionResponse?> UpdateTransactionAsync(
+        UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
     );
 }

@@ -9,5 +9,8 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
     public void Configure(EntityTypeBuilder<Transaction> builder)
     {
         builder.HasKey(t => t.Id);
+
+        builder.Navigation(t => t.PaidBy).AutoInclude();
+        builder.Navigation(t => t.SharedWith).AutoInclude();
     }
 }

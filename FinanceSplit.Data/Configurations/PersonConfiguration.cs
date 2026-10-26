@@ -10,6 +10,8 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
     {
         builder.HasKey(p => p.Id);
 
+        builder.Property(p => p.Name);
+
         builder.HasMany(p => p.IncomeRecords).WithOne();
 
         builder.HasMany(p => p.Transactions).WithOne(t => t.PaidBy);

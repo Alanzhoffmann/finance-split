@@ -31,4 +31,18 @@ public partial class TransactionList(
             Transactions = await transactionService.GetTransactionsAsync();
         }
     }
+
+    private async Task OpenEditTransactionDialog(TransactionResponse transaction)
+    {
+        var dialog = await dialogService.ShowAsync<TransactionDialog>(
+            new DialogParameters { ["Transaction"] = transaction },
+            _dialogOptions
+        );
+        var result = await dialog.Result;
+
+        if (!result?.Canceled ?? false)
+        {
+            Transactions = await transactionService.GetTransactionsAsync();
+        }
+    }
 }
