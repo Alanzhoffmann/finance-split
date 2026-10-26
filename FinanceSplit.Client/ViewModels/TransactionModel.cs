@@ -57,7 +57,7 @@ public partial class TransactionModel(
     public partial SplitType SplitType { get; set; }
     public IReadOnlyCollection<Guid> SharedWithIds { get; set; } = [];
 
-    public bool ShowSharedWithSelect => SplitType is not SplitType.None;
+    public bool AllowMultiselect => SplitType is not SplitType.None;
 
     public CreateTransactionCommand CreateCommand
     {
