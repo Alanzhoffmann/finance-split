@@ -1,4 +1,5 @@
 using FinanceSplit.Client.Clients;
+using FinanceSplit.Client.ViewModels;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -15,5 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+builder.Services.AddTransient<TransactionModel>();
 
 await builder.Build().RunAsync();

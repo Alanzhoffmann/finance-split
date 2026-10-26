@@ -7,7 +7,7 @@
         <MudDatePicker Label="Date" @bind-Date="@Model.Date" For="@(() => Model.Date)" />
         <MudNumericField Label="Value" @bind-Value="@Model.Value" For="@(() => Model.Value)" Culture="_enGb" Format="C" />
         <MudSelect Label="Paid by" T="Guid" @bind-Value="@Model.PaidByPersonId" For="@(() => Model.PaidByPersonId)">
-            @foreach (var person in People)
+            @foreach (var person in Model.People)
             {
                 <MudSelectItem Value="person.Id">@person.Name</MudSelectItem>
             }
@@ -18,12 +18,15 @@
                 <MudSelectItem Value="type">@type</MudSelectItem>
             }
         </MudSelect>
-        <MudSelect Label="Shared with" T="Guid" MultiSelectionTextFunc="GetMultiSelectionText" MultiSelection SelectAll @bind-SelectedValues="@Model.SharedWithIds">
-            @foreach (var person in People)
-            {
-                <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
-            }
-        </MudSelect>
+        @if (Model.ShowSharedWithSelect)
+        {
+            <MudSelect Label="Shared with" T="Guid" MultiSelectionTextFunc="Model.GetMultiSelectionText" MultiSelection SelectAll @bind-SelectedValues="@Model.SharedWithIds">
+                @foreach (var person in Model.People)
+                {
+                    <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
+                }
+            </MudSelect>
+        }
         <MudCheckBox Label="Is recurring" @bind-Value="@Model.IsRecurring" For="@(() => Model.IsRecurring)" />
     </DialogContent>
     <DialogActions>
