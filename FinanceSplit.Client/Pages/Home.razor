@@ -1,6 +1,31 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard</PageTitle>
+
+<MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
+
+@if (Data is not null)
+{
+    <MudGrid>
+        @foreach (var person in Data.People)
+        {
+            <MudItem md="4" sm="6" xs="12">
+                <MudCard>
+                    <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
+                    <MudCardContent>
+                        <MudText>Income: @person.Income.ToString("C", _enGb)</MudText>
+                        <MudText>Total expenses: @person.TotalExpenses.ToString("C", _enGb)</MudText>
+                        <MudText>Total paid: @person.TotalPaid.ToString("C", _enGb)</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <MudAlert Severity="Severity.Warning">No people set up</MudAlert>
+}
 
 <MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
 <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 10 Template!</MudText>
@@ -57,3 +82,5 @@
         More details
     </MudLink>
 </MudText>
+
+    

@@ -9,7 +9,7 @@ public class Transaction : BaseEntity
     private DateOnly _date;
     private bool _isRecurring;
     private Person? _paidBy;
-    private IReadOnlyList<Person> _sharedWith = [];
+    private List<Person> _sharedWith = [];
     private SplitType _splitType = SplitType.Even;
 
     public required string Name
@@ -47,7 +47,7 @@ public class Transaction : BaseEntity
     public IReadOnlyList<Person> SharedWith
     {
         get => _sharedWith;
-        init => _sharedWith = value;
+        init => _sharedWith = [.. value];
     }
 
     public void Update(
