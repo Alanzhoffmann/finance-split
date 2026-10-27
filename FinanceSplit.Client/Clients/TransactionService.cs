@@ -56,6 +56,15 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         );
     }
 
+    public async Task DeleteTransactionAsync(
+        DeleteTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.DeleteAsync($"api/transaction/{command.Id}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
     [JsonSerializable(typeof(IReadOnlyList<TransactionResponse>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
     [JsonSerializable(typeof(UpdateTransactionCommand))]

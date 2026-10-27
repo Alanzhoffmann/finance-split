@@ -31,7 +31,7 @@ else
             <MudTd DataLabel="Recurring">@(context.IsRecurring ? "Yes" : "No")</MudTd>
             <MudTd>
                 <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditTransactionDialog(context))" />
-                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" />
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteTransaction(context))" />
             </MudTd>
         </RowTemplate>
         <PagerContent>
@@ -39,3 +39,12 @@ else
         </PagerContent>
     </MudTable>
 }
+
+<MudMessageBox @ref="_deleteConfirmationMessageBox" Title="Warning" CancelText="Cancel">
+    <MessageContent>
+        Deleting can <b><i>not</i></b> be undone!
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+    </YesButton>
+</MudMessageBox>

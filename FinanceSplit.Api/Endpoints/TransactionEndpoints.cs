@@ -66,6 +66,20 @@ internal static class TransactionEndpoints
             }
         );
 
+        group.MapDelete(
+            "{id:guid}",
+            async (
+                Guid Id,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                await transactionService.DeleteTransactionAsync(new(Id), cancellationToken);
+
+                return Results.NoContent();
+            }
+        );
+
         return group;
     }
 }

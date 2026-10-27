@@ -133,4 +133,16 @@ internal class TransactionService(AppDbContext context) : ITransactionService
             [.. transaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
         );
     }
+
+    public async Task DeleteTransactionAsync(
+        DeleteTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // TODO figure out 404s here with rows deleted
+        await context
+            .Transactions.IgnoreAutoIncludes()
+            .Where(t => t.Id == command.Id)
+            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+    }
 }

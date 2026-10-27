@@ -12,6 +12,7 @@ public partial class TransactionList(
 )
 {
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
+    private MudMessageBox _deleteConfirmationMessageBox = default!;
 
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<TransactionResponse>? Transactions { get; set; }
@@ -42,6 +43,16 @@ public partial class TransactionList(
 
         if (!result?.Canceled ?? false)
         {
+            Transactions = await transactionService.GetTransactionsAsync();
+        }
+    }
+
+    private async Task DeleteTransaction(TransactionResponse transaction)
+    {
+        var result = await _deleteConfirmationMessageBox.ShowAsync();
+        if (result == true)
+        {
+            await transactionService.DeleteTransactionAsync(new(transaction.Id));
             Transactions = await transactionService.GetTransactionsAsync();
         }
     }

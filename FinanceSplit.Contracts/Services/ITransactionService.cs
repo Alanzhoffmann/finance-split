@@ -19,4 +19,9 @@ public interface ITransactionService
         UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
     );
+
+    Task DeleteTransactionAsync(
+        DeleteTransactionCommand command,
+        CancellationToken cancellationToken = default
+    );
 }
