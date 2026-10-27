@@ -1,4 +1,6 @@
-﻿namespace FinanceSplit.Domain.Entities;
+﻿using FinanceSplit.Contracts.Enums;
+
+namespace FinanceSplit.Domain.Entities;
 
 public sealed class Person : BaseEntity
 {
@@ -22,5 +24,26 @@ public sealed class Person : BaseEntity
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         _name = name;
+    }
+
+    public decimal GetIncomeForMonth(DateOnly date)
+    {
+        var monthStart = new DateOnly(date.Year, date.Month, 1);
+
+        var monthIncomes = IncomeRecords.Where(i => i.Month == monthStart).ToList();
+
+        if (monthIncomes.Count == 0)
+        {
+            // if no incomes for a given month, get all salaries from the first previous month available
+            return IncomeRecords
+                    .Where(i => i.Month < monthStart && i.Type == IncomeType.Salary)
+                    .GroupBy(i => i.Month)
+                    .OrderByDescending(g => g.Key)
+                    .FirstOrDefault()
+                    ?.Sum(i => i.Amount)
+                ?? 0;
+        }
+
+        return monthIncomes.Sum(i => i.Amount);
     }
 }
