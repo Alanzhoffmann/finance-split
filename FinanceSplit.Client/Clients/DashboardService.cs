@@ -16,6 +16,7 @@ internal partial class DashboardService(HttpClient client) : IDashboardService
             cancellationToken: cancellationToken
         );
 
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(DashboardResponse))]
     partial class DashboardSerializerContext : JsonSerializerContext;
 }

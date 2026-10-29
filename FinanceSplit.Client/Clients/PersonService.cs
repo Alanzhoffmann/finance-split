@@ -88,6 +88,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
     }
 
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<PersonResponse>))]
     [JsonSerializable(typeof(CreatePersonCommand))]
     [JsonSerializable(typeof(UpdatePersonCommand))]

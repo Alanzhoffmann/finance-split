@@ -65,6 +65,7 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         response.EnsureSuccessStatusCode();
     }
 
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<TransactionResponse>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
     [JsonSerializable(typeof(UpdateTransactionCommand))]
