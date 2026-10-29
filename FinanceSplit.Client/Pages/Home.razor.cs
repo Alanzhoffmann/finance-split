@@ -1,15 +1,18 @@
 using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace FinanceSplit.Client.Pages;
 
+[INotifyPropertyChanged]
 public partial class Home(IDashboardService dashboardService, TimeProvider timeProvider)
 {
     private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
 
-    private DateTime? Month { get; set; } = timeProvider.GetLocalNow().Date;
+    [ObservableProperty]
+    private partial DateTime? Month { get; set; } = timeProvider.GetLocalNow().Date;
 
     [PersistentState(AllowUpdates = true)]
     public DashboardResponse? Data { get; set; }
@@ -18,5 +21,11 @@ public partial class Home(IDashboardService dashboardService, TimeProvider timeP
     {
         DateOnly? month = Month.HasValue ? DateOnly.FromDateTime(Month.Value) : null;
         Data ??= await dashboardService.GetDashboardAsync(month);
+    }
+
+    async partial void OnMonthChanged(DateTime? value)
+    {
+        DateOnly? month = Month.HasValue ? DateOnly.FromDateTime(Month.Value) : null;
+        Data = await dashboardService.GetDashboardAsync(month);
     }
 }
