@@ -8,11 +8,13 @@ using MudBlazor;
 
 namespace FinanceSplit.Client.ViewModels;
 
-public partial class TransactionModel(
+public partial class TransactionViewModel(
     IPersonService personService,
     ITransactionService transactionService
 ) : ObservableObject
 {
+    public static IReadOnlyList<SplitType> SplitTypes => Enum.GetValues<SplitType>();
+
     public async Task InitAsync(TransactionResponse? transaction = null)
     {
         People = await personService.GetPeopleAsync() ?? [];
@@ -23,9 +25,9 @@ public partial class TransactionModel(
             Name = transaction.Name;
             Date = transaction.Date.ToDateTime(TimeOnly.MinValue);
             Value = transaction.Value;
+            SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
             IsRecurring = transaction.IsRecurring;
-            SplitType = transaction.SplitType;
             SharedWithIds = [.. transaction.SharedWith.Select(p => p.Id)];
         }
         else
@@ -50,7 +52,9 @@ public partial class TransactionModel(
     [Required]
     public DateTime? Date { get; set; } = DateTime.Today;
     public decimal Value { get; set; }
-    public Guid PaidByPersonId { get; set; }
+
+    [ObservableProperty]
+    public partial Guid PaidByPersonId { get; set; }
     public bool IsRecurring { get; set; }
 
     [ObservableProperty]
@@ -127,6 +131,14 @@ public partial class TransactionModel(
         if (value is not SplitType.None && People.Count == 2)
         {
             SharedWithIds = [.. People.Select(p => p.Id)];
+        }
+    }
+
+    partial void OnPaidByPersonIdChanged(Guid value)
+    {
+        if (SplitType is SplitType.None)
+        {
+            SharedWithIds = [value];
         }
     }
 }

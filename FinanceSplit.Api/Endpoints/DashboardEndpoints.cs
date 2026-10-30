@@ -1,5 +1,4 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

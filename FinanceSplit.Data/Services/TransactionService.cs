@@ -6,14 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
 
-internal class TransactionService(AppDbContext context) : ITransactionService
+internal class TransactionService(AppDbContext context, TimeProvider timeProvider)
+    : ITransactionService
 {
     public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
         DateTime? month = null,
         CancellationToken cancellationToken = default
-    ) =>
-        await context
-            .Transactions.Select(t => new TransactionResponse(
+    )
+    {
+        month ??= timeProvider.GetLocalNow().Date;
+
+        var monthInit = new DateOnly(month.Value.Year, month.Value.Month, 1);
+        var monthEnd = monthInit.AddMonths(1);
+
+        return await context
+            .Transactions.OrderBy(t => t.Name)
+            .Where(t => monthInit <= t.Date && t.Date < monthEnd)
+            .Select(t => new TransactionResponse(
                 t.Id,
                 t.Name,
                 t.Value,
@@ -24,6 +33,7 @@ internal class TransactionService(AppDbContext context) : ITransactionService
                 t.SharedWith.Select(tp => new TransactionPersonResponse(tp.Id, tp.Name)).ToList()
             ))
             .ToListAsync(cancellationToken: cancellationToken);
+    }
 
     public async Task<TransactionResponse?> CreateTransactionAsync(
         CreateTransactionCommand command,

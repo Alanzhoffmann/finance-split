@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
-builder.Services.AddTransient<TransactionModel>();
+builder.Services.AddTransient<TransactionViewModel>();
 
 // Add services to the container.
 builder
