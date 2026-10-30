@@ -21,9 +21,16 @@ else
         {
             <MudItem md="4" sm="6" xs="12">
                 <MudCard>
-                    <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText><MudSpacer /><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(person))" /></MudCardHeader>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h4">@person.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(person))" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
                     <MudCardContent>
-                        <MudTable Items="person.Incomes" Dense GroupBy="_groupDefinition">
+                        <MudTable Items="person.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
                             <HeaderContent>
                                 <MudTh>Month</MudTh>
                                 <MudTh>Amount</MudTh>
@@ -44,7 +51,7 @@ else
                         </MudTable>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudSpacer /><MudIconButton Icon="@Icons.Material.Outlined.Add" Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => OpenAddIncomeDialog(person))" />
+                        <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => OpenAddIncomeDialog(person))" />
                     </MudCardActions>
                 </MudCard>
             </MudItem>

@@ -2,6 +2,13 @@
 
 <PageTitle>Dashboard</PageTitle>
 
+<style>
+    .no-border-table .mud-table-container th,
+    .no-border-table .mud-table-container td {
+        border-bottom: none !important;
+    }
+</style>
+
 <MudContainer>
     <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
 
@@ -14,9 +21,32 @@
                     <MudCard>
                         <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
                         <MudCardContent>
-                            <MudText>Income: @person.Income.ToString("C", _enGb)</MudText>
-                            <MudText>Total expenses: @person.TotalExpenses.ToString("C", _enGb)</MudText>
-                            <MudText>Total paid: @person.TotalPaid.ToString("C", _enGb)</MudText>
+                            <MudSimpleTable Dense Class="no-border-table" Elevation="0">
+                                <MudTr>
+                                    <MudTd>Income:</MudTd>
+                                    <MudTd Style="text-align:right">@person.Income.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                                <MudTr>
+                                    <MudTd>Total shared:</MudTd>
+                                    <MudTd Style="text-align:right">@person.TotalShared.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                                <MudTr>
+                                    <MudTd>Shared expenses:</MudTd>
+                                    <MudTd Style="text-align:right">@person.SharedExpenses.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                                <MudTr>
+                                    <MudTd>Personal expenses:</MudTd>
+                                    <MudTd Style="text-align:right">@person.PersonalExpenses.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                                <MudTr>
+                                    <MudTd>Total paid:</MudTd>
+                                    <MudTd Style="text-align:right">@person.TotalPaid.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                                <MudTr>
+                                    <MudTd>Leftover:</MudTd>
+                                    <MudTd Style="text-align:right">@person.Leftover.ToString("C", _enGb)</MudTd>
+                                </MudTr>
+                            </MudSimpleTable>
                         </MudCardContent>
                     </MudCard>
                 </MudItem>

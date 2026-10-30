@@ -1,4 +1,5 @@
 ﻿using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.Enums;
 using FinanceSplit.Contracts.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
         Dictionary<Guid, decimal> totalSharedPerPersonId = people
             .SelectMany(p => p.SharedTransactions)
             .DistinctBy(t => t.Id)
+            .Where(t => t.SplitType is not SplitType.None)
             .SelectMany(t => t.CalculateShares())
             .GroupBy(g => g.Key.Id)
             .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Value));
@@ -38,6 +40,11 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
                 p.Name,
                 p.GetIncomeForMonth(monthToCheck),
                 totalSharedPerPersonId.GetValueOrDefault(p.Id),
+                p.Transactions.Where(t =>
+                        t.SplitType is SplitType.None
+                        && (t.SharedWith.Count == 0 || t.SharedWith[0].Id == t.PaidBy.Id)
+                    )
+                    .Sum(t => t.Value),
                 p.Transactions.Sum(t => t.Value)
             )),
         ]);
