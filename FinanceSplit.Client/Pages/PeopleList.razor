@@ -3,58 +3,63 @@
 <PageTitle>People</PageTitle>
 
 <MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
+<MudContainer>
+    <MudStack>
+        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
 
-<MudButton Class="mb-4" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
-
-@if (People == null)
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-}
-else if (People.Count == 0)
-{
-    <MudText>No one is in</MudText>
-}
-else
-{
-    <MudGrid>
-        @foreach (var person in People)
+        @if (People == null)
         {
-            <MudItem md="4" sm="6" xs="12">
-                <MudCard>
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h4">@person.Name</MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(person))" />
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudTable Items="person.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
-                            <HeaderContent>
-                                <MudTh>Month</MudTh>
-                                <MudTh>Amount</MudTh>
-                                <MudTh>Type</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <GroupHeaderTemplate>
-                            </GroupHeaderTemplate>
-                            <RowTemplate>
-                                <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
-                                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
-                                <MudTd DataLabel="Type">@context.Type</MudTd>
-                                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(person, context))" /></MudTd>
-                            </RowTemplate>
-                            <GroupFooterTemplate>
-                                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
-                            </GroupFooterTemplate>
-                        </MudTable>
-                    </MudCardContent>
-                    <MudCardActions>
-                        <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => OpenAddIncomeDialog(person))" />
-                    </MudCardActions>
-                </MudCard>
-            </MudItem>
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" />
         }
-    </MudGrid>
-}
+        else if (People.Count == 0)
+        {
+            <MudText>No one is in</MudText>
+        }
+        else
+        {
+            <MudGrid>
+                @foreach (var person in People)
+                {
+                    var count = People.Count;
+
+                    <MudItem md="count == 1 ? 12 : count % 3 == 0 && count % 2 == 1 ? 4 : 6" xs="12">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h4">@person.Name</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(person))" />
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudTable Items="person.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
+                                    <HeaderContent>
+                                        <MudTh>Month</MudTh>
+                                        <MudTh>Amount</MudTh>
+                                        <MudTh>Type</MudTh>
+                                        <MudTh></MudTh>
+                                    </HeaderContent>
+                                    <GroupHeaderTemplate>
+                                    </GroupHeaderTemplate>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
+                                        <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                                        <MudTd DataLabel="Type">@context.Type</MudTd>
+                                        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(person, context))" /></MudTd>
+                                    </RowTemplate>
+                                    <GroupFooterTemplate>
+                                        <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
+                                    </GroupFooterTemplate>
+                                </MudTable>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => OpenAddIncomeDialog(person))" />
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+    </MudStack>
+</MudContainer>

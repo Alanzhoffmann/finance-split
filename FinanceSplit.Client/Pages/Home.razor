@@ -9,52 +9,73 @@
     }
 </style>
 
-<MudContainer>
-    <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
+<MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
 
-    @if (Data is not null)
-    {
-        <MudGrid>
-            @foreach (var person in Data.People)
-            {
-                <MudItem md="4" sm="6" xs="12">
-                    <MudCard>
-                        <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
-                        <MudCardContent>
-                            <MudSimpleTable Dense Class="no-border-table" Elevation="0">
-                                <MudTr>
-                                    <MudTd>Income:</MudTd>
-                                    <MudTd Style="text-align:right">@person.Income.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                                <MudTr>
-                                    <MudTd>Total shared:</MudTd>
-                                    <MudTd Style="text-align:right">@person.TotalShared.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                                <MudTr>
-                                    <MudTd>Shared expenses:</MudTd>
-                                    <MudTd Style="text-align:right">@person.SharedExpenses.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                                <MudTr>
-                                    <MudTd>Personal expenses:</MudTd>
-                                    <MudTd Style="text-align:right">@person.PersonalExpenses.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                                <MudTr>
-                                    <MudTd>Total paid:</MudTd>
-                                    <MudTd Style="text-align:right">@person.TotalPaid.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                                <MudTr>
-                                    <MudTd>Leftover:</MudTd>
-                                    <MudTd Style="text-align:right">@person.Leftover.ToString("C", _enGb)</MudTd>
-                                </MudTr>
-                            </MudSimpleTable>
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-            }
-        </MudGrid>
-    }
-    else
-    {
-        <MudAlert Severity="Severity.Warning">No people set up</MudAlert>
-    }
+<MudContainer>
+    <MudStack>
+        <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
+
+        @if (Data is not null)
+        {
+            <MudGrid>
+                @foreach (var person in Data.People)
+                {
+                    <MudItem md="4" sm="6" xs="12">
+                        <MudCard>
+                            <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
+                            <MudCardContent>
+                                <MudSimpleTable Dense Class="no-border-table" Elevation="0">
+                                    <MudTr>
+                                        <MudTd>Income:</MudTd>
+                                        <MudTd Style="text-align:right">@person.Income.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                    <MudTr>
+                                        <MudTd>Total shared:</MudTd>
+                                        <MudTd Style="text-align:right">@person.TotalShared.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                    <MudTr>
+                                        <MudTd>Shared expenses:</MudTd>
+                                        <MudTd Style="text-align:right">@person.SharedExpenses.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                    <MudTr>
+                                        <MudTd>Personal expenses:</MudTd>
+                                        <MudTd Style="text-align:right">@person.PersonalExpenses.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                    <MudTr>
+                                        <MudTd>Total paid:</MudTd>
+                                        <MudTd Style="text-align:right">@person.TotalPaid.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                    <MudTr>
+                                        <MudTd>Leftover:</MudTd>
+                                        <MudTd Style="text-align:right">@person.Leftover.ToString("C", _enGb)</MudTd>
+                                    </MudTr>
+                                </MudSimpleTable>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
+            <MudGrid>
+                @foreach (var settlement in Data.Settlements)
+                {
+                    var count = Data.Settlements.Count;
+
+                    <MudItem md="count == 1 ? 12 : count % 3 == 0 && count % 2 == 1 ? 4 : 6" xs="12">
+                        <MudCard Outlined>
+                            <MudCardHeader Class="d-flex justify-center">
+                                <MudText Typo="Typo.h5">@settlement.FromName to @settlement.ToName</MudText>
+                            </MudCardHeader>
+                            <MudCardContent Class="d-flex justify-center">
+                                <MudText Typo="Typo.h6">@settlement.Amount.ToString("C", _enGb)</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Warning">No people set up</MudAlert>
+        }
+    </MudStack>
 </MudContainer>
