@@ -17,11 +17,13 @@ public class Transaction : BaseEntity
         get => _name ?? throw new NullReferenceException("_name is null");
         init => _name = value;
     }
+
     public required decimal Value
     {
         get => _value;
         init => _value = value;
     }
+
     public required DateOnly Date
     {
         get => _date;
@@ -33,6 +35,7 @@ public class Transaction : BaseEntity
         get => _splitType;
         init => _splitType = value;
     }
+
     public bool IsRecurring
     {
         get => _isRecurring;
@@ -44,6 +47,7 @@ public class Transaction : BaseEntity
         get => _paidBy ?? throw new NullReferenceException("_paidBy is null");
         init => _paidBy = value;
     }
+
     public IReadOnlyList<Person> SharedWith
     {
         get => _sharedWith;
@@ -98,22 +102,17 @@ public class Transaction : BaseEntity
 
     private Dictionary<Person, decimal> CalculateEvenShares()
     {
-        var participants = SharedWith;
-        var result = new Dictionary<Person, decimal>(participants.Count);
+        var result = new Dictionary<Person, decimal>(SharedWith.Count);
 
         // All participants except the first receive a share floored to 2dp.
         // The first participant (alphabetically) absorbs the remainder, rounding up naturally.
-        var baseShare = decimal.Round(Value / participants.Count, 2, MidpointRounding.ToZero);
-        var allocated = baseShare * (participants.Count - 1);
-        result[participants[0]] = decimal.Round(
-            Value - allocated,
-            2,
-            MidpointRounding.AwayFromZero
-        );
+        var baseShare = decimal.Round(Value / SharedWith.Count, 2, MidpointRounding.ToZero);
+        var allocated = baseShare * (SharedWith.Count - 1);
+        result[SharedWith[0]] = decimal.Round(Value - allocated, 2, MidpointRounding.AwayFromZero);
 
-        for (var i = 1; i < participants.Count; i++)
+        for (var i = 1; i < SharedWith.Count; i++)
         {
-            result[participants[i]] = baseShare;
+            result[SharedWith[i]] = baseShare;
         }
 
         return result;

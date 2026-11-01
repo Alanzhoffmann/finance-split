@@ -108,6 +108,20 @@ internal static class PersonEndpoints
             }
         );
 
+        group.MapDelete(
+            "{id:guid}",
+            async (
+                Guid Id,
+                Guid PersonId,
+                IPersonService service,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                await service.DeleteIncomeRecordAsync(new(PersonId, Id), cancellationToken);
+                return Results.NoContent();
+            }
+        );
+
         return group;
     }
 }

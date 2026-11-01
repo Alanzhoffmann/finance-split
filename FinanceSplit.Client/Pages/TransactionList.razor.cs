@@ -31,11 +31,7 @@ public partial class TransactionList(
         Transactions ??= await transactionService.GetTransactionsAsync(month);
     }
 
-    async partial void OnMonthChanged(DateTime? value)
-    {
-        DateOnly? month = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
-        Transactions = await transactionService.GetTransactionsAsync(month);
-    }
+    async partial void OnMonthChanged(DateTime? value) => await RefreshTransaction(value);
 
     private async Task OpenCreateTransactionDialog()
     {
@@ -44,7 +40,7 @@ public partial class TransactionList(
 
         if (!result?.Canceled ?? false)
         {
-            Transactions = await transactionService.GetTransactionsAsync();
+            await RefreshTransaction();
         }
     }
 
@@ -58,7 +54,7 @@ public partial class TransactionList(
 
         if (!result?.Canceled ?? false)
         {
-            Transactions = await transactionService.GetTransactionsAsync();
+            await RefreshTransaction();
         }
     }
 
@@ -68,7 +64,15 @@ public partial class TransactionList(
         if (result == true)
         {
             await transactionService.DeleteTransactionAsync(new(transaction.Id));
-            Transactions = await transactionService.GetTransactionsAsync();
+            await RefreshTransaction();
         }
+    }
+
+    private async Task RefreshTransaction(DateTime? value = null)
+    {
+        value ??= Month;
+
+        DateOnly? month = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        Transactions = await transactionService.GetTransactionsAsync(month);
     }
 }

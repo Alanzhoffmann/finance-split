@@ -88,6 +88,18 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
     }
 
+    public async Task DeleteIncomeRecordAsync(
+        DeleteIncomeRecordCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.DeleteAsync(
+            $"api/person/{command.PersonId}/income/{command.Id}",
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+    }
+
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<PersonResponse>))]
     [JsonSerializable(typeof(CreatePersonCommand))]

@@ -16,6 +16,7 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
         Expandable = false,
         Selector = (e) => e.Month.ToString("MMM/yyyy"),
     };
+    private MudMessageBox _deleteConfirmationMessageBox = default!;
 
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<PersonResponse>? People { get; set; }
@@ -78,6 +79,16 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
 
         if (!result?.Canceled ?? false)
         {
+            People = await personService.GetPeopleAsync();
+        }
+    }
+
+    private async Task DeleteIncome(PersonResponse person, IncomeRecordResponse incomeRecord)
+    {
+        var result = await _deleteConfirmationMessageBox.ShowAsync();
+        if (result == true)
+        {
+            await personService.DeleteIncomeRecordAsync(new(incomeRecord.Id, person.Id));
             People = await personService.GetPeopleAsync();
         }
     }
