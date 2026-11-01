@@ -25,7 +25,7 @@ public partial class Home(IDashboardService dashboardService, TimeProvider timeP
 
     async partial void OnMonthChanged(DateTime? value)
     {
-        DateOnly? month = Month.HasValue ? DateOnly.FromDateTime(Month.Value) : null;
+        DateOnly? month = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
         Data = await dashboardService.GetDashboardAsync(month);
     }
 }

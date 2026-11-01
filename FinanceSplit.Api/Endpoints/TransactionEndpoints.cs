@@ -15,7 +15,7 @@ internal static class TransactionEndpoints
         group.MapGet(
             "",
             async (
-                DateTime? month,
+                DateOnly? month,
                 ITransactionService transactionService,
                 CancellationToken cancellationToken = default
             ) =>

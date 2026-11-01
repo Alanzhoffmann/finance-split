@@ -8,7 +8,7 @@ namespace FinanceSplit.Client.Clients;
 internal partial class TransactionService(HttpClient client) : ITransactionService
 {
     public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
-        DateTime? month = null,
+        DateOnly? month = null,
         CancellationToken cancellationToken = default
     )
     {

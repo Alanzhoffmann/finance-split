@@ -10,11 +10,11 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
     : ITransactionService
 {
     public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
-        DateTime? month = null,
+        DateOnly? month = null,
         CancellationToken cancellationToken = default
     )
     {
-        month ??= timeProvider.GetLocalNow().Date;
+        month ??= DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
 
         var monthInit = new DateOnly(month.Value.Year, month.Value.Month, 1);
         var monthEnd = monthInit.AddMonths(1);

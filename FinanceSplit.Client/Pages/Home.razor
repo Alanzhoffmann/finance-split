@@ -22,7 +22,9 @@
             <MudGrid>
                 @foreach (var person in Data.People)
                 {
-                    <MudItem md="4" sm="6" xs="12">
+                        var count = Data.People.Count;
+
+                        <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
                         <MudCard>
                             <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
                             <MudCardContent>
@@ -66,7 +68,7 @@
                 {
                     var count = Data.Settlements.Count;
 
-                    <MudItem md="count == 1 ? 12 : count % 3 == 0 && count % 2 == 1 ? 4 : 6" xs="12">
+                        <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
                         <MudCard Outlined>
                             <MudCardHeader Class="d-flex justify-center">
                                 <MudText Typo="Typo.h5">@settlement.FromName to @settlement.ToName</MudText>

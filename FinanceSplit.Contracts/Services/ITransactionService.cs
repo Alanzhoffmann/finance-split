@@ -6,7 +6,7 @@ namespace FinanceSplit.Contracts.Services;
 public interface ITransactionService
 {
     Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
-        DateTime? month = null,
+        DateOnly? month = null,
         CancellationToken cancellationToken = default
     );
 
