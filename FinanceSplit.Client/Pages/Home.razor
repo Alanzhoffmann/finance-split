@@ -9,10 +9,17 @@
     }
 </style>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
-
 <MudContainer>
     <MudStack>
+        <div class="d-inline-flex justify-space-between align-center flex-grow-1">
+            <MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
+            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                <CustomContent>
+                    <MudIconButton Icon="@Icons.Material.Filled.Upload" Label="Import JSON" OnClick="@context.OpenFilePickerAsync" />
+                </CustomContent>
+            </MudFileUpload>
+        </div>
+
         <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
 
         @if (Data is not null)

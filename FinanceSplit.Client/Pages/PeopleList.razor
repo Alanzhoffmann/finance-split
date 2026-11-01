@@ -2,11 +2,12 @@
 
 <PageTitle>People</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
 <MudContainer>
     <MudStack>
-        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
-
+        <MudText Typo="Typo.h3" GutterBottom="true">People</MudText>
+        <div>
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreatePersonDialog">Add person</MudButton>
+        </div>
         @if (People == null)
         {
             <MudProgressCircular Color="Color.Default" Indeterminate="true" />

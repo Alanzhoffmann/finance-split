@@ -2,11 +2,13 @@
 
 <PageTitle>Transactions</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
 <MudContainer>
     <MudStack>
+        <MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
         <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
-        <MudButton Class="mb-4" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreateTransactionDialog">Add transaction</MudButton>
+        <div>
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreateTransactionDialog">Add transaction</MudButton>
+        </div>
 
         @if (Transactions == null)
         {

@@ -1,10 +1,8 @@
-using FinanceSplit.Contracts.Services;
-using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 
 namespace FinanceSplit.Client.Layout;
 
-public partial class MainLayout(IBackupService backupService)
+public partial class MainLayout
 {
     private bool _drawerOpen = true;
     private bool _isDarkMode = true;
@@ -25,17 +23,6 @@ public partial class MainLayout(IBackupService backupService)
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
-    }
-
-    private async Task UploadFiles(IBrowserFile? file)
-    {
-        if (file is null)
-        {
-            return;
-        }
-
-        using var stream = file.OpenReadStream();
-        await backupService.ImportBackupAsync(stream, file.ContentType, file.Name);
     }
 
     private readonly PaletteLight _lightPalette = new()
