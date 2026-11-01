@@ -18,6 +18,7 @@ builder
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IBackupService, BackupService>();
 
 builder.Services.AddTransient<TransactionViewModel>();
 

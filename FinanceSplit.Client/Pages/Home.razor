@@ -17,6 +17,8 @@
 
         @if (Data is not null)
         {
+            if (Data.People.Count > 0)
+            {
             <MudGrid>
                 @foreach (var person in Data.People)
                 {
@@ -55,6 +57,10 @@
                     </MudItem>
                 }
             </MudGrid>
+            }
+
+            if (Data.Settlements.Count > 0)
+            {
             <MudGrid>
                 @foreach (var settlement in Data.Settlements)
                 {
@@ -72,6 +78,7 @@
                     </MudItem>
                 }
             </MudGrid>
+        }
         }
         else
         {

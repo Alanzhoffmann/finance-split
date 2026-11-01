@@ -64,6 +64,7 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
                 )
             )
             .AsNoTrackingWithIdentityResolution()
+            .AsSplitQuery()
             .ToDictionaryAsync(p => p.Id, p => p, cancellationToken: cancellationToken);
 
     private static Dictionary<Guid, decimal> GetTotalSharedPerPerson(IEnumerable<Person> people) =>

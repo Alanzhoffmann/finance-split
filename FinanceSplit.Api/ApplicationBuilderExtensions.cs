@@ -24,5 +24,6 @@ public static class ApplicationBuilderExtensions
         endpoints.MapPersonEndpoints();
         endpoints.MapTransactionEndpoints();
         endpoints.MapDashboardEndpoints();
+        endpoints.MapBackupEndpoints();
     }
 }
