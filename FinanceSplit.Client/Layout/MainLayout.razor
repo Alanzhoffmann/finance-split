@@ -5,16 +5,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
-        <MudSpacer />
-        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-            <CustomContent>
-                <MudIconButton Icon="@Icons.Material.Filled.Upload" Label="Import JSON" OnClick="@context.OpenFilePickerAsync" />
-            </CustomContent>
-        </MudFileUpload>
-    </MudAppBar>
+    <MudFab Style="position: fixed; top: 8pt; left: 8pt;" Color="Color.Surface" StartIcon="@Icons.Material.Filled.Menu" OnClick="@((e) => DrawerToggle())" Size="Size.Small" />
     <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
