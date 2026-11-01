@@ -27,7 +27,6 @@ public partial class TransactionViewModel(
             Value = transaction.Value;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
-            IsRecurring = transaction.IsRecurring;
             SharedWithIds = [.. transaction.SharedWith.Select(p => p.Id)];
         }
         else
@@ -55,7 +54,6 @@ public partial class TransactionViewModel(
 
     [ObservableProperty]
     public partial Guid PaidByPersonId { get; set; }
-    public bool IsRecurring { get; set; }
 
     [ObservableProperty]
     public partial SplitType SplitType { get; set; }
@@ -83,7 +81,6 @@ public partial class TransactionViewModel(
                 date,
                 Value,
                 PaidByPersonId,
-                IsRecurring,
                 SplitType,
                 sharedWith
             );
@@ -106,7 +103,6 @@ public partial class TransactionViewModel(
                 createCommand.Date,
                 createCommand.Value,
                 createCommand.PaidByPersonId,
-                createCommand.IsRecurring,
                 createCommand.SplitType,
                 createCommand.SharedWithIds
             );

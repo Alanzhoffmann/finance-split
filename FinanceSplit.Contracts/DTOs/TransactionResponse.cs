@@ -9,7 +9,6 @@ public record TransactionResponse(
     DateOnly Date,
     SplitType SplitType,
     TransactionPersonResponse PaidBy,
-    bool IsRecurring,
     List<TransactionPersonResponse> SharedWith
 );
 

@@ -36,7 +36,6 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
                 t.Date,
                 t.SplitType,
                 t.PaidBy.Id,
-                t.IsRecurring,
                 t.SharedWith.OrderBy(r => r.Id).Select(r => r.Id).ToList()
             ))
             .ToListAsync();
@@ -130,7 +129,6 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
                     transaction.Name,
                     new DateOnly(transaction.Year, transaction.Month, 1),
                     transaction.Value,
-                    transaction.IsRecurring,
                     transaction.SplitType
                 );
                 var person = peopleMapping[transaction.PaidByPersonId];
@@ -147,7 +145,6 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
                     Date = new(transaction.Year, transaction.Month, 1),
                     PaidBy = peopleMapping[transaction.PaidByPersonId],
                     Value = transaction.Value,
-                    IsRecurring = transaction.IsRecurring,
                     SharedWith =
                     [
                         .. transaction.Responsibilities.Select(r => peopleMapping[r.PersonId]),

@@ -29,7 +29,6 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
                 t.Date,
                 t.SplitType,
                 new TransactionPersonResponse(t.PaidBy.Id, t.PaidBy.Name),
-                t.IsRecurring,
                 t.SharedWith.Select(tp => new TransactionPersonResponse(tp.Id, tp.Name)).ToList()
             ))
             .ToListAsync(cancellationToken: cancellationToken);
@@ -64,7 +63,6 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             Date = command.Date,
             Value = command.Value,
             PaidBy = paidByPerson,
-            IsRecurring = command.IsRecurring,
             SplitType = command.SplitType,
             SharedWith = sharedWith,
         };
@@ -79,7 +77,6 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             newTransaction.Date,
             newTransaction.SplitType,
             new(newTransaction.PaidBy.Id, newTransaction.PaidBy.Name),
-            newTransaction.IsRecurring,
             [.. newTransaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
         );
     }
@@ -122,13 +119,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             transaction.UpdateSharedWith(sharedWith);
         }
 
-        transaction.Update(
-            command.Name,
-            command.Date,
-            command.Value,
-            command.IsRecurring,
-            command.SplitType
-        );
+        transaction.Update(command.Name, command.Date, command.Value, command.SplitType);
 
         await context.SaveChangesAsync(cancellationToken);
 
@@ -139,7 +130,6 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             transaction.Date,
             transaction.SplitType,
             new(transaction.PaidBy.Id, transaction.PaidBy.Name),
-            transaction.IsRecurring,
             [.. transaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
         );
     }

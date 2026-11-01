@@ -63,7 +63,8 @@ internal class PersonService(AppDbContext context) : IPersonService
     {
         // TODO figure out 404s here with rows deleted
         await context
-            .People.Where(p => p.Id == command.Id)
+            .People.IgnoreAutoIncludes()
+            .Where(p => p.Id == command.Id)
             .ExecuteDeleteAsync(cancellationToken: cancellationToken);
     }
 

@@ -7,7 +7,6 @@ public class Transaction : BaseEntity
     private string? _name;
     private decimal _value;
     private DateOnly _date;
-    private bool _isRecurring;
     private Person? _paidBy;
     private List<Person> _sharedWith = [];
     private SplitType _splitType = SplitType.Even;
@@ -36,12 +35,6 @@ public class Transaction : BaseEntity
         init => _splitType = value;
     }
 
-    public bool IsRecurring
-    {
-        get => _isRecurring;
-        init => _isRecurring = value;
-    }
-
     public required Person PaidBy
     {
         get => _paidBy ?? throw new NullReferenceException("_paidBy is null");
@@ -54,18 +47,13 @@ public class Transaction : BaseEntity
         init => _sharedWith = [.. value];
     }
 
-    public void Update(
-        string name,
-        DateOnly date,
-        decimal value,
-        bool isRecurring,
-        SplitType splitType
-    )
+    public Recurrence? Recurrence { get; init; }
+
+    public void Update(string name, DateOnly date, decimal value, SplitType splitType)
     {
         _name = name;
         _date = date;
         _value = value;
-        _isRecurring = isRecurring;
         _splitType = splitType;
     }
 
@@ -88,6 +76,8 @@ public class Transaction : BaseEntity
 
         _sharedWith = sharedWith;
     }
+
+    public void AddValue(decimal value) => _value += value;
 
     public IReadOnlyDictionary<Person, decimal> CalculateShares() =>
         SplitType switch

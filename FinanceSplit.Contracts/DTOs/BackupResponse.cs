@@ -30,6 +30,5 @@ public record BackupTransaction(
     DateOnly Date,
     [property: JsonConverter(typeof(JsonStringEnumConverter<SplitType>))] SplitType SplitType,
     Guid PaidByPersonId,
-    bool IsRecurring,
     IReadOnlyList<Guid> SharedWith
 );

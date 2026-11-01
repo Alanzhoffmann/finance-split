@@ -15,12 +15,12 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261024190632_InitialMigration";
+    public override string LastMigrationId => "20261101192611_AddRecurrence";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
-        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-rc.2.26504.105");
+        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-rc.3.26522.148");
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.IncomeRecord", b =>
             {
@@ -62,6 +62,32 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("People");
             });
 
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.Recurrence", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
+
+                b.Property<decimal>("Amount")
+                    .HasColumnType("TEXT");
+
+                b.Property<bool>("Ended")
+                    .HasColumnType("INTEGER");
+
+                b.Property<DateOnly?>("LastMonth")
+                    .HasColumnType("TEXT");
+
+                b.Property<int?>("NumberOfRecurrences")
+                    .HasColumnType("INTEGER");
+
+                b.Property<int>("Type")
+                    .HasColumnType("INTEGER");
+
+                b.HasKey("Id");
+
+                b.ToTable("Recurrence");
+            });
+
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Transaction", b =>
             {
                 b.Property<Guid>("Id")
@@ -71,14 +97,14 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.Property<DateOnly>("Date")
                     .HasColumnType("TEXT");
 
-                b.Property<bool>("IsRecurring")
-                    .HasColumnType("INTEGER");
-
                 b.Property<string>("Name")
                     .IsRequired()
                     .HasColumnType("TEXT");
 
                 b.Property<Guid?>("PaidById")
+                    .HasColumnType("TEXT");
+
+                b.Property<Guid?>("RecurrenceId")
                     .HasColumnType("TEXT");
 
                 b.Property<int>("SplitType")
@@ -90,6 +116,8 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.HasKey("Id");
 
                 b.HasIndex("PaidById");
+
+                b.HasIndex("RecurrenceId");
 
                 b.ToTable("Transactions");
             });
@@ -122,7 +150,13 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Transactions")
                     .HasForeignKey("PaidById");
 
+                b.HasOne("FinanceSplit.Domain.Entities.Recurrence", "Recurrence")
+                    .WithMany("Transactions")
+                    .HasForeignKey("RecurrenceId");
+
                 b.Navigation("PaidBy");
+
+                b.Navigation("Recurrence");
             });
 
         modelBuilder.Entity("PersonTransaction", b =>
@@ -144,6 +178,11 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
             {
                 b.Navigation("IncomeRecords");
 
+                b.Navigation("Transactions");
+            });
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.Recurrence", b =>
+            {
                 b.Navigation("Transactions");
             });
 #pragma warning restore 612, 618

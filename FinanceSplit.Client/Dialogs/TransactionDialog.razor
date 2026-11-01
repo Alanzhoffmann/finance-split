@@ -27,7 +27,6 @@
                     <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
                 }
             </MudSelect>
-            <MudCheckBox Label="Is recurring" @bind-Value="@ViewModel.IsRecurring" For="@(() => ViewModel.IsRecurring)" />
         </MudStack>
     </DialogContent>
     <DialogActions>

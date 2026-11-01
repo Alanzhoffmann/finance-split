@@ -23,7 +23,6 @@
                     <MudTh>Split</MudTh>
                     <MudTh>Paid by</MudTh>
                     <MudTh>Shared with</MudTh>
-                    <MudTh>Recurring</MudTh>
                     <MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -32,7 +31,6 @@
                     <MudTd DataLabel="Split">@context.SplitType</MudTd>
                     <MudTd DataLabel="Paid by">@context.PaidBy.Name</MudTd>
                     <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Name))</MudTd>
-                    <MudTd DataLabel="Recurring">@(context.IsRecurring ? "Yes" : "No")</MudTd>
                     <MudTd>
                         <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
                             <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditTransactionDialog(context))" />

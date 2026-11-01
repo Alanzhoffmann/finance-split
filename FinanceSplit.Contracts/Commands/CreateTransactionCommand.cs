@@ -7,7 +7,6 @@ public record CreateTransactionCommand(
     DateOnly Date,
     decimal Value,
     Guid PaidByPersonId,
-    bool IsRecurring,
     SplitType SplitType,
     Guid[] SharedWithIds
 );
