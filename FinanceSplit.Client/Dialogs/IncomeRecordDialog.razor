@@ -3,14 +3,16 @@
         <MudText Typo="Typo.h5">@Title</MudText>
     </TitleContent>
     <DialogContent>
-        <MudNumericField Label="Amount" @bind-Value="@Model.Amount" For="@(() => Model.Amount)" Culture="_enGb" Format="C" />
-        <MudDatePicker Label="Month" @bind-Date="@Model.Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Model.Month)" />
-        <MudSelect Label="Type" @bind-Value="@Model.IncomeType" For="@(() => Model.IncomeType)">
-            @foreach (var type in IncomeTypes)
-            {
-                <MudSelectItem Value="type">@type</MudSelectItem>
-            }
-        </MudSelect>
+        <MudStack>
+            <MudNumericField Label="Amount" @bind-Value="@Model.Amount" For="@(() => Model.Amount)" Culture="_enGb" Format="C" />
+            <MudDatePicker Label="Month" @bind-Date="@Model.Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Model.Month)" />
+            <MudSelect Label="Type" @bind-Value="@Model.IncomeType" For="@(() => Model.IncomeType)">
+                @foreach (var type in IncomeTypes)
+                {
+                    <MudSelectItem Value="type">@type</MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
