@@ -56,6 +56,17 @@ internal class PersonService(AppDbContext context) : IPersonService
         return new PersonResponse(person.Id, person.Name, []);
     }
 
+    public async Task DeletePersonAsync(
+        DeletePersonCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // TODO figure out 404s here with rows deleted
+        await context
+            .People.Where(p => p.Id == command.Id)
+            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+    }
+
     public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default

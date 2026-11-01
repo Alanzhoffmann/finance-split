@@ -19,6 +19,11 @@ public interface IPersonService
         CancellationToken cancellationToken = default
     );
 
+    Task DeletePersonAsync(
+        DeletePersonCommand command,
+        CancellationToken cancellationToken = default
+    );
+
     Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default

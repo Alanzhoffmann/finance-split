@@ -52,6 +52,15 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
     }
 
+    public async Task DeletePersonAsync(
+        DeletePersonCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.DeleteAsync($"api/person/{command.Id}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default

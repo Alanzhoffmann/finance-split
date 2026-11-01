@@ -31,6 +31,7 @@
                                 </CardHeaderContent>
                                 <CardHeaderActions>
                                     <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(person))" />
+                                    <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeletePerson(person))" />
                                 </CardHeaderActions>
                             </MudCardHeader>
                             <MudCardContent>
@@ -48,8 +49,10 @@
                                         <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
                                         <MudTd DataLabel="Type">@context.Type</MudTd>
                                         <MudTd>
-                                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(person, context))" />
-                                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteIncome(person, context))" />
+                                            <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
+                                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(person, context))" />
+                                                <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteIncome(person, context))" />
+                                            </div>
                                         </MudTd>
                                     </RowTemplate>
                                     <GroupFooterTemplate>

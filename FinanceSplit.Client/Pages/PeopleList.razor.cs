@@ -52,6 +52,16 @@ public partial class PeopleList(IPersonService personService, IDialogService dia
         }
     }
 
+    private async Task DeletePerson(PersonResponse person)
+    {
+        var result = await _deleteConfirmationMessageBox.ShowAsync();
+        if (result == true)
+        {
+            await personService.DeletePersonAsync(new(person.Id));
+            People = await personService.GetPeopleAsync();
+        }
+    }
+
     private async Task OpenAddIncomeDialog(PersonResponse person)
     {
         var dialog = await dialogService.ShowAsync<IncomeRecordDialog>(
