@@ -21,12 +21,12 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
         return await context
             .Transactions.OrderBy(t => t.Name)
-            .Where(t => monthInit <= t.Date && t.Date < monthEnd)
+            .Where(t => monthInit <= t.Month && t.Month < monthEnd)
             .Select(t => new TransactionResponse(
                 t.Id,
                 t.Name,
                 t.Value,
-                t.Date,
+                t.Month,
                 t.SplitType,
                 new TransactionPersonResponse(t.PaidBy.Id, t.PaidBy.Name),
                 t.SharedWith.Select(tp => new TransactionPersonResponse(tp.Id, tp.Name)).ToList()
@@ -60,7 +60,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         var newTransaction = new Transaction
         {
             Name = command.Name,
-            Date = command.Date,
+            Month = command.Date,
             Value = command.Value,
             PaidBy = paidByPerson,
             SplitType = command.SplitType,
@@ -74,7 +74,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             newTransaction.Id,
             newTransaction.Name,
             newTransaction.Value,
-            newTransaction.Date,
+            newTransaction.Month,
             newTransaction.SplitType,
             new(newTransaction.PaidBy.Id, newTransaction.PaidBy.Name),
             [.. newTransaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
@@ -127,7 +127,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             transaction.Id,
             transaction.Name,
             transaction.Value,
-            transaction.Date,
+            transaction.Month,
             transaction.SplitType,
             new(transaction.PaidBy.Id, transaction.PaidBy.Name),
             [.. transaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]

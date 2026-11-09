@@ -6,7 +6,7 @@ public class Transaction : BaseEntity
 {
     private string? _name;
     private decimal _value;
-    private DateOnly _date;
+    private DateOnly _month;
     private Person? _paidBy;
     private List<Person> _sharedWith = [];
     private SplitType _splitType = SplitType.Even;
@@ -23,10 +23,10 @@ public class Transaction : BaseEntity
         init => _value = value;
     }
 
-    public required DateOnly Date
+    public required DateOnly Month
     {
-        get => _date;
-        init => _date = value;
+        get => _month;
+        init => _month = value.Day == 1 ? value : new(value.Year, value.Month, 1);
     }
 
     public SplitType SplitType
@@ -49,10 +49,10 @@ public class Transaction : BaseEntity
 
     public Recurrence? Recurrence { get; init; }
 
-    public void Update(string name, DateOnly date, decimal value, SplitType splitType)
+    public void Update(string name, DateOnly month, decimal value, SplitType splitType)
     {
         _name = name;
-        _date = date;
+        _month = month;
         _value = value;
         _splitType = splitType;
     }
@@ -111,7 +111,7 @@ public class Transaction : BaseEntity
     private Dictionary<Person, decimal> CalculateRatioShares()
     {
         var incomePerPerson = SharedWith
-            .Select(p => new { Person = p, Income = p.GetIncomeForMonth(Date) })
+            .Select(p => new { Person = p, Income = p.GetIncomeForMonth(Month) })
             .ToArray();
 
         if (incomePerPerson.Any(x => x.Income <= 0))

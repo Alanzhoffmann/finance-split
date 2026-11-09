@@ -27,13 +27,13 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
 
         var transactions = await context
             .Transactions.AsNoTracking()
-            .OrderBy(t => t.Date)
+            .OrderBy(t => t.Month)
             .ThenBy(t => t.Name.ToLower())
             .Select(t => new BackupTransaction(
                 t.Id,
                 t.Name,
                 t.Value,
-                t.Date,
+                t.Month,
                 t.SplitType,
                 t.PaidBy.Id,
                 t.SharedWith.OrderBy(r => r.Id).Select(r => r.Id).ToList()
@@ -112,7 +112,7 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
         }
 
         var existingTransactions = await context.Transactions.ToDictionaryAsync(
-            t => (t.Name, t.Date.Month, t.Date.Year),
+            t => (t.Name, t.Month.Month, t.PaidBy.Id, t.Month.Year),
             cancellationToken: cancellationToken
         );
 
@@ -120,7 +120,12 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
         {
             if (
                 existingTransactions.TryGetValue(
-                    (transaction.Name, transaction.Month, transaction.Year),
+                    (
+                        transaction.Name,
+                        transaction.Month,
+                        transaction.PaidByPersonId,
+                        transaction.Year
+                    ),
                     out var existingTransaction
                 )
             )
@@ -142,7 +147,7 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
                 var newTransaction = new Transaction()
                 {
                     Name = transaction.Name,
-                    Date = new(transaction.Year, transaction.Month, 1),
+                    Month = new(transaction.Year, transaction.Month, 1),
                     PaidBy = peopleMapping[transaction.PaidByPersonId],
                     Value = transaction.Value,
                     SharedWith =

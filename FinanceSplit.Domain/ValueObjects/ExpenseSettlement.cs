@@ -1,10 +1,12 @@
-﻿namespace FinanceSplit.Domain.ValueObjects;
+﻿using FinanceSplit.Domain.Entities;
+
+namespace FinanceSplit.Domain.ValueObjects;
 
 public record ExpenseSettlement
 {
-    public ExpenseSettlement(Guid fromPersonId, Guid toPersonId, decimal amount)
+    public ExpenseSettlement(Person from, Person to, decimal amount)
     {
-        if (fromPersonId == toPersonId)
+        if (from.Id == to.Id)
         {
             throw new ArgumentException("Settlement requires two different people.");
         }
@@ -17,12 +19,18 @@ public record ExpenseSettlement
             );
         }
 
-        FromPersonId = fromPersonId;
-        ToPersonId = toPersonId;
+        From = from;
+        To = to;
         Amount = decimal.Round(amount, 2, MidpointRounding.AwayFromZero);
     }
 
-    public Guid FromPersonId { get; }
-    public Guid ToPersonId { get; }
+    private ExpenseSettlement()
+    {
+        From = null!;
+        To = null!;
+    }
+
+    public Person From { get; }
+    public Person To { get; }
     public decimal Amount { get; }
 }

@@ -1,5 +1,7 @@
 ﻿using FinanceSplit.Contracts.Services;
 using FinanceSplit.Data.BackgroundServices;
+using FinanceSplit.Data.Factories;
+using FinanceSplit.Data.Interceptors;
 using FinanceSplit.Data.Interfaces;
 using FinanceSplit.Data.Internal;
 using FinanceSplit.Data.Services;
@@ -19,8 +21,12 @@ public static class ServiceCollectionExtensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 options.UseSqlite(connectionString);
+
+                options.AddInterceptors(sp.GetRequiredService<MonthSummaryCalculatorInterceptor>());
             }
         );
+
+        services.AddTransient<MonthSummaryCalculatorInterceptor>();
 
         services.AddSingleton<MigrationState>();
         services.AddSingleton<IMigrationState>(sp => sp.GetRequiredService<MigrationState>());
@@ -31,6 +37,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IBackupService, BackupService>();
+
+        services.AddScoped<MonthSummaryFactory>();
 
         return services;
     }

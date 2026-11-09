@@ -45,6 +45,7 @@ public class Recurrence : BaseEntity
             2,
             MidpointRounding.ToZero
         );
+
         IReadOnlyList<Transaction> transactions =
         [
             .. Enumerable
@@ -52,7 +53,7 @@ public class Recurrence : BaseEntity
                 .Select(i => new Transaction()
                 {
                     Name = $"{transaction.Name} {i + 1}/{numberOfInstallments}",
-                    Date = transaction.Date.AddMonths(i),
+                    Month = transaction.Month.AddMonths(i),
                     PaidBy = transaction.PaidBy,
                     Value = installments,
                     SharedWith = transaction.SharedWith,

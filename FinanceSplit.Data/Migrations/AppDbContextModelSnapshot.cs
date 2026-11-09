@@ -15,7 +15,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261101192611_AddRecurrence";
+    public override string LastMigrationId => "20261109195843_AddMonthSummary";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -45,6 +45,20 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("PersonId");
 
                 b.ToTable("IncomeRecords");
+            });
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.MonthSummary", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
+
+                b.Property<DateOnly>("Month")
+                    .HasColumnType("TEXT");
+
+                b.HasKey("Id");
+
+                b.ToTable("Summaries");
             });
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Person", b =>
@@ -94,7 +108,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("TEXT");
 
-                b.Property<DateOnly>("Date")
+                b.Property<DateOnly>("Month")
                     .HasColumnType("TEXT");
 
                 b.Property<string>("Name")
@@ -142,6 +156,93 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.HasOne("FinanceSplit.Domain.Entities.Person", null)
                     .WithMany("IncomeRecords")
                     .HasForeignKey("PersonId");
+            });
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.MonthSummary", b =>
+            {
+                b.OwnsMany("FinanceSplit.Domain.ValueObjects.ExpenseSettlement", "Settlements", b1 =>
+                    {
+                        b1.Property<Guid>("MonthSummaryId")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<Guid>("FromId")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<Guid>("ToId")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<decimal>("Amount")
+                            .HasColumnType("TEXT");
+
+                        b1.HasKey("MonthSummaryId", "FromId", "ToId");
+
+                        b1.HasIndex("FromId");
+
+                        b1.HasIndex("ToId");
+
+                        b1.ToTable("ExpenseSettlement");
+
+                        b1.HasOne("FinanceSplit.Domain.Entities.Person", "From")
+                            .WithMany()
+                            .HasForeignKey("FromId")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b1.WithOwner()
+                            .HasForeignKey("MonthSummaryId");
+
+                        b1.HasOne("FinanceSplit.Domain.Entities.Person", "To")
+                            .WithMany()
+                            .HasForeignKey("ToId")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b1.Navigation("From");
+
+                        b1.Navigation("To");
+                    });
+
+                b.OwnsMany("FinanceSplit.Domain.ValueObjects.PersonSummary", "People", b1 =>
+                    {
+                        b1.Property<Guid>("MonthSummaryId")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<Guid>("PersonId")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<decimal>("Income")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<decimal>("PersonalExpenses")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<decimal>("SharedExpenses")
+                            .HasColumnType("TEXT");
+
+                        b1.Property<decimal>("TotalPaid")
+                            .HasColumnType("TEXT");
+
+                        b1.HasKey("MonthSummaryId", "PersonId");
+
+                        b1.HasIndex("PersonId");
+
+                        b1.ToTable("PersonSummary");
+
+                        b1.WithOwner()
+                            .HasForeignKey("MonthSummaryId");
+
+                        b1.HasOne("FinanceSplit.Domain.Entities.Person", "Person")
+                            .WithMany()
+                            .HasForeignKey("PersonId")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b1.Navigation("Person");
+                    });
+
+                b.Navigation("People");
+
+                b.Navigation("Settlements");
             });
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Transaction", b =>
