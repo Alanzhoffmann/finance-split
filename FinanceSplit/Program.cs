@@ -1,5 +1,5 @@
 using FinanceSplit.Api;
-using FinanceSplit.Client.ViewModels;
+using FinanceSplit.Client.Extensions;
 using FinanceSplit.Components;
 using MudBlazor.Services;
 
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
-builder.Services.AddTransient<TransactionViewModel>();
+builder.Services.AddViewModels();
 
 // Add services to the container.
 builder

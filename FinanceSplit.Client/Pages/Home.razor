@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/{MonthParam}"
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -20,16 +21,27 @@
             </MudFileUpload>
         </div>
 
-        <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
+        <MudDatePicker Label="Month"
+                       OpenTo="OpenTo.Month"
+                       FixDay="1"
+                       DateFormat="MMM/yyyy"
+                       TitleDateFormat="MMM/yyyy"
+                       Date="@(ViewModel.CurrentMonth.ToDateTime(TimeOnly.MinValue))"
+                       DateChanged="OnMonthSelected"
+                       For="@(() => Month)" />
 
-        @if (Data is not null)
+        @if (!ViewModel.IsLoaded)
         {
-            if (Data.People.Count > 0)
+            <MudProgressCircular Indeterminate />
+        }
+        else
+            {
+            if (ViewModel.People?.Count > 0)
             {
             <MudGrid>
-                @foreach (var person in Data.People)
+                    @foreach (var person in ViewModel.People)
                 {
-                        var count = Data.People.Count;
+                        var count = ViewModel.People.Count;
 
                         <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
                         <MudCard>
@@ -68,12 +80,12 @@
             </MudGrid>
             }
 
-            if (Data.Settlements.Count > 0)
+            if (ViewModel.Settlements?.Count > 0)
             {
             <MudGrid>
-                @foreach (var settlement in Data.Settlements)
+                    @foreach (var settlement in ViewModel.Settlements)
                 {
-                    var count = Data.Settlements.Count;
+                        var count = ViewModel.Settlements.Count;
 
                         <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
                         <MudCard Outlined>
@@ -88,10 +100,6 @@
                 }
             </MudGrid>
         }
-        }
-        else
-        {
-            <MudAlert Severity="Severity.Warning">No people set up</MudAlert>
         }
     </MudStack>
 </MudContainer>

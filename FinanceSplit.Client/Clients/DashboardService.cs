@@ -11,7 +11,7 @@ internal partial class DashboardService(HttpClient client) : IDashboardService
         CancellationToken cancellationToken = default
     ) =>
         await client.GetFromJsonAsync(
-            month.HasValue ? $"api/dashboard?month={month}" : "api/dashboard",
+            month.HasValue ? $"api/dashboard?month={month:yyyy-MM}" : "api/dashboard",
             DashboardSerializerContext.Default.DashboardResponse,
             cancellationToken: cancellationToken
         );

@@ -15,12 +15,18 @@ internal static class DashboardEndpoints
         group.MapGet(
             "",
             async (
-                [FromQuery] DateOnly? month,
+                [FromQuery] string? month,
                 IDashboardService service,
                 CancellationToken cancellationToken = default
             ) =>
             {
-                var dashboard = await service.GetDashboardAsync(month, cancellationToken);
+                DateOnly? targetMonth =
+                    !string.IsNullOrWhiteSpace(month)
+                    && DateOnly.TryParseExact(month, "yyyy-MM", out var selectedMonth)
+                        ? new DateOnly(selectedMonth.Year, selectedMonth.Month, 1)
+                        : null;
+
+                var dashboard = await service.GetDashboardAsync(targetMonth, cancellationToken);
                 return TypedResults.Ok(dashboard);
             }
         );
