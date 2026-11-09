@@ -85,7 +85,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
     )
     {
         var response = await client.PutAsJsonAsync(
-            $"api/person/{command.PersonId}/income/",
+            $"api/person/{command.PersonId}/income/{command.Id}",
             command,
             PersonSerializerContext.Default.UpdateIncomeRecordCommand,
             cancellationToken

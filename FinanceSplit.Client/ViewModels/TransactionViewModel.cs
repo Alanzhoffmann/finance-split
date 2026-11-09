@@ -4,6 +4,7 @@ using FinanceSplit.Contracts.Commands;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Enums;
 using FinanceSplit.Contracts.Services;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace FinanceSplit.Client.ViewModels;
@@ -42,6 +43,7 @@ public partial class TransactionViewModel(
 
     public bool IsEditing => Id is not null;
 
+    [PersistentState]
     public IReadOnlyList<PersonResponse> People { get; set; } = [];
     public Guid? Id { get; set; }
 
@@ -70,10 +72,9 @@ public partial class TransactionViewModel(
                 ? throw new NullReferenceException("Date is null")
                 : DateOnly.FromDateTime(Date.Value);
 
-            Guid[] sharedWith = [];
-            if (SplitType is not SplitType.None)
+            if (SplitType is SplitType.None && SharedWithIds.Count > 1)
             {
-                sharedWith = [.. SharedWithIds];
+                SharedWithIds = [SharedWithIds.First()];
             }
 
             return new CreateTransactionCommand(
@@ -82,7 +83,7 @@ public partial class TransactionViewModel(
                 Value,
                 PaidByPersonId,
                 SplitType,
-                sharedWith
+                SharedWithIds
             );
         }
     }

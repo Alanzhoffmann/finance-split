@@ -50,8 +50,8 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             return null;
         }
 
-        var sharedWith = people.Where(p => personIds.Contains(p.Id)).ToList();
-        if (sharedWith.Count < command.SharedWithIds.Length)
+        var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
+        if (sharedWith.Count < command.SharedWithIds.Count)
         {
             // Not every person shared with is accounted for
             return null;
@@ -108,8 +108,8 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
                 return null;
             }
 
-            var sharedWith = people.Where(p => personIds.Contains(p.Id)).ToList();
-            if (sharedWith.Count < command.SharedWithIds.Length)
+            var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
+            if (sharedWith.Count < command.SharedWithIds.Count)
             {
                 // Not every person shared with is accounted for
                 return null;

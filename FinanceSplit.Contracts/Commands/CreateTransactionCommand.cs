@@ -8,5 +8,5 @@ public record CreateTransactionCommand(
     decimal Value,
     Guid PaidByPersonId,
     SplitType SplitType,
-    Guid[] SharedWithIds
+    IReadOnlyCollection<Guid> SharedWithIds
 );

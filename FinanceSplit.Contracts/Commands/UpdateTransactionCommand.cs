@@ -10,5 +10,5 @@ public record UpdateTransactionCommand(
     decimal Value,
     Guid PaidByPersonId,
     SplitType SplitType,
-    Guid[] SharedWithIds
+    IReadOnlyCollection<Guid> SharedWithIds
 );
