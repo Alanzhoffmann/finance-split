@@ -1,5 +1,4 @@
 ﻿@page "/"
-@page "/{MonthParam}"
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -14,7 +13,7 @@
     <MudStack>
         <div class="d-inline-flex justify-space-between align-center flex-grow-1">
             <MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
-            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+            <MudFileUpload T="IBrowserFile" FilesChanged="@((file) => ViewModel.UploadBackupCommand.ExecuteAsync(file))">
                 <CustomContent>
                     <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@context.OpenFilePickerAsync" />
                 </CustomContent>
@@ -27,79 +26,78 @@
                        DateFormat="MMM/yyyy"
                        TitleDateFormat="MMM/yyyy"
                        Date="@(ViewModel.CurrentMonth.ToDateTime(TimeOnly.MinValue))"
-                       DateChanged="OnMonthSelected"
-                       For="@(() => Month)" />
+                       DateChanged="OnMonthSelected" />
 
         @if (!ViewModel.IsLoaded)
         {
             <MudProgressCircular Indeterminate />
         }
         else
-            {
+        {
             if (ViewModel.People?.Count > 0)
             {
-            <MudGrid>
+                <MudGrid>
                     @foreach (var person in ViewModel.People)
-                {
+                    {
                         var count = ViewModel.People.Count;
 
                         <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
-                        <MudCard>
-                            <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
-                            <MudCardContent>
-                                <MudSimpleTable Dense Class="no-border-table" Elevation="0">
-                                    <MudTr>
-                                        <MudTd>Income:</MudTd>
-                                        <MudTd Style="text-align:right">@person.Income.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                    <MudTr>
-                                        <MudTd>Total shared:</MudTd>
-                                        <MudTd Style="text-align:right">@person.TotalShared.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                    <MudTr>
-                                        <MudTd>Shared expenses:</MudTd>
-                                        <MudTd Style="text-align:right">@person.SharedExpenses.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                    <MudTr>
-                                        <MudTd>Personal expenses:</MudTd>
-                                        <MudTd Style="text-align:right">@person.PersonalExpenses.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                    <MudTr>
-                                        <MudTd>Total paid:</MudTd>
-                                        <MudTd Style="text-align:right">@person.TotalPaid.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                    <MudTr>
-                                        <MudTd>Leftover:</MudTd>
-                                        <MudTd Style="text-align:right">@person.Leftover.ToString("C", _enGb)</MudTd>
-                                    </MudTr>
-                                </MudSimpleTable>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-                }
-            </MudGrid>
+                            <MudCard>
+                                <MudCardHeader><MudText Typo="Typo.h4">@person.Name</MudText></MudCardHeader>
+                                <MudCardContent>
+                                    <MudSimpleTable Dense Class="no-border-table" Elevation="0">
+                                        <MudTr>
+                                            <MudTd>Income:</MudTd>
+                                            <MudTd Style="text-align:right">@person.Income.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                        <MudTr>
+                                            <MudTd>Total shared:</MudTd>
+                                            <MudTd Style="text-align:right">@person.TotalShared.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                        <MudTr>
+                                            <MudTd>Shared expenses:</MudTd>
+                                            <MudTd Style="text-align:right">@person.SharedExpenses.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                        <MudTr>
+                                            <MudTd>Personal expenses:</MudTd>
+                                            <MudTd Style="text-align:right">@person.PersonalExpenses.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                        <MudTr>
+                                            <MudTd>Total paid:</MudTd>
+                                            <MudTd Style="text-align:right">@person.TotalPaid.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                        <MudTr>
+                                            <MudTd>Leftover:</MudTd>
+                                            <MudTd Style="text-align:right">@person.Leftover.ToString("C", _enGb)</MudTd>
+                                        </MudTr>
+                                    </MudSimpleTable>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
             }
 
             if (ViewModel.Settlements?.Count > 0)
             {
-            <MudGrid>
+                <MudGrid>
                     @foreach (var settlement in ViewModel.Settlements)
-                {
+                    {
                         var count = ViewModel.Settlements.Count;
 
                         <MudItem md="count == 1 ? 12 : count % 2 == 1 ? 4 : 6" xs="12">
-                        <MudCard Outlined>
-                            <MudCardHeader Class="d-flex justify-center">
-                                <MudText Typo="Typo.h5">@settlement.FromName to @settlement.ToName</MudText>
-                            </MudCardHeader>
-                            <MudCardContent Class="d-flex justify-center">
-                                <MudText Typo="Typo.h6">@settlement.Amount.ToString("C", _enGb)</MudText>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-                }
-            </MudGrid>
-        }
+                            <MudCard Outlined>
+                                <MudCardHeader Class="d-flex justify-center">
+                                    <MudText Typo="Typo.h5">@settlement.FromName to @settlement.ToName</MudText>
+                                </MudCardHeader>
+                                <MudCardContent Class="d-flex justify-center">
+                                    <MudText Typo="Typo.h6">@settlement.Amount.ToString("C", _enGb)</MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
         }
     </MudStack>
 </MudContainer>
