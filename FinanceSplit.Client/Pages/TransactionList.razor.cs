@@ -1,78 +1,39 @@
 using System.Globalization;
-using CommunityToolkit.Mvvm.ComponentModel;
-using FinanceSplit.Client.Dialogs;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Client.ViewModels;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceSplit.Client.Pages;
 
-[INotifyPropertyChanged]
-public partial class TransactionList(
-    ITransactionService transactionService,
-    IDialogService dialogService,
-    TimeProvider timeProvider
-)
+public partial class TransactionList(TransactionListViewModel viewModel)
 {
     private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
-    private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
-    private MudMessageBox _deleteConfirmationMessageBox = default!;
 
-    [ObservableProperty]
-    private partial DateTime? Month { get; set; } = timeProvider.GetLocalNow().Date;
+    [Parameter]
+    [SupplyParameterFromQuery(Name = TransactionListViewModel.MonthParamName)]
+    public string? MonthParam { get; set; }
 
-    [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<TransactionResponse>? Transactions { get; set; }
+    private TransactionListViewModel ViewModel { get; set; } = viewModel;
 
     protected override async Task OnParametersSetAsync()
     {
-        DateOnly? month = Month.HasValue ? DateOnly.FromDateTime(Month.Value) : null;
-        Transactions ??= await transactionService.GetTransactionsAsync(month);
-    }
-
-    async partial void OnMonthChanged(DateTime? value) => await RefreshTransaction(value);
-
-    private async Task OpenCreateTransactionDialog()
-    {
-        var dialog = await dialogService.ShowAsync<TransactionDialog>(_dialogOptions);
-        var result = await dialog.Result;
-
-        if (!result?.Canceled ?? false)
+        DateOnly? targetMonth = null;
+        if (
+            !string.IsNullOrWhiteSpace(MonthParam)
+            && DateOnly.TryParseExact(MonthParam, "yyyy-MM", out var selectedMonth)
+        )
         {
-            await RefreshTransaction();
+            targetMonth = new DateOnly(selectedMonth.Year, selectedMonth.Month, 1);
         }
+
+        await ViewModel.InitializeAsync(targetMonth);
     }
 
-    private async Task OpenEditTransactionDialog(TransactionResponse transaction)
+    private void OnMonthSelected(DateTime? selectedDate)
     {
-        var dialog = await dialogService.ShowAsync<TransactionDialog>(
-            new DialogParameters { ["Transaction"] = transaction },
-            _dialogOptions
-        );
-        var result = await dialog.Result;
-
-        if (!result?.Canceled ?? false)
+        if (selectedDate.HasValue)
         {
-            await RefreshTransaction();
+            var newMonth = DateOnly.FromDateTime(selectedDate.Value);
+            ViewModel.ChangeMonth(newMonth);
         }
-    }
-
-    private async Task DeleteTransaction(TransactionResponse transaction)
-    {
-        var result = await _deleteConfirmationMessageBox.ShowAsync();
-        if (result == true)
-        {
-            await transactionService.DeleteTransactionAsync(new(transaction.Id));
-            await RefreshTransaction();
-        }
-    }
-
-    private async Task RefreshTransaction(DateTime? value = null)
-    {
-        value ??= Month;
-
-        DateOnly? month = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
-        Transactions = await transactionService.GetTransactionsAsync(month);
     }
 }

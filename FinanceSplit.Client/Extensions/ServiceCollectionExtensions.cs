@@ -1,12 +1,17 @@
-﻿using FinanceSplit.Client.ViewModels;
+﻿using FinanceSplit.Client.Dialogs.Services;
+using FinanceSplit.Client.Interfaces;
+using FinanceSplit.Client.ViewModels;
 
 namespace FinanceSplit.Client.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddViewModels(this IServiceCollection services)
+    public static void AddClientDependencies(this IServiceCollection services)
     {
-        services.AddTransient<TransactionViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<TransactionListViewModel>();
+        services.AddTransient<TransactionViewModel>();
+
+        services.AddTransient<ITransactionDialogService, TransactionDialogService>();
     }
 }

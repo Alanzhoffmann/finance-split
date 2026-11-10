@@ -5,18 +5,24 @@
 <MudContainer>
     <MudStack>
         <MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
-        <MudDatePicker Label="Month" @bind-Date="@Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Month)" />
+        <MudDatePicker Label="Month"
+                       OpenTo="OpenTo.Month"
+                       FixDay="1"
+                       DateFormat="MMM/yyyy"
+                       TitleDateFormat="MMM/yyyy"
+                       Date="@(ViewModel.CurrentMonth.ToDateTime(TimeOnly.MinValue))"
+                       DateChanged="OnMonthSelected" />
         <div>
-            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenCreateTransactionDialog">Add transaction</MudButton>
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => ViewModel.CreateTransactionCommand.ExecuteAsync(null)">Add transaction</MudButton>
         </div>
 
-        @if (Transactions == null)
+        @if (ViewModel.Transactions == null)
         {
             <MudProgressCircular Color="Color.Default" Indeterminate="true" />
         }
         else
         {
-            <MudTable Items="Transactions" Dense Hover="true" SortLabel="Sort By">
+            <MudTable Items="ViewModel.Transactions" Dense Hover="true" SortLabel="Sort By">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Value</MudTh>
@@ -33,24 +39,12 @@
                     <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Name))</MudTd>
                     <MudTd>
                         <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
-                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditTransactionDialog(context))" />
-                            <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteTransaction(context))" />
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => ViewModel.EditTransactionCommand.ExecuteAsync(context))" />
+                            <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => ViewModel.DeleteTransactionCommand.ExecuteAsync(context))" />
                         </div>
                     </MudTd>
                 </RowTemplate>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[] { 50, 100 }" />
-                </PagerContent>
             </MudTable>
         }
     </MudStack>
 </MudContainer>
-
-<MudMessageBox @ref="_deleteConfirmationMessageBox" Title="Warning" CancelText="Cancel">
-    <MessageContent>
-        Deleting can <b><i>not</i></b> be undone!
-    </MessageContent>
-    <YesButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
-    </YesButton>
-</MudMessageBox>

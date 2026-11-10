@@ -20,6 +20,6 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IBackupService, BackupService>();
 
-builder.Services.AddViewModels();
+builder.Services.AddClientDependencies();
 
 await builder.Build().RunAsync();
