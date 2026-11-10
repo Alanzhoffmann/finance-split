@@ -16,7 +16,7 @@
             <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => ViewModel.CreateTransactionCommand.ExecuteAsync(null)">Add transaction</MudButton>
         </div>
 
-        @if (ViewModel.Transactions == null)
+        @if (!ViewModel.IsLoaded)
         {
             <MudProgressCircular Color="Color.Default" Indeterminate="true" />
         }

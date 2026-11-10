@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
@@ -25,6 +26,7 @@ public partial class DashboardViewModel(
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<ExpenseSettlementResponse>? Settlements { get; set; }
 
+    [MemberNotNullWhen(true, nameof(People), nameof(Settlements))]
     public bool IsLoaded => People is not null && Settlements is not null;
 
     public async Task InitializeAsync(DateOnly? targetMonth = null)

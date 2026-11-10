@@ -34,7 +34,7 @@
         }
         else
         {
-            if (ViewModel.People?.Count > 0)
+            if (ViewModel.People.Count > 0)
             {
                 <MudGrid>
                     @foreach (var person in ViewModel.People)
@@ -78,7 +78,7 @@
                 </MudGrid>
             }
 
-            if (ViewModel.Settlements?.Count > 0)
+            if (ViewModel.Settlements.Count > 0)
             {
                 <MudGrid>
                     @foreach (var settlement in ViewModel.Settlements)

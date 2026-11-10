@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Client.Interfaces;
+﻿using FinanceSplit.Client.Extensions;
+using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Contracts.DTOs;
 using MudBlazor;
 
@@ -9,11 +10,11 @@ public sealed class TransactionDialogService(IDialogService dialogService)
 {
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
 
-    public Task<TransactionResponse?> CreateTransactionAsync() => OpenDialog();
+    public Task<TransactionResponse?> CreateTransactionAsync() => OpenDialogAsync();
 
     public Task<TransactionResponse?> EditTransactionAsync(
         TransactionResponse originalTransaction
-    ) => OpenDialog(originalTransaction);
+    ) => OpenDialogAsync(originalTransaction);
 
     public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionResponse transaction)
     {
@@ -27,17 +28,11 @@ public sealed class TransactionDialogService(IDialogService dialogService)
         return result == true;
     }
 
-    private async Task<TransactionResponse?> OpenDialog(TransactionResponse? transaction = null)
-    {
-        var parameters = new DialogParameters { ["Transaction"] = transaction };
-        var dialog = await dialogService.ShowAsync<TransactionDialog>(parameters, _dialogOptions);
-        var result = await dialog.Result;
-
-        return
-            result is not null
-            && !result.Canceled
-            && result.Data is TransactionResponse editedTransaction
-            ? editedTransaction
-            : null;
-    }
+    private async Task<TransactionResponse?> OpenDialogAsync(
+        TransactionResponse? transaction = null
+    ) =>
+        await dialogService.ShowDialogAsync<TransactionResponse, TransactionDialog>(
+            new DialogParameters { ["Transaction"] = transaction },
+            _dialogOptions
+        );
 }

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Contracts.DTOs;
@@ -20,8 +21,9 @@ public partial class TransactionListViewModel(
     public partial DateOnly CurrentMonth { get; set; }
 
     [PersistentState(AllowUpdates = true)]
-    public List<TransactionResponse>? Transactions { get; set; }
+    public List<TransactionResponse>? Transactions { get; private set; }
 
+    [MemberNotNullWhen(true, nameof(Transactions))]
     public bool IsLoaded => Transactions is not null;
 
     public async Task InitializeAsync(DateOnly? targetMonth = null)

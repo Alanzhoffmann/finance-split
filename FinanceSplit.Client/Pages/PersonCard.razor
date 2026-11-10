@@ -1,0 +1,42 @@
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h4">@Person.Name</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(Person))" />
+            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeletePerson(Person))" />
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudTable Items="Person.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
+            <HeaderContent>
+                <MudTh>Month</MudTh>
+                <MudTh>Amount</MudTh>
+                <MudTh>Type</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
+                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                <MudTd DataLabel="Type">@context.Type</MudTd>
+                <MudTd>
+                    <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(Person, context))" />
+                        <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteIncome(Person, context))" />
+                    </div>
+                </MudTd>
+            </RowTemplate>
+            <GroupFooterTemplate>
+                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
+            </GroupFooterTemplate>
+        </MudTable>
+    </MudCardContent>
+    <MudCardActions>
+        <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => OpenAddIncomeDialog(Person))" />
+    </MudCardActions>
+</MudCard>
+
+                

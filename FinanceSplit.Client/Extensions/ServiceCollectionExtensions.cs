@@ -11,7 +11,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<TransactionListViewModel>();
         services.AddTransient<TransactionViewModel>();
+        services.AddTransient<PeopleListViewModel>();
 
         services.AddTransient<ITransactionDialogService, TransactionDialogService>();
+        services.AddTransient<IPersonDialogService, PersonDialogService>();
     }
 }
