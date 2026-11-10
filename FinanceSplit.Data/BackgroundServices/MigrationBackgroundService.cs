@@ -42,23 +42,17 @@ internal partial class MigrationBackgroundService(
     }
 
     [LoggerMessage(
-        EventId = 0,
         Level = LogLevel.Information,
         Message = "Waiting for database migrations to complete..."
     )]
     public partial void LogWaitingForMigrations();
 
     [LoggerMessage(
-        EventId = 1,
         Level = LogLevel.Information,
         Message = "Database migrations completed successfully."
     )]
     public partial void LogMigrationsCompleted();
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Critical,
-        Message = "Failed to apply database migrations."
-    )]
+    [LoggerMessage(Level = LogLevel.Critical, Message = "Failed to apply database migrations.")]
     public partial void LogMigrationError(Exception ex);
 }

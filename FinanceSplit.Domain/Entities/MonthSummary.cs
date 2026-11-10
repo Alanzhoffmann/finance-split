@@ -14,44 +14,31 @@ public sealed class MonthSummary : BaseEntity
         get => _settlements;
         set => _settlements = [.. value];
     }
+
     public IList<PersonSummary> People
     {
         get => _people;
         set => _people = [.. value];
     }
 
-    public void Update(IEnumerable<Person> people)
+    public void Update(IEnumerable<Person> people, IEnumerable<Transaction> transactions)
     {
-        var totalSharedPerPersonId = GetTotalSharedPerPerson(people);
+        var personById = people.ToDictionary(p => p.Id);
 
-        var settlements = CalculateSettlements(
-            people
-                .SelectMany(p => p.Transactions)
-                .Where(t => t.Month == Month)
-                .DistinctBy(t => t.Id)
-        );
+        _people = CalculatePeopleSummary(people, transactions);
 
-        _people =
+        _settlements =
         [
-            .. people.Select(p => new PersonSummary
-            {
-                Person = p,
-                Income = p.GetIncomeForMonth(Month),
-                SharedExpenses = totalSharedPerPersonId.GetValueOrDefault(p.Id),
-                PersonalExpenses = p
-                    .Transactions.Where(t =>
-                        t.SplitType is SplitType.None
-                        && (t.SharedWith.Count == 0 || t.SharedWith[0].Id == t.PaidBy.Id)
-                    )
-                    .Sum(t => t.Value),
-                TotalPaid = p.Transactions.Sum(t => t.Value),
-            }),
+            .. CalculateSettlements(transactions)
+                .Select(e => new ExpenseSettlement(
+                    personById[e.From.Id],
+                    personById[e.To.Id],
+                    e.Amount
+                )),
         ];
-
-        _settlements = [.. settlements];
     }
 
-    private static IReadOnlyDictionary<Person, decimal> CalculateNetBalances(
+    private static Dictionary<Person, decimal> CalculateNetBalances(
         IEnumerable<Transaction> transactions
     )
     {
@@ -77,11 +64,47 @@ public sealed class MonthSummary : BaseEntity
             );
     }
 
-    private static IReadOnlyList<ExpenseSettlement> CalculateSettlements(
-        IEnumerable<Transaction> transaction
+    private static void AddToBalance(
+        Dictionary<Person, decimal> balances,
+        Person person,
+        decimal amount
     )
     {
-        var balances = CalculateNetBalances(transaction);
+        balances.TryGetValue(person, out var current);
+        balances[person] = decimal.Round(current + amount, 2, MidpointRounding.AwayFromZero);
+    }
+
+    private List<PersonSummary> CalculatePeopleSummary(
+        IEnumerable<Person> people,
+        IEnumerable<Transaction> transactions
+    )
+    {
+        var totalSharedPerPersonId = GetTotalSharedPerPerson(transactions);
+
+        return
+        [
+            .. people.Select(p => new PersonSummary
+            {
+                Person = p,
+                Income = p.GetIncomeForMonth(Month),
+                SharedExpenses = totalSharedPerPersonId.GetValueOrDefault(p.Id),
+                PersonalExpenses = p
+                    .Transactions.Where(t =>
+                        t.SplitType is SplitType.None
+                        && (t.SharedWith.Count == 0 || t.SharedWith[0].Id == t.PaidBy.Id)
+                    )
+                    .Sum(t => t.Value),
+                TotalPaid = p.Transactions.Sum(t => t.Value),
+            }),
+        ];
+    }
+
+    private List<ExpenseSettlement> CalculateSettlements(IEnumerable<Transaction> transactions)
+    {
+        var balances = CalculateNetBalances(
+            transactions.Where(t => t.Month == Month).DistinctBy(t => t.Id)
+        );
+
         var creditors = balances
             .Where(x => x.Value > 0)
             .Select(x => (Person: x.Key, Amount: x.Value))
@@ -141,21 +164,12 @@ public sealed class MonthSummary : BaseEntity
         return settlements;
     }
 
-    private static void AddToBalance(
-        Dictionary<Person, decimal> balances,
-        Person person,
-        decimal amount
-    )
-    {
-        balances.TryGetValue(person, out var current);
-        balances[person] = decimal.Round(current + amount, 2, MidpointRounding.AwayFromZero);
-    }
-
-    private static Dictionary<Guid, decimal> GetTotalSharedPerPerson(IEnumerable<Person> people) =>
-        people
-            .SelectMany(p => p.SharedTransactions)
+    private Dictionary<Guid, decimal> GetTotalSharedPerPerson(
+        IEnumerable<Transaction> transactions
+    ) =>
+        transactions
+            .Where(t => t.Month == Month && t.SplitType is not SplitType.None)
             .DistinctBy(t => t.Id)
-            .Where(t => t.SplitType is not SplitType.None)
             .SelectMany(t => t.CalculateShares())
             .GroupBy(g => g.Key.Id)
             .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Value));

@@ -13,14 +13,20 @@ internal class MonthSummaryFactory(AppDbContext context)
         var normalizedMonths = monthsToUpdate
             .Select(m => m.Day == 1 ? m : new DateOnly(m.Year, m.Month, 1))
             .ToList();
+
         var summaries = await context
             .Summaries.Where(s => normalizedMonths.Contains(s.Month))
             .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
 
-        var peopleWithTransactions = await GetPeopleWithTransactions(
-            normalizedMonths,
-            cancellationToken
-        );
+        var transactions = await context
+            .Transactions.Include(t => t.PaidBy)
+            .Include(t => t.SharedWith)
+            .Where(t => normalizedMonths.Contains(t.Month))
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var people = await context.People.ToListAsync(cancellationToken);
+
         foreach (var month in normalizedMonths)
         {
             var summary = summaries.GetValueOrDefault(month);
@@ -30,16 +36,9 @@ internal class MonthSummaryFactory(AppDbContext context)
                 context.Add(summary);
             }
 
-            summary.Update(peopleWithTransactions);
+            summary.Update(people, transactions);
         }
-    }
 
-    private async Task<List<Person>> GetPeopleWithTransactions(
-        IEnumerable<DateOnly> months,
-        CancellationToken cancellationToken = default
-    ) =>
-        await context
-            .People.Include(p => p.Transactions.Where(t => months.Contains(t.Month)))
-            .Include(p => p.SharedTransactions.Where(t => months.Contains(t.Month)))
-            .ToListAsync(cancellationToken: cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }
