@@ -126,7 +126,7 @@ internal static class PersonEndpoints
                 CancellationToken cancellationToken
             ) =>
             {
-                await service.DeleteIncomeRecordAsync(new(PersonId, Id), cancellationToken);
+                await service.DeleteIncomeRecordAsync(new(Id, PersonId), cancellationToken);
                 return Results.NoContent();
             }
         );

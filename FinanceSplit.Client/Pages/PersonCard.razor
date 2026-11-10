@@ -1,15 +1,15 @@
 <MudCard>
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.h4">@Person.Name</MudText>
+            <MudText Typo="Typo.h4">@ViewModel.Name</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditPersonDialog(Person))" />
-            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeletePerson(Person))" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => ViewModel.EditPersonCommand.ExecuteAsync(null))" />
+            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => ViewModel.DeletePersonCommand.ExecuteAsync(null))" />
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <MudTable Items="Person.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
+        <MudTable Items="ViewModel.Incomes" Dense GroupBy="_groupDefinition" Elevation="0">
             <HeaderContent>
                 <MudTh>Month</MudTh>
                 <MudTh>Amount</MudTh>
@@ -24,8 +24,8 @@
                 <MudTd DataLabel="Type">@context.Type</MudTd>
                 <MudTd>
                     <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => OpenEditIncomeDialog(Person, context))" />
-                        <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => DeleteIncome(Person, context))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => ViewModel.EditIncomeRecordCommand.ExecuteAsync(context))" />
+                        <MudIconButton Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => ViewModel.DeleteIncomeRecordCommand.ExecuteAsync(context))" />
                     </div>
                 </MudTd>
             </RowTemplate>
@@ -35,7 +35,7 @@
         </MudTable>
     </MudCardContent>
     <MudCardActions>
-        <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => OpenAddIncomeDialog(Person))" />
+        <MudSpacer /><MudFab Variant="Variant.Filled" Size="Size.Small" EndIcon="@Icons.Material.Outlined.Add" Label="Add income" Color="Color.Primary" OnClick="@(() => ViewModel.CreateIncomeRecordCommand.ExecuteAsync(null))" />
     </MudCardActions>
 </MudCard>
 

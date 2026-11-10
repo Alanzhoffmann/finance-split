@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using FinanceSplit.Client.Interfaces;
+using FinanceSplit.Client.ViewModels.Messages;
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
@@ -9,8 +12,9 @@ namespace FinanceSplit.Client.ViewModels;
 
 public partial class PeopleListViewModel(
     IPersonService personService,
-    IPersonDialogService dialogService
-)
+    IPersonDialogService dialogService,
+    IMessenger messenger
+) : ObservableRecipient(messenger), IRecipient<PersonDeletedMessage>
 {
     [PersistentState(AllowUpdates = true)]
     public List<PersonResponse>? People { get; private set; }
@@ -32,6 +36,18 @@ public partial class PeopleListViewModel(
         }
 
         People = [.. data];
+    }
+
+    public void Receive(PersonDeletedMessage message)
+    {
+        if (IsLoaded)
+        {
+            var index = People.FindIndex(p => p.Id == message.Id);
+            if (index != -1)
+            {
+                People.RemoveAt(index);
+            }
+        }
     }
 
     [RelayCommand]

@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Client.Dialogs.Services;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FinanceSplit.Client.Dialogs.Services;
 using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Client.ViewModels;
 
@@ -12,8 +13,11 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TransactionListViewModel>();
         services.AddTransient<TransactionViewModel>();
         services.AddTransient<PeopleListViewModel>();
+        services.AddTransient<PersonViewModel>();
 
         services.AddTransient<ITransactionDialogService, TransactionDialogService>();
         services.AddTransient<IPersonDialogService, PersonDialogService>();
+
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }
 }
