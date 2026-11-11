@@ -7,11 +7,11 @@ namespace FinanceSplit.Data.Configurations;
 
 internal class MonthSummaryConfiguration : IEntityTypeConfiguration<MonthSummary>
 {
-    private const string _monthSummaryId = $"{nameof(MonthSummary)}{nameof(MonthSummary.Id)}";
+    private const string _monthSummaryMonth = $"{nameof(MonthSummary)}{nameof(MonthSummary.Month)}";
 
     public void Configure(EntityTypeBuilder<MonthSummary> builder)
     {
-        builder.HasKey(m => m.Id);
+        builder.HasKey(m => m.Month);
 
         builder.OwnsMany(
             m => m.People,
@@ -24,7 +24,7 @@ internal class MonthSummaryConfiguration : IEntityTypeConfiguration<MonthSummary
 
                 b.HasOne(p => p.Person).WithMany().HasForeignKey(personId);
 
-                b.HasKey(_monthSummaryId, personId);
+                b.HasKey(_monthSummaryMonth, personId);
             }
         );
 
@@ -45,7 +45,7 @@ internal class MonthSummaryConfiguration : IEntityTypeConfiguration<MonthSummary
                 b.HasOne(s => s.From).WithMany().HasForeignKey(fromId);
                 b.HasOne(s => s.To).WithMany().HasForeignKey(toId);
 
-                b.HasKey(_monthSummaryId, fromId, toId);
+                b.HasKey(_monthSummaryMonth, fromId, toId);
             }
         );
     }

@@ -3,7 +3,7 @@ using FinanceSplit.Domain.ValueObjects;
 
 namespace FinanceSplit.Domain.Entities;
 
-public sealed class MonthSummary : BaseEntity
+public sealed class MonthSummary
 {
     private List<PersonSummary> _people = [];
     private List<ExpenseSettlement> _settlements = [];

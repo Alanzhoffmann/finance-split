@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceSplit.Data.Migrations;
 
 [DbContext(typeof(AppDbContext))]
-[Migration("20261109195843_AddMonthSummary")]
-partial class _20261109195843_AddMonthSummary
+[Migration("20261111153041_InitialMigration")]
+partial class _20261111153041_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
-        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-rc.3.26522.148");
+        modelBuilder.HasAnnotation("ProductVersion", "11.0.0");
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.IncomeRecord", b =>
             {
@@ -47,14 +47,10 @@ partial class _20261109195843_AddMonthSummary
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.MonthSummary", b =>
             {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("TEXT");
-
                 b.Property<DateOnly>("Month")
                     .HasColumnType("TEXT");
 
-                b.HasKey("Id");
+                b.HasKey("Month");
 
                 b.ToTable("Summaries");
             });
@@ -160,7 +156,7 @@ partial class _20261109195843_AddMonthSummary
             {
                 b.OwnsMany("FinanceSplit.Domain.ValueObjects.ExpenseSettlement", "Settlements", b1 =>
                     {
-                        b1.Property<Guid>("MonthSummaryId")
+                        b1.Property<DateOnly>("MonthSummaryMonth")
                             .HasColumnType("TEXT");
 
                         b1.Property<Guid>("FromId")
@@ -172,7 +168,7 @@ partial class _20261109195843_AddMonthSummary
                         b1.Property<decimal>("Amount")
                             .HasColumnType("TEXT");
 
-                        b1.HasKey("MonthSummaryId", "FromId", "ToId");
+                        b1.HasKey("MonthSummaryMonth", "FromId", "ToId");
 
                         b1.HasIndex("FromId");
 
@@ -187,7 +183,7 @@ partial class _20261109195843_AddMonthSummary
                             .IsRequired();
 
                         b1.WithOwner()
-                            .HasForeignKey("MonthSummaryId");
+                            .HasForeignKey("MonthSummaryMonth");
 
                         b1.HasOne("FinanceSplit.Domain.Entities.Person", "To")
                             .WithMany()
@@ -202,7 +198,7 @@ partial class _20261109195843_AddMonthSummary
 
                 b.OwnsMany("FinanceSplit.Domain.ValueObjects.PersonSummary", "People", b1 =>
                     {
-                        b1.Property<Guid>("MonthSummaryId")
+                        b1.Property<DateOnly>("MonthSummaryMonth")
                             .HasColumnType("TEXT");
 
                         b1.Property<Guid>("PersonId")
@@ -220,14 +216,14 @@ partial class _20261109195843_AddMonthSummary
                         b1.Property<decimal>("TotalPaid")
                             .HasColumnType("TEXT");
 
-                        b1.HasKey("MonthSummaryId", "PersonId");
+                        b1.HasKey("MonthSummaryMonth", "PersonId");
 
                         b1.HasIndex("PersonId");
 
                         b1.ToTable("PersonSummary");
 
                         b1.WithOwner()
-                            .HasForeignKey("MonthSummaryId");
+                            .HasForeignKey("MonthSummaryMonth");
 
                         b1.HasOne("FinanceSplit.Domain.Entities.Person", "Person")
                             .WithMany()

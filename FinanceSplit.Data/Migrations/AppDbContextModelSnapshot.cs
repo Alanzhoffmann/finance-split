@@ -15,12 +15,12 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261109195843_AddMonthSummary";
+    public override string LastMigrationId => "20261111153041_InitialMigration";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
-        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-rc.3.26522.148");
+        modelBuilder.HasAnnotation("ProductVersion", "11.0.0");
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.IncomeRecord", b =>
             {
@@ -49,14 +49,10 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.MonthSummary", b =>
             {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("TEXT");
-
                 b.Property<DateOnly>("Month")
                     .HasColumnType("TEXT");
 
-                b.HasKey("Id");
+                b.HasKey("Month");
 
                 b.ToTable("Summaries");
             });
@@ -162,7 +158,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
             {
                 b.OwnsMany("FinanceSplit.Domain.ValueObjects.ExpenseSettlement", "Settlements", b1 =>
                     {
-                        b1.Property<Guid>("MonthSummaryId")
+                        b1.Property<DateOnly>("MonthSummaryMonth")
                             .HasColumnType("TEXT");
 
                         b1.Property<Guid>("FromId")
@@ -174,7 +170,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                         b1.Property<decimal>("Amount")
                             .HasColumnType("TEXT");
 
-                        b1.HasKey("MonthSummaryId", "FromId", "ToId");
+                        b1.HasKey("MonthSummaryMonth", "FromId", "ToId");
 
                         b1.HasIndex("FromId");
 
@@ -189,7 +185,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                             .IsRequired();
 
                         b1.WithOwner()
-                            .HasForeignKey("MonthSummaryId");
+                            .HasForeignKey("MonthSummaryMonth");
 
                         b1.HasOne("FinanceSplit.Domain.Entities.Person", "To")
                             .WithMany()
@@ -204,7 +200,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
 
                 b.OwnsMany("FinanceSplit.Domain.ValueObjects.PersonSummary", "People", b1 =>
                     {
-                        b1.Property<Guid>("MonthSummaryId")
+                        b1.Property<DateOnly>("MonthSummaryMonth")
                             .HasColumnType("TEXT");
 
                         b1.Property<Guid>("PersonId")
@@ -222,14 +218,14 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                         b1.Property<decimal>("TotalPaid")
                             .HasColumnType("TEXT");
 
-                        b1.HasKey("MonthSummaryId", "PersonId");
+                        b1.HasKey("MonthSummaryMonth", "PersonId");
 
                         b1.HasIndex("PersonId");
 
                         b1.ToTable("PersonSummary");
 
                         b1.WithOwner()
-                            .HasForeignKey("MonthSummaryId");
+                            .HasForeignKey("MonthSummaryMonth");
 
                         b1.HasOne("FinanceSplit.Domain.Entities.Person", "Person")
                             .WithMany()
