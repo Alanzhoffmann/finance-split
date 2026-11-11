@@ -1,15 +1,14 @@
-﻿using FinanceSplit.Data.Factories;
+﻿using FinanceSplit.Data.BackgroundServices;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceSplit.Data.Interceptors;
 
-internal partial class MonthSummaryCalculatorInterceptor(IServiceScopeFactory scopeFactory)
+internal partial class CalculatorInterceptor(CalculatorBackgroundService calculatorBackgroundService)
     : SaveChangesInterceptor
 {
-    private List<DateOnly> _monthsToUpdate = [];
+    private HashSet<CalculatorKey> _calculatorEvents = [];
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
@@ -22,18 +21,18 @@ internal partial class MonthSummaryCalculatorInterceptor(IServiceScopeFactory sc
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        _monthsToUpdate.Clear();
+        _calculatorEvents.Clear();
 
         var updatedIncomeMonths = context
             .ChangeTracker.Entries<IncomeRecord>()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Select(i => i.Entity.Month);
+            .Select(i => new IncomeRecordChanged(i.Entity.Month));
         var updatedTransactions = context
             .ChangeTracker.Entries<Transaction>()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Select(i => i.Entity.Month);
+            .Select(i => new TransactionChanged(i.Entity.Month));
 
-        _monthsToUpdate = [.. updatedIncomeMonths, .. updatedTransactions];
+        _calculatorEvents = [.. updatedIncomeMonths, .. updatedTransactions];
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
@@ -44,16 +43,12 @@ internal partial class MonthSummaryCalculatorInterceptor(IServiceScopeFactory sc
         CancellationToken cancellationToken = default
     )
     {
-        if (_monthsToUpdate.Count > 0)
+        foreach (var item in _calculatorEvents)
         {
-            await using var scope = scopeFactory.CreateAsyncScope();
-            var factory = scope.ServiceProvider.GetRequiredService<MonthSummaryFactory>();
-
-            var monthsToUpdate = _monthsToUpdate.ToList();
-            _monthsToUpdate.Clear();
-
-            await factory.UpdateMonths(monthsToUpdate, cancellationToken);
+            calculatorBackgroundService.Queue.TryEnqueue(item);
         }
+
+        _calculatorEvents.Clear();
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }

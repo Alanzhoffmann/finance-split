@@ -61,11 +61,16 @@ internal class PersonService(AppDbContext context) : IPersonService
         CancellationToken cancellationToken = default
     )
     {
-        // TODO figure out 404s here with rows deleted
-        await context
-            .People.IgnoreAutoIncludes()
-            .Where(p => p.Id == command.Id)
-            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+        var personToDelete = await context.People.FindAsync([command.Id], cancellationToken);
+        if (personToDelete is null)
+        {
+            // TODO figure out 404s here
+            return;
+        }
+
+        context.Remove(personToDelete);
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
@@ -123,9 +128,19 @@ internal class PersonService(AppDbContext context) : IPersonService
         CancellationToken cancellationToken = default
     )
     {
-        // TODO figure out 404s here with rows deleted
-        await context
-            .IncomeRecords.Where(i => i.Id == command.Id)
-            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+        // TODO improve this by calling person first and editing the list there
+        var incomeRecordToDelete = await context.IncomeRecords.FindAsync(
+            [command.Id],
+            cancellationToken
+        );
+        if (incomeRecordToDelete is null)
+        {
+            // TODO figure out 404s here
+            return;
+        }
+
+        context.Remove(incomeRecordToDelete);
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

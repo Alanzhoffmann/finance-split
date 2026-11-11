@@ -139,10 +139,18 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         CancellationToken cancellationToken = default
     )
     {
-        // TODO figure out 404s here with rows deleted
-        await context
-            .Transactions.IgnoreAutoIncludes()
-            .Where(t => t.Id == command.Id)
-            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+        var transactionToDelete = await context.Transactions.FindAsync(
+            [command.Id],
+            cancellationToken
+        );
+        if (transactionToDelete is null)
+        {
+            // TODO figure out 404s here
+            return;
+        }
+
+        context.Remove(transactionToDelete);
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
