@@ -1,3 +1,4 @@
+using System.Globalization;
 using FinanceSplit.Client.ViewModels;
 using FinanceSplit.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
@@ -7,6 +8,7 @@ namespace FinanceSplit.Client.Pages;
 
 public partial class PersonCard(PersonViewModel viewModel)
 {
+    private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
     private readonly TableGroupDefinition<IncomeRecordResponse> _groupDefinition = new()
     {
         GroupName = "Month",

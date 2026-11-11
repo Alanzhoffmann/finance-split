@@ -20,7 +20,7 @@
             </GroupHeaderTemplate>
             <RowTemplate>
                 <MudTd DataLabel="Month">@context.Month.ToString("MMM/yyyy")</MudTd>
-                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                <MudTd DataLabel="Amount">@context.Amount.ToString("C", _enGb)</MudTd>
                 <MudTd DataLabel="Type">@context.Type</MudTd>
                 <MudTd>
                     <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
@@ -30,7 +30,7 @@
                 </MudTd>
             </RowTemplate>
             <GroupFooterTemplate>
-                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("N2")</MudText></MudTh>
+                <MudTh Style="text-align: right;" colspan="4"><MudText Typo="Typo.subtitle1">Total @context.Key: @context.Items.Sum((e) => e.Amount).ToString("C", _enGb)</MudText></MudTh>
             </GroupFooterTemplate>
         </MudTable>
     </MudCardContent>
