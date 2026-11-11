@@ -36,11 +36,11 @@ public sealed class Person : BaseEntity
         {
             // if no incomes for a given month, get all salaries from the first previous month available
             return IncomeRecords
-                    .Where(i => i.Month < monthStart && i.Type == IncomeType.Salary)
-                    .GroupBy(i => i.Month)
-                    .OrderByDescending(g => g.Key)
-                    .FirstOrDefault()
-                    ?.Sum(i => i.Amount)
+                .Where(i => i.Month < monthStart && i.Type == IncomeType.Salary)
+                .GroupBy(i => i.Month)
+                .OrderByDescending(g => g.Key)
+                .FirstOrDefault()
+                ?.Sum(i => i.Amount)
                 ?? 0;
         }
 

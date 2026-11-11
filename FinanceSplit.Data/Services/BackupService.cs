@@ -79,8 +79,7 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
 
         foreach (var person in legacy.Data.People)
         {
-            var databasePerson =
-                existingPeople.FirstOrDefault(p => p.Name == person.Name)
+            var databasePerson = existingPeople.FirstOrDefault(p => p.Name == person.Name)
                 ?? new Person() { Name = person.Name };
             peopleMapping[person.Id] = databasePerson;
 
