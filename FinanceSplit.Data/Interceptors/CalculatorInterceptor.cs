@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace FinanceSplit.Data.Interceptors;
 
-internal partial class CalculatorInterceptor(CalculatorBackgroundService calculatorBackgroundService)
-    : SaveChangesInterceptor
+internal partial class CalculatorInterceptor(
+    CalculatorBackgroundService calculatorBackgroundService
+) : SaveChangesInterceptor
 {
     private HashSet<CalculatorKey> _calculatorEvents = [];
 
@@ -25,14 +26,25 @@ internal partial class CalculatorInterceptor(CalculatorBackgroundService calcula
 
         var updatedIncomeMonths = context
             .ChangeTracker.Entries<IncomeRecord>()
-            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Where(e => e.State is EntityState.Added or EntityState.Modified)
             .Select(i => new IncomeRecordChanged(i.Entity.Month));
+
+        var deletedIncomeMonths = context
+            .ChangeTracker.Entries<IncomeRecord>()
+            .Where(e => e.State is EntityState.Deleted)
+            .Select(i => new IncomeRecordDeleted(i.Entity.Month));
+
         var updatedTransactions = context
             .ChangeTracker.Entries<Transaction>()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .Select(i => new TransactionChanged(i.Entity.Month));
 
-        _calculatorEvents = [.. updatedIncomeMonths, .. updatedTransactions];
+        _calculatorEvents =
+        [
+            .. updatedIncomeMonths,
+            .. deletedIncomeMonths,
+            .. updatedTransactions,
+        ];
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
