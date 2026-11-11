@@ -50,7 +50,7 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
     }
 
     private async Task<PersonResponse?> OpenPersonDialogAsync(PersonResponse? person = null) =>
-        await dialogService.ShowDialogAsync<PersonResponse, PersonDialog>(
+        await dialogService.ShowDialogWithResultAsync<PersonResponse, PersonDialog>(
             new DialogParameters { ["Person"] = person },
             _dialogOptions
         );
@@ -59,7 +59,7 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
         PersonResponse person,
         IncomeRecordResponse? incomeRecord = null
     ) =>
-        await dialogService.ShowDialogAsync<IncomeRecordResponse, IncomeRecordDialog>(
+        await dialogService.ShowDialogWithResultAsync<IncomeRecordResponse, IncomeRecordDialog>(
             new DialogParameters { ["Person"] = person, ["IncomeRecord"] = incomeRecord },
             _dialogOptions
         );

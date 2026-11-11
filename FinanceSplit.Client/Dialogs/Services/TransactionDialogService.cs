@@ -31,7 +31,7 @@ public sealed class TransactionDialogService(IDialogService dialogService)
     private async Task<TransactionResponse?> OpenDialogAsync(
         TransactionResponse? transaction = null
     ) =>
-        await dialogService.ShowDialogAsync<TransactionResponse, TransactionDialog>(
+        await dialogService.ShowDialogWithResultAsync<TransactionResponse, TransactionDialog>(
             new DialogParameters { ["Transaction"] = transaction },
             _dialogOptions
         );

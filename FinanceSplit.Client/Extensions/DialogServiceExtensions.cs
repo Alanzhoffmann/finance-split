@@ -7,7 +7,7 @@ public static class DialogServiceExtensions
 {
     extension(IDialogService dialogService)
     {
-        public async Task<T?> ShowDialogAsync<T, TDialog>(
+        public async Task<T?> ShowDialogWithResultAsync<T, TDialog>(
             DialogParameters parameters,
             DialogOptions options
         )
