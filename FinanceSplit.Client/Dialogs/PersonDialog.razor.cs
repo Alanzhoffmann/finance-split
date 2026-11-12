@@ -10,7 +10,7 @@ namespace FinanceSplit.Client.Dialogs;
 public partial class PersonDialog(IPersonService personService)
 {
     [Parameter]
-    public PersonResponse? Person { get; set; }
+    public PersonDto? Person { get; set; }
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
@@ -66,7 +66,7 @@ public partial class PersonDialog(IPersonService personService)
 
     class PersonModel
     {
-        public PersonModel(PersonResponse? person = null)
+        public PersonModel(PersonDto? person = null)
         {
             if (person is not null)
             {

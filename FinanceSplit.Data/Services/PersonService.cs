@@ -8,22 +8,22 @@ namespace FinanceSplit.Data.Services;
 
 internal class PersonService(AppDbContext context) : IPersonService
 {
-    public async Task<IReadOnlyList<PersonResponse>?> GetPeopleAsync(
+    public async Task<IReadOnlyList<PersonDto>?> GetPeopleAsync(
         CancellationToken cancellationToken = default
     ) =>
         await context
             .People.OrderBy(p => p.Name)
-            .Select(p => new PersonResponse(
-                p.Id,
-                p.Name,
-                p.IncomeRecords.OrderBy(i => i.Month)
+            .Select(p => new PersonDto(p.Id, p.Name)
+            {
+                Incomes = p
+                    .IncomeRecords.OrderBy(i => i.Month)
                     .ThenBy(i => i.Type)
                     .Select(i => new IncomeRecordResponse(i.Id, i.Month, i.Amount, i.Type))
-                    .ToList()
-            ))
+                    .ToList(),
+            })
             .ToListAsync(cancellationToken: cancellationToken);
 
-    public async Task<PersonResponse?> CreatePersonAsync(
+    public async Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default
     )
@@ -34,10 +34,10 @@ internal class PersonService(AppDbContext context) : IPersonService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return new PersonResponse(person.Id, person.Name, []);
+        return new PersonDto(person.Id, person.Name);
     }
 
-    public async Task<PersonResponse?> UpdatePersonAsync(
+    public async Task<PersonDto?> UpdatePersonAsync(
         UpdatePersonCommand command,
         CancellationToken cancellationToken = default
     )
@@ -53,7 +53,7 @@ internal class PersonService(AppDbContext context) : IPersonService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return new PersonResponse(person.Id, person.Name, []);
+        return new PersonDto(person.Id, person.Name);
     }
 
     public async Task DeletePersonAsync(

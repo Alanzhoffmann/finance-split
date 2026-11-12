@@ -19,7 +19,7 @@ public partial class PersonCard(PersonViewModel viewModel)
 
     [Parameter]
     [EditorRequired]
-    public PersonResponse Person { get; set; }
+    public PersonDto Person { get; set; }
 
     private PersonViewModel ViewModel { get; set; } = viewModel;
 

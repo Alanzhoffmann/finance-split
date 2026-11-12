@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.Enums;
+﻿using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.Enums;
 using FinanceSplit.Domain.ValueObjects;
 
 namespace FinanceSplit.Domain.Entities;
@@ -21,7 +22,7 @@ public sealed class MonthSummary
         set => _people = [.. value];
     }
 
-    public void Update(IEnumerable<Person> people, IEnumerable<Transaction> transactions)
+    public void Update(IEnumerable<Person> people, IEnumerable<TransactionDto> transactions)
     {
         var personById = people.ToDictionary(p => p.Id);
 
@@ -38,21 +39,21 @@ public sealed class MonthSummary
         ];
     }
 
-    private static Dictionary<Person, decimal> CalculateNetBalances(
-        IEnumerable<Transaction> transactions
+    private static Dictionary<Guid, decimal> CalculateNetBalances(
+        IEnumerable<TransactionDto> transactions
     )
     {
-        var balances = new Dictionary<Person, decimal>();
+        var balances = new Dictionary<Guid, decimal>();
 
         foreach (var transaction in transactions)
         {
-            var shares = transaction.CalculateShares();
+            var shares = transaction.SharedWith;
 
-            AddToBalance(balances, transaction.PaidBy, transaction.Value);
+            AddToBalance(balances, transaction.PaidBy.Id, transaction.Value);
 
             foreach (var (person, share) in shares)
             {
-                AddToBalance(balances, person, -share);
+                AddToBalance(balances, person.Id, -share);
             }
         }
 
@@ -65,8 +66,8 @@ public sealed class MonthSummary
     }
 
     private static void AddToBalance(
-        Dictionary<Person, decimal> balances,
-        Person person,
+        Dictionary<Guid, decimal> balances,
+        Guid person,
         decimal amount
     )
     {
@@ -76,7 +77,7 @@ public sealed class MonthSummary
 
     private List<PersonSummary> CalculatePeopleSummary(
         IEnumerable<Person> people,
-        IEnumerable<Transaction> transactions
+        IEnumerable<TransactionDto> transactions
     )
     {
         var totalSharedPerPersonId = GetTotalSharedPerPerson(transactions);
@@ -99,7 +100,9 @@ public sealed class MonthSummary
         ];
     }
 
-    private List<ExpenseSettlement> CalculateSettlements(IEnumerable<Transaction> transactions)
+    private List<ExpenseSettlementDto> CalculateSettlements(
+        IEnumerable<TransactionDto> transactions
+    )
     {
         var balances = CalculateNetBalances(
             transactions.Where(t => t.Month == Month).DistinctBy(t => t.Id)
@@ -119,7 +122,7 @@ public sealed class MonthSummary
             .ThenBy(x => x.Person)
             .ToList();
 
-        var settlements = new List<ExpenseSettlement>();
+        var settlements = new List<ExpenseSettlementDto>();
         var creditorIndex = 0;
         var debtorIndex = 0;
 
@@ -132,7 +135,11 @@ public sealed class MonthSummary
             if (settlementAmount > 0)
             {
                 settlements.Add(
-                    new ExpenseSettlement(debtor.Person, creditor.Person, settlementAmount)
+                    new ExpenseSettlementDto(
+                        new(debtor.Person, string.Empty),
+                        new(creditor.Person, string.Empty),
+                        settlementAmount
+                    )
                 );
             }
 
@@ -165,12 +172,12 @@ public sealed class MonthSummary
     }
 
     private Dictionary<Guid, decimal> GetTotalSharedPerPerson(
-        IEnumerable<Transaction> transactions
+        IEnumerable<TransactionDto> transactions
     ) =>
         transactions
             .Where(t => t.Month == Month && t.SplitType is not SplitType.None)
             .DistinctBy(t => t.Id)
-            .SelectMany(t => t.CalculateShares())
-            .GroupBy(g => g.Key.Id)
-            .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Value));
+            .SelectMany(t => t.SharedWith)
+            .GroupBy(g => g.Person.Id)
+            .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Amount));
 }

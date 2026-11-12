@@ -17,7 +17,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
 
     [Parameter]
     [EditorRequired]
-    public PersonResponse Person { get; set; }
+    public PersonDto Person { get; set; }
 
     [Parameter]
     public IncomeRecordResponse? IncomeRecord { get; set; }
@@ -73,7 +73,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
 
     class IncomeRecordModel
     {
-        public IncomeRecordModel(PersonResponse person, IncomeRecordResponse? incomeRecord = null)
+        public IncomeRecordModel(PersonDto person, IncomeRecordResponse? incomeRecord = null)
         {
             PersonId = person.Id;
 

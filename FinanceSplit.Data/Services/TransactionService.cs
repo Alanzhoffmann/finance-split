@@ -16,14 +16,22 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
     )
     {
         month ??= DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
+        return await GetTransactionsAsync([month.Value], cancellationToken);
+    }
 
-        var monthInit = new DateOnly(month.Value.Year, month.Value.Month, 1);
-        var monthEnd = monthInit.AddMonths(1);
+    public async Task<IReadOnlyList<TransactionDto>> GetTransactionsAsync(
+        IEnumerable<DateOnly> months,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var normalizedMonths = months.Select(m =>
+            m.Day == 1 ? m : new DateOnly(m.Year, m.Month, 1)
+        );
 
         var transactions = await context
             .Transactions.AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
-            .Where(t => monthInit <= t.Month && t.Month < monthEnd)
+            .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);
 
         return [.. transactions.Select(t => t.ToDto())];

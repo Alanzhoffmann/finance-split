@@ -1,4 +1,5 @@
 ﻿using FinanceSplit.Data.Internal;
+using FinanceSplit.Data.Services;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,7 @@ internal partial class CalculatorBackgroundService(
 
     private static async Task RecalculateSummaryFromDates(
         AppDbContext context,
+        TransactionService transactionService,
         IReadOnlyCollection<DateOnly> months,
         IEnumerable<Person>? people = null,
         CancellationToken cancellationToken = default
@@ -67,12 +69,7 @@ internal partial class CalculatorBackgroundService(
             .Summaries.Where(s => months.Contains(s.Month))
             .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
 
-        var transactions = await context
-            .Transactions.Include(t => t.PaidBy)
-            .Include(t => t.SharedWith)
-            .Where(t => months.Contains(t.Month))
-            .AsNoTrackingWithIdentityResolution()
-            .ToListAsync(cancellationToken: cancellationToken);
+        var transactions = await transactionService.GetTransactionsAsync(months, cancellationToken);
 
         people ??= await context.People.ToListAsync(cancellationToken);
 
@@ -112,6 +109,7 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
+        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
 
         // Get all months after income record changed, all can be affected
         var summaries = await context
@@ -123,6 +121,7 @@ internal partial class CalculatorBackgroundService(
 
         await RecalculateSummaryFromDates(
             context,
+            transactionService,
             monthsToCalculate,
             cancellationToken: cancellationToken
         );
@@ -138,6 +137,7 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
+        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
 
         var people = await context.People.ToListAsync(cancellationToken);
 
@@ -156,7 +156,13 @@ internal partial class CalculatorBackgroundService(
         var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
         var monthsToCalculate = GetAllMonthsBetween(previousIncomeMonth, today);
 
-        await RecalculateSummaryFromDates(context, monthsToCalculate, people, cancellationToken);
+        await RecalculateSummaryFromDates(
+            context,
+            transactionService,
+            monthsToCalculate,
+            people,
+            cancellationToken
+        );
     }
 
     private async Task CalculateTransactionChanged(
@@ -168,9 +174,11 @@ internal partial class CalculatorBackgroundService(
         LogCalculatingSummaryForTransactionChanged(transactionChanged);
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
+        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
 
         await RecalculateSummaryFromDates(
             context,
+            transactionService,
             [transactionChanged.Month],
             cancellationToken: cancellationToken
         );

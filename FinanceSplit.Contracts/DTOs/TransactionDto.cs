@@ -6,12 +6,10 @@ public record TransactionDto(
     Guid Id,
     string Name,
     decimal Value,
-    DateOnly Date,
+    DateOnly Month,
     SplitType SplitType,
-    TransactionPersonDto PaidBy,
+    PersonDto PaidBy,
     List<TransactionShareDto> SharedWith
 );
 
-public record TransactionPersonDto(Guid Id, string Name);
-
-public record TransactionShareDto(TransactionPersonDto Person, decimal Amount);
+public record TransactionShareDto(PersonDto Person, decimal Amount);

@@ -24,9 +24,9 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
                         p.TotalPaid
                     ))
                     .ToList(),
-                s.Settlements.Select(st => new ExpenseSettlementResponse(
-                        st.From.Name,
-                        st.To.Name,
+                s.Settlements.Select(st => new ExpenseSettlementDto(
+                        new(st.From.Id, st.From.Name),
+                        new(st.To.Id, st.To.Name),
                         st.Amount
                     ))
                     .ToList()

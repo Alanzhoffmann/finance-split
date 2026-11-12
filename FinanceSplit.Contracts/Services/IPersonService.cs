@@ -5,16 +5,14 @@ namespace FinanceSplit.Contracts.Services;
 
 public interface IPersonService
 {
-    Task<IReadOnlyList<PersonResponse>?> GetPeopleAsync(
-        CancellationToken cancellationToken = default
-    );
+    Task<IReadOnlyList<PersonDto>?> GetPeopleAsync(CancellationToken cancellationToken = default);
 
-    Task<PersonResponse?> CreatePersonAsync(
+    Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default
     );
 
-    Task<PersonResponse?> UpdatePersonAsync(
+    Task<PersonDto?> UpdatePersonAsync(
         UpdatePersonCommand command,
         CancellationToken cancellationToken = default
     );

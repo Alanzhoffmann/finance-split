@@ -15,10 +15,10 @@ public static class TransactionMapper
             transaction.Value,
             transaction.Month,
             transaction.SplitType,
-            new TransactionPersonDto(transaction.PaidBy.Id, transaction.PaidBy.Name),
+            new PersonDto(transaction.PaidBy.Id, transaction.PaidBy.Name),
             [
                 .. transaction.SharedWith.Select(s => new TransactionShareDto(
-                    new TransactionPersonDto(s.Id, s.Name),
+                    new PersonDto(s.Id, s.Name),
                     calculatedShares.GetValueOrDefault(s)
                 )),
             ]

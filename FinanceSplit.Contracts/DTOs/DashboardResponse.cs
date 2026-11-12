@@ -4,7 +4,7 @@ namespace FinanceSplit.Contracts.DTOs;
 
 public record DashboardResponse(
     IReadOnlyList<DashboardPersonResponse> People,
-    IReadOnlyList<ExpenseSettlementResponse> Settlements
+    IReadOnlyList<ExpenseSettlementDto> Settlements
 );
 
 public record DashboardPersonResponse(
@@ -22,4 +22,4 @@ public record DashboardPersonResponse(
     public decimal Leftover => Income - TotalShared;
 }
 
-public record ExpenseSettlementResponse(string FromName, string ToName, decimal Amount);
+public record ExpenseSettlementDto(PersonDto From, PersonDto To, decimal Amount);

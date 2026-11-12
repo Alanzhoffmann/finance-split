@@ -17,9 +17,9 @@ public partial class PersonViewModel(
     public string Name { get; private set; } = string.Empty;
     public List<IncomeRecordResponse> Incomes { get; private set; } = [];
 
-    private PersonResponse Person => new(Id, Name, Incomes);
+    private PersonDto Person => new(Id, Name) { Incomes = Incomes };
 
-    public void Initialize(PersonResponse person)
+    public void Initialize(PersonDto person)
     {
         Id = person.Id;
         Name = person.Name;

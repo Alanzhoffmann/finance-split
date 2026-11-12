@@ -7,16 +7,16 @@ namespace FinanceSplit.Client.Clients;
 
 internal partial class PersonService(HttpClient client) : IPersonService
 {
-    public async Task<IReadOnlyList<PersonResponse>?> GetPeopleAsync(
+    public async Task<IReadOnlyList<PersonDto>?> GetPeopleAsync(
         CancellationToken cancellationToken = default
     ) =>
         await client.GetFromJsonAsync(
             "api/person",
-            PersonSerializerContext.Default.IReadOnlyListPersonResponse,
+            PersonSerializerContext.Default.IReadOnlyListPersonDto,
             cancellationToken: cancellationToken
         );
 
-    public async Task<PersonResponse?> CreatePersonAsync(
+    public async Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default
     )
@@ -29,12 +29,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            PersonSerializerContext.Default.PersonResponse,
+            PersonSerializerContext.Default.PersonDto,
             cancellationToken
         );
     }
 
-    public async Task<PersonResponse?> UpdatePersonAsync(
+    public async Task<PersonDto?> UpdatePersonAsync(
         UpdatePersonCommand command,
         CancellationToken cancellationToken = default
     )
@@ -47,7 +47,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            PersonSerializerContext.Default.PersonResponse,
+            PersonSerializerContext.Default.PersonDto,
             cancellationToken
         );
     }
@@ -110,7 +110,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
     }
 
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-    [JsonSerializable(typeof(IReadOnlyList<PersonResponse>))]
+    [JsonSerializable(typeof(IReadOnlyList<PersonDto>))]
     [JsonSerializable(typeof(CreatePersonCommand))]
     [JsonSerializable(typeof(UpdatePersonCommand))]
     [JsonSerializable(typeof(CreateIncomeRecordCommand))]

@@ -24,7 +24,7 @@ public partial class DashboardViewModel(
     public IReadOnlyList<DashboardPersonResponse>? People { get; set; }
 
     [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<ExpenseSettlementResponse>? Settlements { get; set; }
+    public IReadOnlyList<ExpenseSettlementDto>? Settlements { get; set; }
 
     [MemberNotNullWhen(true, nameof(People), nameof(Settlements))]
     public bool IsLoaded => People is not null && Settlements is not null;

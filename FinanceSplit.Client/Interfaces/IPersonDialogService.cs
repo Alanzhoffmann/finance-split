@@ -4,21 +4,21 @@ namespace FinanceSplit.Client.Interfaces;
 
 public interface IPersonDialogService
 {
-    Task<PersonResponse?> CreatePersonAsync();
+    Task<PersonDto?> CreatePersonAsync();
 
-    Task<PersonResponse?> EditPersonAsync(PersonResponse person);
+    Task<PersonDto?> EditPersonAsync(PersonDto person);
 
-    Task<bool> ShowDeletePersonConfirmationAsync(PersonResponse person);
+    Task<bool> ShowDeletePersonConfirmationAsync(PersonDto person);
 
-    Task<IncomeRecordResponse?> CreateIncomeAsync(PersonResponse person);
+    Task<IncomeRecordResponse?> CreateIncomeAsync(PersonDto person);
 
     Task<IncomeRecordResponse?> EditIncomeAsync(
-        PersonResponse person,
+        PersonDto person,
         IncomeRecordResponse incomeRecord
     );
 
     Task<bool> ShowDeleteIncomeConfirmationAsync(
-        PersonResponse person,
+        PersonDto person,
         IncomeRecordResponse incomeRecord
     );
 }

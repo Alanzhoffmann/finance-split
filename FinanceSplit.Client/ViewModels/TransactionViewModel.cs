@@ -24,7 +24,7 @@ public partial class TransactionViewModel(
         {
             Id = transaction.Id;
             Name = transaction.Name;
-            Date = transaction.Date.ToDateTime(TimeOnly.MinValue);
+            Date = transaction.Month.ToDateTime(TimeOnly.MinValue);
             Value = transaction.Value;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
@@ -44,7 +44,7 @@ public partial class TransactionViewModel(
     public bool IsEditing => Id is not null;
 
     [PersistentState]
-    public IReadOnlyList<PersonResponse> People { get; set; } = [];
+    public IReadOnlyList<PersonDto> People { get; set; } = [];
     public Guid? Id { get; set; }
 
     [Required]

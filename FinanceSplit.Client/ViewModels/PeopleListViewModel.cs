@@ -17,7 +17,7 @@ public partial class PeopleListViewModel(
 ) : ObservableRecipient(messenger), IRecipient<PersonDeletedMessage>
 {
     [PersistentState(AllowUpdates = true)]
-    public List<PersonResponse>? People { get; private set; }
+    public List<PersonDto>? People { get; private set; }
 
     [MemberNotNullWhen(true, nameof(People))]
     public bool IsLoaded => People is not null;
