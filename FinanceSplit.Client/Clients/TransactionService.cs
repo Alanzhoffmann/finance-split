@@ -7,7 +7,7 @@ namespace FinanceSplit.Client.Clients;
 
 internal partial class TransactionService(HttpClient client) : ITransactionService
 {
-    public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
+    public async Task<IReadOnlyList<TransactionDto>?> GetTransactionsAsync(
         DateOnly? month = null,
         CancellationToken cancellationToken = default
     )
@@ -15,12 +15,12 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         var route = month is not null ? $"api/transaction?month={month}" : "api/transaction";
         return await client.GetFromJsonAsync(
             route,
-            TransactionSerializerContext.Default.IReadOnlyListTransactionResponse,
+            TransactionSerializerContext.Default.IReadOnlyListTransactionDto,
             cancellationToken: cancellationToken
         );
     }
 
-    public async Task<TransactionResponse?> CreateTransactionAsync(
+    public async Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
         CancellationToken cancellationToken = default
     )
@@ -33,12 +33,12 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            TransactionSerializerContext.Default.TransactionResponse,
+            TransactionSerializerContext.Default.TransactionDto,
             cancellationToken
         );
     }
 
-    public async Task<TransactionResponse?> UpdateTransactionAsync(
+    public async Task<TransactionDto?> UpdateTransactionAsync(
         UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
     )
@@ -51,7 +51,7 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            TransactionSerializerContext.Default.TransactionResponse,
+            TransactionSerializerContext.Default.TransactionDto,
             cancellationToken
         );
     }
@@ -66,7 +66,7 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
     }
 
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-    [JsonSerializable(typeof(IReadOnlyList<TransactionResponse>))]
+    [JsonSerializable(typeof(IReadOnlyList<TransactionDto>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
     [JsonSerializable(typeof(UpdateTransactionCommand))]
     partial class TransactionSerializerContext : JsonSerializerContext;

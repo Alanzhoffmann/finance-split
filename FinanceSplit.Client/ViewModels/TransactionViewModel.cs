@@ -16,7 +16,7 @@ public partial class TransactionViewModel(
 {
     public static IReadOnlyList<SplitType> SplitTypes => Enum.GetValues<SplitType>();
 
-    public async Task InitAsync(TransactionResponse? transaction = null)
+    public async Task InitAsync(TransactionDto? transaction = null)
     {
         People = await personService.GetPeopleAsync() ?? [];
 
@@ -28,7 +28,7 @@ public partial class TransactionViewModel(
             Value = transaction.Value;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
-            SharedWithIds = [.. transaction.SharedWith.Select(p => p.Id)];
+            SharedWithIds = [.. transaction.SharedWith.Select(p => p.Person.Id)];
         }
         else
         {
@@ -116,7 +116,7 @@ public partial class TransactionViewModel(
             People.Where(p => selectedValues.Contains(p.Id.ToString())).Select(p => p.Name).Order()
         );
 
-    public async Task<TransactionResponse?> SaveTransactionAsync(
+    public async Task<TransactionDto?> SaveTransactionAsync(
         CancellationToken cancellationToken = default
     ) =>
         !IsEditing

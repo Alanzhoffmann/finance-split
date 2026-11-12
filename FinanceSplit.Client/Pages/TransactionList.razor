@@ -36,7 +36,7 @@
                     <MudTd DataLabel="Value">@context.Value.ToString("C", _enGb)</MudTd>
                     <MudTd DataLabel="Split">@context.SplitType</MudTd>
                     <MudTd DataLabel="Paid by">@context.PaidBy.Name</MudTd>
-                    <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Name))</MudTd>
+                    <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Person.Name))</MudTd>
                     <MudTd>
                         <div class="d-inline-flex justify-end align-center flex-grow-1 gap-4">
                             <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => ViewModel.EditTransactionCommand.ExecuteAsync(context))" />

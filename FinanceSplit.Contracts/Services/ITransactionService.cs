@@ -5,17 +5,17 @@ namespace FinanceSplit.Contracts.Services;
 
 public interface ITransactionService
 {
-    Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
+    Task<IReadOnlyList<TransactionDto>?> GetTransactionsAsync(
         DateOnly? month = null,
         CancellationToken cancellationToken = default
     );
 
-    Task<TransactionResponse?> CreateTransactionAsync(
+    Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
         CancellationToken cancellationToken = default
     );
 
-    Task<TransactionResponse?> UpdateTransactionAsync(
+    Task<TransactionDto?> UpdateTransactionAsync(
         UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
     );

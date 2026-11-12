@@ -10,13 +10,12 @@ public sealed class TransactionDialogService(IDialogService dialogService)
 {
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
 
-    public Task<TransactionResponse?> CreateTransactionAsync() => OpenDialogAsync();
+    public Task<TransactionDto?> CreateTransactionAsync() => OpenDialogAsync();
 
-    public Task<TransactionResponse?> EditTransactionAsync(
-        TransactionResponse originalTransaction
-    ) => OpenDialogAsync(originalTransaction);
+    public Task<TransactionDto?> EditTransactionAsync(TransactionDto originalTransaction) =>
+        OpenDialogAsync(originalTransaction);
 
-    public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionResponse transaction)
+    public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction)
     {
         bool? result = await dialogService.ShowMessageBoxAsync(
             "Warning",
@@ -28,10 +27,8 @@ public sealed class TransactionDialogService(IDialogService dialogService)
         return result == true;
     }
 
-    private async Task<TransactionResponse?> OpenDialogAsync(
-        TransactionResponse? transaction = null
-    ) =>
-        await dialogService.ShowDialogWithResultAsync<TransactionResponse, TransactionDialog>(
+    private async Task<TransactionDto?> OpenDialogAsync(TransactionDto? transaction = null) =>
+        await dialogService.ShowDialogWithResultAsync<TransactionDto, TransactionDialog>(
             new DialogParameters { ["Transaction"] = transaction },
             _dialogOptions
         );

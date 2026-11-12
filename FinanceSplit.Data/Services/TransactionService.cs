@@ -2,6 +2,7 @@
 using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Services;
 using FinanceSplit.Domain.Entities;
+using FinanceSplit.Domain.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
@@ -9,7 +10,7 @@ namespace FinanceSplit.Data.Services;
 internal class TransactionService(AppDbContext context, TimeProvider timeProvider)
     : ITransactionService
 {
-    public async Task<IReadOnlyList<TransactionResponse>?> GetTransactionsAsync(
+    public async Task<IReadOnlyList<TransactionDto>?> GetTransactionsAsync(
         DateOnly? month = null,
         CancellationToken cancellationToken = default
     )
@@ -19,22 +20,16 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         var monthInit = new DateOnly(month.Value.Year, month.Value.Month, 1);
         var monthEnd = monthInit.AddMonths(1);
 
-        return await context
-            .Transactions.OrderBy(t => t.Name)
+        var transactions = await context
+            .Transactions.AsNoTrackingWithIdentityResolution()
+            .OrderBy(t => t.Name)
             .Where(t => monthInit <= t.Month && t.Month < monthEnd)
-            .Select(t => new TransactionResponse(
-                t.Id,
-                t.Name,
-                t.Value,
-                t.Month,
-                t.SplitType,
-                new TransactionPersonResponse(t.PaidBy.Id, t.PaidBy.Name),
-                t.SharedWith.Select(tp => new TransactionPersonResponse(tp.Id, tp.Name)).ToList()
-            ))
             .ToListAsync(cancellationToken: cancellationToken);
+
+        return [.. transactions.Select(t => t.ToDto())];
     }
 
-    public async Task<TransactionResponse?> CreateTransactionAsync(
+    public async Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
         CancellationToken cancellationToken = default
     )
@@ -70,18 +65,10 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return new TransactionResponse(
-            newTransaction.Id,
-            newTransaction.Name,
-            newTransaction.Value,
-            newTransaction.Month,
-            newTransaction.SplitType,
-            new(newTransaction.PaidBy.Id, newTransaction.PaidBy.Name),
-            [.. newTransaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
-        );
+        return newTransaction.ToDto();
     }
 
-    public async Task<TransactionResponse?> UpdateTransactionAsync(
+    public async Task<TransactionDto?> UpdateTransactionAsync(
         UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
     )
@@ -123,15 +110,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return new TransactionResponse(
-            transaction.Id,
-            transaction.Name,
-            transaction.Value,
-            transaction.Month,
-            transaction.SplitType,
-            new(transaction.PaidBy.Id, transaction.PaidBy.Name),
-            [.. transaction.SharedWith.Select(p => new TransactionPersonResponse(p.Id, p.Name))]
-        );
+        return transaction.ToDto();
     }
 
     public async Task DeleteTransactionAsync(

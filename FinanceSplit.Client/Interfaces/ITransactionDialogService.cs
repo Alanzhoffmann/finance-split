@@ -4,7 +4,7 @@ namespace FinanceSplit.Client.Interfaces;
 
 public interface ITransactionDialogService
 {
-    Task<TransactionResponse?> CreateTransactionAsync();
-    Task<TransactionResponse?> EditTransactionAsync(TransactionResponse transaction);
-    Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionResponse transaction);
+    Task<TransactionDto?> CreateTransactionAsync();
+    Task<TransactionDto?> EditTransactionAsync(TransactionDto transaction);
+    Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction);
 }

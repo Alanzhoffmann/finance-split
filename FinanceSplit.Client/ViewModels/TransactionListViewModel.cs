@@ -21,7 +21,7 @@ public partial class TransactionListViewModel(
     public partial DateOnly CurrentMonth { get; set; }
 
     [PersistentState(AllowUpdates = true)]
-    public List<TransactionResponse>? Transactions { get; private set; }
+    public List<TransactionDto>? Transactions { get; private set; }
 
     [MemberNotNullWhen(true, nameof(Transactions))]
     public bool IsLoaded => Transactions is not null;
@@ -78,7 +78,7 @@ public partial class TransactionListViewModel(
     }
 
     [RelayCommand]
-    private async Task EditTransactionAsync(TransactionResponse transaction)
+    private async Task EditTransactionAsync(TransactionDto transaction)
     {
         var editedTransaction = await dialogService.EditTransactionAsync(transaction);
 
@@ -89,7 +89,7 @@ public partial class TransactionListViewModel(
     }
 
     [RelayCommand]
-    private async Task DeleteTransactionAsync(TransactionResponse transaction)
+    private async Task DeleteTransactionAsync(TransactionDto transaction)
     {
         var result = await dialogService.ShowDeleteTransactionConfirmationAsync(transaction);
 
@@ -112,7 +112,7 @@ public partial class TransactionListViewModel(
         }
     }
 
-    private async Task UpdateTransactionListAsync(TransactionResponse transaction)
+    private async Task UpdateTransactionListAsync(TransactionDto transaction)
     {
         if (Transactions is not null)
         {

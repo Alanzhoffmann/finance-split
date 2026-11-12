@@ -11,7 +11,7 @@ public partial class TransactionDialog(TransactionViewModel viewModel)
     private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
 
     [Parameter]
-    public TransactionResponse? Transaction { get; set; }
+    public TransactionDto? Transaction { get; set; }
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
