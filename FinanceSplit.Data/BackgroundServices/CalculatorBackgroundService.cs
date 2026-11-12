@@ -1,5 +1,5 @@
-﻿using FinanceSplit.Data.Internal;
-using FinanceSplit.Data.Services;
+﻿using FinanceSplit.Contracts.Services;
+using FinanceSplit.Data.Internal;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +59,7 @@ internal partial class CalculatorBackgroundService(
 
     private static async Task RecalculateSummaryFromDates(
         AppDbContext context,
-        TransactionService transactionService,
+        ITransactionService transactionService,
         IReadOnlyCollection<DateOnly> months,
         IEnumerable<Person>? people = null,
         CancellationToken cancellationToken = default
@@ -109,7 +109,7 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
-        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
+        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
 
         // Get all months after income record changed, all can be affected
         var summaries = await context
@@ -137,7 +137,7 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
-        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
+        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
 
         var people = await context.People.ToListAsync(cancellationToken);
 
@@ -174,7 +174,7 @@ internal partial class CalculatorBackgroundService(
         LogCalculatingSummaryForTransactionChanged(transactionChanged);
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
-        var transactionService = serviceProvider.GetRequiredService<TransactionService>();
+        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
 
         await RecalculateSummaryFromDates(
             context,
