@@ -1,5 +1,5 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.Transactions.Commands;
+using FinanceSplit.Contracts.Transactions.Dtos;
 
 namespace FinanceSplit.Contracts.Services;
 

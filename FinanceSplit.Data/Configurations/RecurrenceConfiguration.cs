@@ -8,8 +8,6 @@ internal class RecurrenceConfiguration : IEntityTypeConfiguration<Recurrence>
 {
     public void Configure(EntityTypeBuilder<Recurrence> builder)
     {
-        builder.HasKey(r => r.Id);
-
         builder
             .HasMany(r => r.Transactions)
             .WithOne(t => t.Recurrence)

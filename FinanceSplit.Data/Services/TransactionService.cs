@@ -1,6 +1,6 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.Transactions.Commands;
+using FinanceSplit.Contracts.Transactions.Dtos;
 using FinanceSplit.Domain.Entities;
 using FinanceSplit.Domain.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,32 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        return [.. transactions.Select(t => t.ToDto())];
+        List<TransactionDto> transactionList =
+        [
+            .. transactions.Where(t => t is not Recurrence).Select(t => t.ToDto()),
+        ];
+
+        var recurrences = await context
+            .Recurrences.Where(r => !r.Ended)
+            .ToListAsync(cancellationToken: cancellationToken);
+        foreach (var month in months)
+        {
+            foreach (var recurrence in recurrences)
+            {
+                var recurringTransactionForMonth = recurrence.GetTransactionForMonth(month);
+                if (
+                    recurringTransactionForMonth is null
+                    || transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
+                )
+                {
+                    continue;
+                }
+
+                transactionList.Add(recurringTransactionForMonth.ToDto());
+            }
+        }
+
+        return transactionList;
     }
 
     public async Task<TransactionDto?> CreateTransactionAsync(

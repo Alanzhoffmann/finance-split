@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.Transactions.Dtos;
 
 namespace FinanceSplit.Client.Interfaces;
 

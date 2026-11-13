@@ -1,5 +1,5 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.Transactions.Commands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
