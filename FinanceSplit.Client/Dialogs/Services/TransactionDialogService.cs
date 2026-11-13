@@ -1,6 +1,6 @@
 ﻿using FinanceSplit.Client.Extensions;
 using FinanceSplit.Client.Interfaces;
-using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.Transactions.Dtos;
 using MudBlazor;
 
 namespace FinanceSplit.Client.Dialogs.Services;

@@ -1,5 +1,6 @@
 ﻿using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Enums;
+using FinanceSplit.Contracts.Transactions.Dtos;
 using FinanceSplit.Domain.ValueObjects;
 
 namespace FinanceSplit.Domain.Entities;

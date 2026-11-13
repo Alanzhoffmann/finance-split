@@ -1,6 +1,6 @@
 using System.Globalization;
 using FinanceSplit.Client.ViewModels;
-using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.Transactions.Dtos;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

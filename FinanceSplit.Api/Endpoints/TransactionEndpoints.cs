@@ -1,5 +1,5 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.Transactions.Commands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -37,6 +37,40 @@ internal static class TransactionEndpoints
             ) =>
             {
                 var transaction = await transactionService.CreateTransactionAsync(
+                    command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
+        group.MapPost(
+            "recurring",
+            async (
+                CreateRecurringTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.CreateRecurringTransactionAsync(
+                    command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
+        group.MapPost(
+            "split",
+            async (
+                CreateSplitTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.CreateSplitTransactionAsync(
                     command,
                     cancellationToken
                 );
