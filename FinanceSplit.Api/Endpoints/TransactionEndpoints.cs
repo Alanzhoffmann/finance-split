@@ -45,6 +45,40 @@ internal static class TransactionEndpoints
             }
         );
 
+        group.MapPost(
+            "recurring",
+            async (
+                CreateRecurringTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.CreateRecurringTransactionAsync(
+                    command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
+        group.MapPost(
+            "split",
+            async (
+                CreateSplitTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.CreateSplitTransactionAsync(
+                    command,
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
         group.MapPut(
             "{id:guid}",
             async (
