@@ -165,4 +165,92 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<TransactionDto?> CreateRecurringTransactionAsync(
+        CreateRecurringTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
+        var people = await context
+            .People.Where(p => personIds.Contains(p.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
+        if (paidByPerson is null)
+        {
+            return null;
+        }
+
+        var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
+        if (sharedWith.Count < command.SharedWithIds.Count)
+        {
+            // Not every person shared with is accounted for
+            return null;
+        }
+
+        var newRecurringTransaction = new Recurrence
+        {
+            Name = command.Name,
+            Month = command.Date,
+            Value = command.Value,
+            PaidBy = paidByPerson,
+            SplitType = command.SplitType,
+            SharedWith = sharedWith,
+            NumberOfRecurrences = command.NumberOfRecurrences,
+            LastMonth = command.LastMonth,
+            Type = command.Type,
+        };
+
+        context.Transactions.Add(newRecurringTransaction);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return newRecurringTransaction.ToDto();
+    }
+
+    public async Task<TransactionDto?> CreateSplitTransactionAsync(
+        CreateSplitTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
+        var people = await context
+            .People.Where(p => personIds.Contains(p.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
+        if (paidByPerson is null)
+        {
+            return null;
+        }
+
+        var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
+        if (sharedWith.Count < command.SharedWithIds.Count)
+        {
+            // Not every person shared with is accounted for
+            return null;
+        }
+
+        var newTransaction = new Transaction
+        {
+            Name = command.Name,
+            Month = command.Date,
+            Value = command.Value,
+            PaidBy = paidByPerson,
+            SplitType = command.SplitType,
+            SharedWith = sharedWith,
+        };
+
+        var splitTransaction = Recurrence.SplitInstallments(
+            newTransaction,
+            command.NumberOfInstallments
+        );
+
+        context.Transactions.Add(splitTransaction);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return splitTransaction.ToDto();
+    }
 }

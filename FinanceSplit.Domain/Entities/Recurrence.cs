@@ -4,8 +4,6 @@ public class Recurrence : Transaction
 {
     private readonly List<Transaction> _transactions = [];
 
-    private Recurrence() { }
-
     public RecurrenceType Type { get; init; }
     public int? NumberOfRecurrences { get; init; }
     public IReadOnlyList<Transaction> Transactions

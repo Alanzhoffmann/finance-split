@@ -65,9 +65,47 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<TransactionDto?> CreateRecurringTransactionAsync(
+        CreateRecurringTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.PostAsJsonAsync(
+            "api/transaction/recurring",
+            command,
+            TransactionSerializerContext.Default.CreateRecurringTransactionCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            TransactionSerializerContext.Default.TransactionDto,
+            cancellationToken
+        );
+    }
+
+    public async Task<TransactionDto?> CreateSplitTransactionAsync(
+        CreateSplitTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await client.PostAsJsonAsync(
+            "api/transaction/split",
+            command,
+            TransactionSerializerContext.Default.CreateSplitTransactionCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            TransactionSerializerContext.Default.TransactionDto,
+            cancellationToken
+        );
+    }
+
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<TransactionDto>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
+    [JsonSerializable(typeof(CreateRecurringTransactionCommand))]
+    [JsonSerializable(typeof(CreateSplitTransactionCommand))]
     [JsonSerializable(typeof(UpdateTransactionCommand))]
     partial class TransactionSerializerContext : JsonSerializerContext;
 }

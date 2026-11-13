@@ -33,6 +33,16 @@ public interface ITransactionService
         CancellationToken cancellationToken = default
     );
 
+    Task<TransactionDto?> CreateRecurringTransactionAsync(
+        CreateRecurringTransactionCommand command,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<TransactionDto?> CreateSplitTransactionAsync(
+        CreateSplitTransactionCommand command,
+        CancellationToken cancellationToken = default
+    );
+
     Task<TransactionDto?> UpdateTransactionAsync(
         UpdateTransactionCommand command,
         CancellationToken cancellationToken = default
