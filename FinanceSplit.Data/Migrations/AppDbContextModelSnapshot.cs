@@ -15,7 +15,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261111153041_InitialMigration";
+    public override string LastMigrationId => "20261113143441_MakeRecurrenceTransactionBased2";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -72,36 +72,15 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("People");
             });
 
-        modelBuilder.Entity("FinanceSplit.Domain.Entities.Recurrence", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("TEXT");
-
-                b.Property<decimal>("Amount")
-                    .HasColumnType("TEXT");
-
-                b.Property<bool>("Ended")
-                    .HasColumnType("INTEGER");
-
-                b.Property<DateOnly?>("LastMonth")
-                    .HasColumnType("TEXT");
-
-                b.Property<int?>("NumberOfRecurrences")
-                    .HasColumnType("INTEGER");
-
-                b.Property<int>("Type")
-                    .HasColumnType("INTEGER");
-
-                b.HasKey("Id");
-
-                b.ToTable("Recurrence");
-            });
-
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Transaction", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
+
+                b.Property<string>("Discriminator")
+                    .IsRequired()
+                    .HasMaxLength(13)
                     .HasColumnType("TEXT");
 
                 b.Property<DateOnly>("Month")
@@ -130,6 +109,10 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("RecurrenceId");
 
                 b.ToTable("Transactions");
+
+                b.HasDiscriminator<string>("Discriminator").HasValue("");
+
+                b.UseTphMappingStrategy();
             });
 
         modelBuilder.Entity("PersonTransaction", b =>
@@ -145,6 +128,25 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SharedWithId");
 
                 b.ToTable("PersonTransaction");
+            });
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.Recurrence", b =>
+            {
+                b.HasBaseType("FinanceSplit.Domain.Entities.Transaction");
+
+                b.Property<bool>("Ended")
+                    .HasColumnType("INTEGER");
+
+                b.Property<DateOnly?>("LastMonth")
+                    .HasColumnType("TEXT");
+
+                b.Property<int?>("NumberOfRecurrences")
+                    .HasColumnType("INTEGER");
+
+                b.Property<int>("Type")
+                    .HasColumnType("INTEGER");
+
+                b.HasDiscriminator().HasValue("Recurrence");
             });
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.IncomeRecord", b =>
