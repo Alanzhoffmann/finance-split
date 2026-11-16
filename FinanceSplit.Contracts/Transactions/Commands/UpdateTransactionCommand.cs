@@ -10,5 +10,7 @@ public record UpdateTransactionCommand(
     decimal Value,
     Guid PaidByPersonId,
     SplitType SplitType,
-    IReadOnlyCollection<Guid> SharedWithIds
+    IReadOnlyCollection<Guid> SharedWithIds,
+    SplitTransactionSetup? SplitSetup = null,
+    RecurrenceTransactionSetup? RecurrenceSetup = null
 );

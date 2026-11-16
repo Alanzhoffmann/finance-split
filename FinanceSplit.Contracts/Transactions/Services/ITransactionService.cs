@@ -21,7 +21,7 @@ public interface ITransactionService
             var monthTransactions = await GetTransactionsAsync(month, cancellationToken);
             if (monthTransactions is not null)
             {
-                allTransactions.AddRange();
+                allTransactions.AddRange(monthTransactions);
             }
         }
 
@@ -30,16 +30,6 @@ public interface ITransactionService
 
     Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
-        CancellationToken cancellationToken = default
-    );
-
-    Task<TransactionDto?> CreateRecurringTransactionAsync(
-        CreateRecurringTransactionCommand command,
-        CancellationToken cancellationToken = default
-    );
-
-    Task<TransactionDto?> CreateSplitTransactionAsync(
-        CreateSplitTransactionCommand command,
         CancellationToken cancellationToken = default
     );
 

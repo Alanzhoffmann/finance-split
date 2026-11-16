@@ -65,51 +65,45 @@ public partial class TransactionViewModel(
 
     public bool AllowMultiselect => SplitType is not SplitType.None;
 
-    public CreateTransactionCommand CreateCommand
+    public CreateTransactionCommand GetCreateCommand()
     {
-        get
+        var name = Name ?? throw new NullReferenceException("Name is null");
+        var date = Date is null
+            ? throw new NullReferenceException("Date is null")
+            : DateOnly.FromDateTime(Date.Value);
+
+        if (SplitType is SplitType.None && SharedWithIds.Count > 1)
         {
-            var name = Name ?? throw new NullReferenceException("Name is null");
-            var date = Date is null
-                ? throw new NullReferenceException("Date is null")
-                : DateOnly.FromDateTime(Date.Value);
-
-            if (SplitType is SplitType.None && SharedWithIds.Count > 1)
-            {
-                SharedWithIds = [SharedWithIds.First()];
-            }
-
-            return new CreateTransactionCommand(
-                name,
-                date,
-                Value,
-                PaidByPersonId,
-                SplitType,
-                SharedWithIds
-            );
+            SharedWithIds = [SharedWithIds.First()];
         }
+
+        return new CreateTransactionCommand(
+            name,
+            date,
+            Value,
+            PaidByPersonId,
+            SplitType,
+            SharedWithIds
+        );
     }
 
-    public UpdateTransactionCommand UpdateCommand
+    public UpdateTransactionCommand GetUpdateCommand()
     {
-        get
+        if (!Id.HasValue)
         {
-            if (!Id.HasValue)
-            {
-                throw new NullReferenceException("Id is null");
-            }
-
-            var createCommand = CreateCommand;
-            return new UpdateTransactionCommand(
-                Id.Value,
-                createCommand.Name,
-                createCommand.Date,
-                createCommand.Value,
-                createCommand.PaidByPersonId,
-                createCommand.SplitType,
-                createCommand.SharedWithIds
-            );
+            throw new NullReferenceException("Id is null");
         }
+
+        var createCommand = GetCreateCommand();
+        return new UpdateTransactionCommand(
+            Id.Value,
+            createCommand.Name,
+            createCommand.Date,
+            createCommand.Value,
+            createCommand.PaidByPersonId,
+            createCommand.SplitType,
+            createCommand.SharedWithIds
+        );
     }
 
     public string GetMultiSelectionText(IReadOnlyList<string> selectedValues) =>
@@ -122,8 +116,11 @@ public partial class TransactionViewModel(
         CancellationToken cancellationToken = default
     ) =>
         !IsEditing
-            ? await transactionService.CreateTransactionAsync(CreateCommand, cancellationToken)
-            : await transactionService.UpdateTransactionAsync(UpdateCommand, cancellationToken);
+            ? await transactionService.CreateTransactionAsync(GetCreateCommand(), cancellationToken)
+            : await transactionService.UpdateTransactionAsync(
+                GetUpdateCommand(),
+                cancellationToken
+            );
 
     partial void OnSplitTypeChanged(SplitType value)
     {
