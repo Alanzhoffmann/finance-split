@@ -17,6 +17,7 @@ public partial class TransactionViewModel(
 ) : ObservableObject
 {
     public static IReadOnlyList<SplitType> SplitTypes => Enum.GetValues<SplitType>();
+    public static IReadOnlyList<RecurrenceType> RecurrenceTypes => Enum.GetValues<RecurrenceType>();
 
     public async Task InitAsync(TransactionDto? transaction = null)
     {
@@ -26,7 +27,7 @@ public partial class TransactionViewModel(
         {
             Id = transaction.Id;
             Name = transaction.Name;
-            Date = transaction.Month.ToDateTime(TimeOnly.MinValue);
+            Month = transaction.Month.ToDateTime(TimeOnly.MinValue);
             Value = transaction.Value;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
@@ -53,7 +54,7 @@ public partial class TransactionViewModel(
     public string? Name { get; set; }
 
     [Required]
-    public DateTime? Date { get; set; } = DateTime.Today;
+    public DateTime? Month { get; set; } = DateTime.Today;
     public decimal Value { get; set; }
 
     [ObservableProperty]
@@ -65,16 +66,38 @@ public partial class TransactionViewModel(
 
     public bool AllowMultiselect => SplitType is not SplitType.None;
 
+    public bool IsRecurring { get; set; }
+
+    public RecurrenceType RecurrenceType { get; set; }
+
+    public bool IsRecurringPeriodOfTime => RecurrenceType is RecurrenceType.PeriodOfTime;
+    public bool IsRecurringNumberOfTimes => RecurrenceType is RecurrenceType.NumberOfTimes;
+
+    public int NumberOfRecurrences { get; set; }
+    public DateTime? LastMonth { get; set; }
+    public bool IsSplit { get; set; }
+
     public CreateTransactionCommand GetCreateCommand()
     {
         var name = Name ?? throw new NullReferenceException("Name is null");
-        var date = Date is null
+        var date = Month is null
             ? throw new NullReferenceException("Date is null")
-            : DateOnly.FromDateTime(Date.Value);
+            : DateOnly.FromDateTime(Month.Value);
 
         if (SplitType is SplitType.None && SharedWithIds.Count > 1)
         {
             SharedWithIds = [SharedWithIds.First()];
+        }
+
+        RecurrenceTransactionSetup? recurrenceSetup = null;
+        if (IsRecurring)
+        {
+            recurrenceSetup = new RecurrenceTransactionSetup(
+                IsRecurringNumberOfTimes ? NumberOfRecurrences : null,
+                IsRecurringPeriodOfTime && LastMonth.HasValue
+                    ? DateOnly.FromDateTime(LastMonth.Value)
+                    : null
+            );
         }
 
         return new CreateTransactionCommand(
@@ -83,7 +106,8 @@ public partial class TransactionViewModel(
             Value,
             PaidByPersonId,
             SplitType,
-            SharedWithIds
+            SharedWithIds,
+            RecurrenceSetup: recurrenceSetup
         );
     }
 
@@ -102,7 +126,9 @@ public partial class TransactionViewModel(
             createCommand.Value,
             createCommand.PaidByPersonId,
             createCommand.SplitType,
-            createCommand.SharedWithIds
+            createCommand.SharedWithIds,
+            createCommand.SplitSetup,
+            createCommand.RecurrenceSetup
         );
     }
 

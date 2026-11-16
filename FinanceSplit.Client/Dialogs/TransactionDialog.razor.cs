@@ -20,7 +20,7 @@ public partial class TransactionDialog(TransactionViewModel viewModel)
 
     private string Title =>
         ViewModel.IsEditing
-            ? $"Edit transaction {ViewModel.Name} {ViewModel.Date}"
+            ? $"Edit transaction {ViewModel.Name} {ViewModel.Month}"
             : "Create transaction";
 
     private string SubmitLabel => ViewModel.IsEditing ? "Edit" : "Create";

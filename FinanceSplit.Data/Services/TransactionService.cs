@@ -41,7 +41,9 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
         var recurrences = await context
             .Recurrences.Where(r => !r.Ended)
+            .AsNoTrackingWithIdentityResolution()
             .ToListAsync(cancellationToken: cancellationToken);
+
         foreach (var month in months)
         {
             foreach (var recurrence in recurrences)
@@ -49,7 +51,10 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
                 var recurringTransactionForMonth = recurrence.GetTransactionForMonth(month);
                 if (
                     recurringTransactionForMonth is null
-                    || transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
+                    || (
+                        recurringTransactionForMonth.Id != default
+                        && transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
+                    )
                 )
                 {
                     continue;
@@ -59,6 +64,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             }
         }
 
+        transactionList.Sort((x, y) => x.Name.CompareTo(y.Name));
         return transactionList;
     }
 
