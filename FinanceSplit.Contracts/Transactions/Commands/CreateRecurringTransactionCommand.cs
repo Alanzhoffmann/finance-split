@@ -1,5 +1,4 @@
-﻿using FinanceSplit.Contracts.Enums;
-using FinanceSplit.Domain.Entities;
+﻿using FinanceSplit.Contracts.Transactions.Enums;
 
 namespace FinanceSplit.Contracts.Transactions.Commands;
 

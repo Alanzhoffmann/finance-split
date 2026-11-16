@@ -49,7 +49,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
     {
         if (!IsEditing)
         {
-            var newIncome = await personService.CreateIncomeRecordAsync(Model.CreateCommand);
+            var newIncome = await personService.CreateIncomeRecordAsync(Model.GetCreateCommand());
 
             if (newIncome is not null)
             {
@@ -59,7 +59,9 @@ public partial class IncomeRecordDialog(IPersonService personService)
         }
         else
         {
-            var updatedIncome = await personService.UpdateIncomeRecordAsync(Model.UpdateCommand);
+            var updatedIncome = await personService.UpdateIncomeRecordAsync(
+                Model.GetUpdateCommand()
+            );
 
             if (updatedIncome is not null)
             {
@@ -98,37 +100,31 @@ public partial class IncomeRecordDialog(IPersonService personService)
 
         public IncomeType IncomeType { get; set; } = IncomeType.Salary;
 
-        public CreateIncomeRecordCommand CreateCommand
+        public CreateIncomeRecordCommand GetCreateCommand()
         {
-            get
+            if (Month is null)
             {
-                if (Month is null)
-                {
-                    throw new ArgumentNullException(nameof(Month));
-                }
-
-                var month = DateOnly.FromDateTime(Month.Value);
-                return new CreateIncomeRecordCommand(PersonId, Amount, month, IncomeType);
+                throw new ArgumentNullException(nameof(Month));
             }
+
+            var month = DateOnly.FromDateTime(Month.Value);
+            return new CreateIncomeRecordCommand(PersonId, Amount, month, IncomeType);
         }
 
-        public UpdateIncomeRecordCommand UpdateCommand
+        public UpdateIncomeRecordCommand GetUpdateCommand()
         {
-            get
+            if (!Id.HasValue)
             {
-                if (!Id.HasValue)
-                {
-                    throw new ArgumentNullException(nameof(Id));
-                }
-
-                if (Month is null)
-                {
-                    throw new ArgumentNullException(nameof(Month));
-                }
-
-                var month = DateOnly.FromDateTime(Month.Value);
-                return new UpdateIncomeRecordCommand(Id.Value, PersonId, Amount, month, IncomeType);
+                throw new ArgumentNullException(nameof(Id));
             }
+
+            if (Month is null)
+            {
+                throw new ArgumentNullException(nameof(Month));
+            }
+
+            var month = DateOnly.FromDateTime(Month.Value);
+            return new UpdateIncomeRecordCommand(Id.Value, PersonId, Amount, month, IncomeType);
         }
     }
 }
