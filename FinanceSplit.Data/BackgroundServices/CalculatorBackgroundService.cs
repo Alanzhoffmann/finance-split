@@ -48,6 +48,13 @@ internal partial class CalculatorBackgroundService(
                             stoppingToken
                         );
                         break;
+                    case RecurrenceChanged recurrenceChanged:
+                        await CalculateRecurrenceChanged(
+                            scope.ServiceProvider,
+                            recurrenceChanged,
+                            stoppingToken
+                        );
+                        break;
                 }
             }
             finally
@@ -69,6 +76,25 @@ internal partial class CalculatorBackgroundService(
             .Summaries.Where(s => months.Contains(s.Month))
             .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
 
+        await RecalculateSummaryFromDates(
+            context,
+            summaries,
+            transactionService,
+            months,
+            people,
+            cancellationToken
+        );
+    }
+
+    private static async Task RecalculateSummaryFromDates(
+        AppDbContext context,
+        Dictionary<DateOnly, MonthSummary> summaries,
+        ITransactionService transactionService,
+        IReadOnlyCollection<DateOnly> months,
+        IEnumerable<Person>? people = null,
+        CancellationToken cancellationToken = default
+    )
+    {
         var transactions = await transactionService.GetTransactionsAsync(months, cancellationToken);
 
         people ??= await context.People.ToListAsync(cancellationToken);
@@ -112,10 +138,6 @@ internal partial class CalculatorBackgroundService(
         var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
 
         // Get all months after income record changed, all can be affected
-        var summaries = await context
-            .Summaries.Where(s => s.Month >= incomeRecordChanged.Month)
-            .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
-
         var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
         var monthsToCalculate = GetAllMonthsBetween(incomeRecordChanged.Month, today);
 
@@ -184,6 +206,30 @@ internal partial class CalculatorBackgroundService(
         );
     }
 
+    private async Task CalculateRecurrenceChanged(
+        IServiceProvider serviceProvider,
+        RecurrenceChanged recurrenceChanged,
+        CancellationToken cancellationToken = default
+    )
+    {
+        LogCalculatingSummaryForRecurrenceChanged(recurrenceChanged);
+
+        var context = serviceProvider.GetRequiredService<AppDbContext>();
+        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
+
+        var futureSummaries = await context
+            .Summaries.Where(s => s.Month >= recurrenceChanged.Month)
+            .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
+
+        await RecalculateSummaryFromDates(
+            context,
+            futureSummaries,
+            transactionService,
+            futureSummaries.Keys,
+            cancellationToken: cancellationToken
+        );
+    }
+
     [LoggerMessage(
         Level = LogLevel.Information,
         Message = "Starting calculator background service"
@@ -217,4 +263,10 @@ internal partial class CalculatorBackgroundService(
         Message = "Calculating summary for transaction changed {TransactionChanged}"
     )]
     partial void LogCalculatingSummaryForTransactionChanged(TransactionChanged transactionChanged);
+
+    [LoggerMessage(
+        Level = LogLevel.Information,
+        Message = "Calculating summary for recurrence changed {RecurrenceChanged}"
+    )]
+    partial void LogCalculatingSummaryForRecurrenceChanged(RecurrenceChanged recurrenceChanged);
 }
