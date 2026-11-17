@@ -13,7 +13,10 @@ public partial class IncomeRecordDialog(IPersonService personService)
 {
     private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
 
-    private static IReadOnlyList<IncomeType> IncomeTypes => Enum.GetValues<IncomeType>();
+    private static IReadOnlyList<(IncomeType Value, string Name)> IncomeTypes =
+        Enum.GetValues<IncomeType>()
+            .Select(i => (i, i.ToStringFast(useMetadataAttributes: true)))
+            .ToList();
 
     [Parameter]
     [EditorRequired]

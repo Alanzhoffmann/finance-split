@@ -16,9 +16,6 @@ public partial class TransactionViewModel(
     ITransactionService transactionService
 ) : ObservableObject
 {
-    public static IReadOnlyList<SplitType> SplitTypes => Enum.GetValues<SplitType>();
-    public static IReadOnlyList<RecurrenceType> RecurrenceTypes => Enum.GetValues<RecurrenceType>();
-
     public async Task InitAsync(TransactionDto? transaction = null)
     {
         People = await personService.GetPeopleAsync() ?? [];
@@ -43,6 +40,15 @@ public partial class TransactionViewModel(
             PaidByPersonId = People[0].Id;
         }
     }
+
+    public static IReadOnlyList<(RecurrenceType Value, string Name)> RecurrenceTypes { get; } =
+        Enum.GetValues<RecurrenceType>()
+            .Select(r => (r, r.ToStringFast(useMetadataAttributes: true)))
+            .ToList();
+    public static IReadOnlyList<(SplitType Value, string Name)> SplitTypes { get; } =
+        Enum.GetValues<SplitType>()
+            .Select(s => (s, s.ToStringFast(useMetadataAttributes: true)))
+            .ToList();
 
     public bool IsEditing => Id is not null;
 
