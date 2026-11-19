@@ -27,7 +27,7 @@ public partial class TransactionViewModel(
             Id = transaction.Id;
             Name = transaction.Name;
             Date = transaction.Month.ToDateTime(TimeOnly.MinValue);
-            Value = transaction.Value;
+            Amount = transaction.Amount;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
             SharedWithIds = [.. transaction.SharedWith.Select(p => p.Person.Id)];
@@ -54,7 +54,7 @@ public partial class TransactionViewModel(
 
     [Required]
     public DateTime? Date { get; set; } = DateTime.Today;
-    public decimal Value { get; set; }
+    public decimal Amount { get; set; }
 
     [ObservableProperty]
     public partial Guid PaidByPersonId { get; set; }
@@ -82,7 +82,7 @@ public partial class TransactionViewModel(
             return new CreateTransactionCommand(
                 name,
                 date,
-                Value,
+                Amount,
                 PaidByPersonId,
                 SplitType,
                 SharedWithIds

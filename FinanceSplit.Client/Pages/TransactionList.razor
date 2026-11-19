@@ -25,7 +25,7 @@
             <MudTable Items="ViewModel.Transactions" Dense Hover="true" SortLabel="Sort By">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
-                    <MudTh>Value</MudTh>
+                    <MudTh>Amount</MudTh>
                     <MudTh>Split</MudTh>
                     <MudTh>Paid by</MudTh>
                     <MudTh>Shared with</MudTh>
@@ -33,7 +33,7 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name"><strong>@context.Name</strong></MudTd>
-                    <MudTd DataLabel="Value">@context.Value.ToString("C", _enGb)</MudTd>
+                    <MudTd DataLabel="Amount">@context.Amount.ToString("C", _enGb)</MudTd>
                     <MudTd DataLabel="Split">@context.SplitType</MudTd>
                     <MudTd DataLabel="Paid by">@context.PaidBy.Name</MudTd>
                     <MudTd DataLabel="Shared with">@string.Join(", ", context.SharedWith.Select(r => r.Person.Name))</MudTd>

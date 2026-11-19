@@ -1,6 +1,7 @@
 ﻿using FinanceSplit.Contracts.People.DTOs;
 using FinanceSplit.Contracts.Transactions.DTOs;
 using FinanceSplit.Domain.Entities;
+using FinanceSplit.Domain.Extensions;
 
 namespace FinanceSplit.Domain.Mappers;
 
@@ -8,7 +9,7 @@ public static class TransactionMapper
 {
     public static TransactionDto ToDto(this Transaction transaction)
     {
-        var calculatedShares = transaction.CalculateShares();
+        var calculatedShares = transaction.CalculateShares(transaction.Month);
 
         return new TransactionDto(
             transaction.Id,

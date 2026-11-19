@@ -6,7 +6,7 @@ namespace FinanceSplit.Contracts.Transactions.DTOs;
 public record TransactionDto(
     Guid Id,
     string Name,
-    decimal Value,
+    decimal Amount,
     DateOnly Month,
     SplitType SplitType,
     PersonDto PaidBy,

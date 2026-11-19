@@ -50,7 +50,7 @@ public sealed class MonthSummary
         {
             var shares = transaction.SharedWith;
 
-            AddToBalance(balances, transaction.PaidBy.Id, transaction.Value);
+            AddToBalance(balances, transaction.PaidBy.Id, transaction.Amount);
 
             foreach (var (person, share) in shares)
             {

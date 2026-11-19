@@ -1,8 +1,9 @@
 ﻿using FinanceSplit.Contracts.Transactions.Enums;
+using FinanceSplit.Domain.Interfaces;
 
 namespace FinanceSplit.Domain.Entities;
 
-public class Transaction : BaseEntity
+public class Transaction : BaseEntity, ISharedAmount
 {
     private string? _name;
     private decimal _value;
@@ -78,79 +79,4 @@ public class Transaction : BaseEntity
     }
 
     public void AddValue(decimal value) => _value += value;
-
-    public IReadOnlyDictionary<Person, decimal> CalculateShares() =>
-        SplitType switch
-        {
-            SplitType.None => CalculateNoneShares(),
-            SplitType.Even => CalculateEvenShares(),
-            SplitType.Ratio => CalculateRatioShares(),
-            _ => throw new InvalidOperationException($"Unsupported split type: {SplitType}"),
-        };
-
-    private Dictionary<Person, decimal> CalculateNoneShares() => new() { [SharedWith[0]] = Value };
-
-    private Dictionary<Person, decimal> CalculateEvenShares()
-    {
-        var result = new Dictionary<Person, decimal>(SharedWith.Count);
-
-        // All participants except the first receive a share floored to 2dp.
-        // The first participant (alphabetically) absorbs the remainder, rounding up naturally.
-        var baseShare = decimal.Round(Value / SharedWith.Count, 2, MidpointRounding.ToZero);
-        var allocated = baseShare * (SharedWith.Count - 1);
-        result[SharedWith[0]] = decimal.Round(Value - allocated, 2, MidpointRounding.AwayFromZero);
-
-        for (var i = 1; i < SharedWith.Count; i++)
-        {
-            result[SharedWith[i]] = baseShare;
-        }
-
-        return result;
-    }
-
-    private Dictionary<Person, decimal> CalculateRatioShares()
-    {
-        var incomePerPerson = SharedWith
-            .Select(p => new { Person = p, Income = p.GetIncomeForMonth(Month) })
-            .ToArray();
-
-        if (incomePerPerson.Any(x => x.Income < 0))
-        {
-            throw new InvalidOperationException(
-                "Ratio split requires positive income for all participants in the month."
-            );
-        }
-
-        var totalIncome = incomePerPerson.Sum(x => x.Income);
-
-        // Highest earner is the adjustment person: their share is the remainder after
-        // all others receive their proportional share floored to 2dp.
-        var ordered = incomePerPerson
-            .OrderByDescending(x => x.Income)
-            .ThenBy(x => x.Person.Name, StringComparer.Ordinal)
-            .ThenBy(x => x.Person.Id)
-            .ToArray();
-
-        var result = new Dictionary<Person, decimal>(SharedWith.Count);
-        var allocated = 0m;
-
-        for (var i = 1; i < ordered.Length; i++)
-        {
-            var share = decimal.Round(
-                Value * ordered[i].Income / totalIncome,
-                2,
-                MidpointRounding.ToZero
-            );
-            result[ordered[i].Person] = share;
-            allocated += share;
-        }
-
-        result[ordered[0].Person] = decimal.Round(
-            Value - allocated,
-            2,
-            MidpointRounding.AwayFromZero
-        );
-
-        return result;
-    }
 }
