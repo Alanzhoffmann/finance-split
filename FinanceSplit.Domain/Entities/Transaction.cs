@@ -49,7 +49,7 @@ public class Transaction : BaseEntity
 
     public Recurrence? Recurrence { get; init; }
 
-    public void Update(string name, DateOnly month, decimal value, SplitType splitType)
+    public virtual void Update(string name, DateOnly month, decimal value, SplitType splitType)
     {
         _name = name;
         _month = month;
@@ -57,7 +57,7 @@ public class Transaction : BaseEntity
         _splitType = splitType;
     }
 
-    public void UpdatePaidBy(Person paidByPerson)
+    public virtual void UpdatePaidBy(Person paidByPerson)
     {
         if (paidByPerson.Id == PaidBy.Id)
         {
@@ -67,7 +67,7 @@ public class Transaction : BaseEntity
         _paidBy = paidByPerson;
     }
 
-    public void UpdateSharedWith(List<Person> sharedWith)
+    public virtual void UpdateSharedWith(List<Person> sharedWith)
     {
         if (sharedWith.Select(p => p.Id).SequenceEqual(SharedWith.Select(p => p.Id)))
         {

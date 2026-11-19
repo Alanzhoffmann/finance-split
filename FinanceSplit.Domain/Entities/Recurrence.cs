@@ -57,9 +57,70 @@ public class Recurrence : Transaction
         };
     }
 
-    public void EndRecurrence()
+    public void EndRecurrence(DateOnly month)
     {
+        var lastMonth = Type switch
+        {
+            RecurrenceType.NumberOfTimes when NumberOfRecurrences is not null => Month.AddMonths(
+                NumberOfRecurrences.Value
+            ),
+            RecurrenceType.PeriodOfTime when LastMonth is not null => LastMonth,
+            _ => month,
+        };
+
+        if (month < lastMonth)
+        {
+            lastMonth = month;
+        }
+
+        for (var i = Month; i < lastMonth; i = i.AddMonths(1))
+        {
+            var monthTransaction = GetTransactionForMonth(i);
+            if (monthTransaction is null)
+            {
+                continue;
+            }
+
+            if (
+                monthTransaction.Id == default
+                || !Transactions.Any(t => t.Id == monthTransaction.Id)
+            )
+            {
+                _transactions.Add(monthTransaction);
+            }
+        }
+
         Ended = true;
+    }
+
+    public override void Update(string name, DateOnly month, decimal value, SplitType splitType)
+    {
+        base.Update(name, month, value, splitType);
+
+        foreach (var item in Transactions)
+        {
+            item.Update(name, month, value, splitType);
+        }
+    }
+
+    public override void UpdatePaidBy(Person paidByPerson)
+    {
+        base.UpdatePaidBy(paidByPerson);
+
+        foreach (var item in Transactions)
+        {
+            item.UpdatePaidBy(paidByPerson);
+        }
+    }
+
+    public override void UpdateSharedWith(List<Person> sharedWith)
+    {
+        base.UpdateSharedWith(sharedWith);
+
+        foreach (var item in Transactions)
+        {
+            item.UpdateSharedWith(sharedWith);
+        }
     }
 
     private bool IsForMonth(DateOnly month) =>

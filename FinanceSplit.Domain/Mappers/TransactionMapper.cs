@@ -22,7 +22,15 @@ public static class TransactionMapper
                     new PersonDto(s.Id, s.Name),
                     calculatedShares.GetValueOrDefault(s)
                 )),
-            ]
+            ],
+            transaction.Recurrence is null
+                ? null
+                : new(
+                    transaction.Recurrence.Id,
+                    transaction.Recurrence.Type,
+                    transaction.Recurrence.NumberOfRecurrences,
+                    transaction.Recurrence.LastMonth
+                )
         );
     }
 }

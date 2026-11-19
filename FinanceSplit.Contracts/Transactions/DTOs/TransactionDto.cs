@@ -10,7 +10,15 @@ public record TransactionDto(
     DateOnly Month,
     SplitType SplitType,
     PersonDto PaidBy,
-    List<TransactionShareDto> SharedWith
+    List<TransactionShareDto> SharedWith,
+    RecurrenceDto? Recurrence = null
 );
 
 public record TransactionShareDto(PersonDto Person, decimal Amount);
+
+public record RecurrenceDto(
+    Guid RecurrenceId,
+    RecurrenceType Type,
+    int? NumberOfRecurrences,
+    DateOnly? LastMonth
+);

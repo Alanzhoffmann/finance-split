@@ -29,7 +29,8 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         );
 
         var transactions = await context
-            .Transactions.AsNoTrackingWithIdentityResolution()
+            .Transactions.Include(t => t.Recurrence)
+            .AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
             .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);
@@ -50,17 +51,15 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             {
                 var recurringTransactionForMonth = recurrence.GetTransactionForMonth(month);
                 if (
-                    recurringTransactionForMonth is null
-                    || (
-                        recurringTransactionForMonth.Id != default
-                        && transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
+                    recurringTransactionForMonth is not null
+                    && (
+                        recurringTransactionForMonth.Id == default
+                        || !transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
                     )
                 )
                 {
-                    continue;
+                    transactionList.Add(recurringTransactionForMonth.ToDto());
                 }
-
-                transactionList.Add(recurringTransactionForMonth.ToDto());
             }
         }
 
@@ -73,28 +72,16 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         CancellationToken cancellationToken = default
     )
     {
-        HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
-        var people = await context
-            .People.Where(p => personIds.Contains(p.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
-        if (paidByPerson is null)
-        {
-            return null;
-        }
-
-        var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
-        if (sharedWith.Count < command.SharedWithIds.Count)
-        {
-            // Not every person shared with is accounted for
-            return null;
-        }
+        var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+            command.PaidByPersonId,
+            command.SharedWithIds,
+            cancellationToken
+        );
 
         var newTransaction = new Transaction
         {
             Name = command.Name,
-            Month = command.Date,
+            Month = command.Month,
             Value = command.Value,
             PaidBy = paidByPerson,
             SplitType = command.SplitType,
@@ -106,7 +93,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             newTransaction = new Recurrence
             {
                 Name = command.Name,
-                Month = command.Date,
+                Month = command.Month,
                 Value = command.Value,
                 PaidBy = paidByPerson,
                 SplitType = command.SplitType,
@@ -137,7 +124,56 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         CancellationToken cancellationToken = default
     )
     {
+        // updating recurrence
         var transaction = await context.Transactions.FindAsync([command.Id], cancellationToken);
+        ;
+        if (command.RecurrenceSetup is { } recurrenceOptions)
+        {
+            if (transaction is not Recurrence recurrence)
+            {
+                return null;
+            }
+
+            if (recurrenceOptions.UpdateRecurrence is UpdateRecurrence.Transaction)
+            {
+                transaction = recurrence.GetTransactionForMonth(command.Month);
+                if (transaction is null)
+                {
+                    return null;
+                }
+
+                if (transaction.Id == default)
+                {
+                    context.Add(transaction);
+                }
+            }
+            else if (recurrenceOptions.UpdateRecurrence is UpdateRecurrence.Future)
+            {
+                recurrence.EndRecurrence(command.Month);
+
+                var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+                    command.PaidByPersonId,
+                    command.SharedWithIds,
+                    cancellationToken
+                );
+
+                transaction = new Recurrence
+                {
+                    Name = command.Name,
+                    Month = command.Month,
+                    Value = command.Value,
+                    PaidBy = paidByPerson,
+                    SplitType = command.SplitType,
+                    SharedWith = sharedWith,
+                    NumberOfRecurrences = recurrenceOptions.NumberOfRecurrences,
+                    LastMonth = recurrenceOptions.LastMonth,
+                    Type = recurrenceOptions.Type,
+                };
+
+                context.Transactions.Add(transaction);
+            }
+        }
+
         if (transaction is null)
         {
             return null;
@@ -148,29 +184,17 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             || !transaction.SharedWith.Select(p => p.Id).SequenceEqual(command.SharedWithIds)
         )
         {
-            HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
-            var people = await context
-                .People.Where(p => personIds.Contains(p.Id))
-                .ToListAsync(cancellationToken: cancellationToken);
-
-            var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
-            if (paidByPerson is null)
-            {
-                return null;
-            }
-
-            var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
-            if (sharedWith.Count < command.SharedWithIds.Count)
-            {
-                // Not every person shared with is accounted for
-                return null;
-            }
+            var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+                command.PaidByPersonId,
+                command.SharedWithIds,
+                cancellationToken
+            );
 
             transaction.UpdatePaidBy(paidByPerson);
             transaction.UpdateSharedWith(sharedWith);
         }
 
-        transaction.Update(command.Name, command.Date, command.Value, command.SplitType);
+        transaction.Update(command.Name, command.Month, command.Value, command.SplitType);
 
         await context.SaveChangesAsync(cancellationToken);
 
@@ -195,5 +219,24 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         context.Remove(transactionToDelete);
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<(Person PaidByPerson, List<Person> SharedWith)> GetPeopleForTransaction(
+        Guid paidByPersonId,
+        IReadOnlyCollection<Guid> sharedWithIds,
+        CancellationToken cancellationToken
+    )
+    {
+        HashSet<Guid> personIds = [paidByPersonId, .. sharedWithIds];
+        var people = await context
+            .People.Where(p => personIds.Contains(p.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var paidByPerson = people.FirstOrDefault(p => p.Id == paidByPersonId);
+        var sharedWith = people.Where(p => sharedWithIds.Contains(p.Id)).ToList();
+
+        return paidByPerson is not null && sharedWith.Count == sharedWithIds.Count
+            ? (paidByPerson, sharedWith)
+            : throw new InvalidOperationException("Missing people in the database");
     }
 }

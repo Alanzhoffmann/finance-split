@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Contracts.People.DTOs;
 using FinanceSplit.Contracts.People.Services;
 using FinanceSplit.Contracts.Transactions.Commands;
@@ -13,7 +14,8 @@ namespace FinanceSplit.Client.ViewModels;
 
 public partial class TransactionViewModel(
     IPersonService personService,
-    ITransactionService transactionService
+    ITransactionService transactionService,
+    ITransactionDialogService dialogService
 ) : ObservableObject
 {
     public async Task InitAsync(TransactionDto? transaction = null)
@@ -29,6 +31,15 @@ public partial class TransactionViewModel(
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
             SharedWithIds = [.. transaction.SharedWith.Select(p => p.Person.Id)];
+            if (transaction.Recurrence is not null)
+            {
+                IsRecurring = true;
+                RecurrenceType = transaction.Recurrence.Type;
+                NumberOfRecurrences = transaction.Recurrence.NumberOfRecurrences ?? 0;
+                LastMonth = transaction.Recurrence.LastMonth is null
+                    ? null
+                    : new DateTime(transaction.Recurrence.LastMonth.Value, TimeOnly.MinValue);
+            }
         }
         else
         {
@@ -50,7 +61,7 @@ public partial class TransactionViewModel(
             .Select(s => (s, s.ToStringFast(useMetadataAttributes: true)))
             .ToList();
 
-    public bool IsEditing => Id is not null;
+    public bool IsUpdate => Id is not null;
 
     [PersistentState]
     public IReadOnlyList<PersonDto> People { get; set; } = [];
@@ -117,7 +128,7 @@ public partial class TransactionViewModel(
         );
     }
 
-    public UpdateTransactionCommand GetUpdateCommand()
+    public async Task<UpdateTransactionCommand?> GetUpdateCommandAsync()
     {
         if (!Id.HasValue)
         {
@@ -125,10 +136,28 @@ public partial class TransactionViewModel(
         }
 
         var createCommand = GetCreateCommand();
+
+        if (createCommand.RecurrenceSetup is not null)
+        {
+            var updateRecurrence = await dialogService.GetRecurrenceUpdateTypeAsync();
+            if (updateRecurrence is null)
+            {
+                return null;
+            }
+
+            createCommand = createCommand with
+            {
+                RecurrenceSetup = createCommand.RecurrenceSetup with
+                {
+                    UpdateRecurrence = updateRecurrence,
+                },
+            };
+        }
+
         return new UpdateTransactionCommand(
             Id.Value,
             createCommand.Name,
-            createCommand.Date,
+            createCommand.Month,
             createCommand.Value,
             createCommand.PaidByPersonId,
             createCommand.SplitType,
@@ -146,13 +175,26 @@ public partial class TransactionViewModel(
 
     public async Task<TransactionDto?> SaveTransactionAsync(
         CancellationToken cancellationToken = default
-    ) =>
-        !IsEditing
-            ? await transactionService.CreateTransactionAsync(GetCreateCommand(), cancellationToken)
-            : await transactionService.UpdateTransactionAsync(
-                GetUpdateCommand(),
+    )
+    {
+        if (!IsUpdate)
+        {
+            return await transactionService.CreateTransactionAsync(
+                GetCreateCommand(),
                 cancellationToken
             );
+        }
+        else
+        {
+            var command = await GetUpdateCommandAsync();
+            if (command is null)
+            {
+                return null;
+            }
+
+            return await transactionService.UpdateTransactionAsync(command, cancellationToken);
+        }
+    }
 
     partial void OnSplitTypeChanged(SplitType value)
     {

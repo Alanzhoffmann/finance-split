@@ -19,11 +19,11 @@ public partial class TransactionDialog(TransactionViewModel viewModel)
     private TransactionViewModel ViewModel { get; } = viewModel;
 
     private string Title =>
-        ViewModel.IsEditing
-            ? $"Edit transaction {ViewModel.Name} {ViewModel.Month}"
+        ViewModel.IsUpdate
+            ? $"Edit transaction {ViewModel.Name} {ViewModel.Month:MMM/yyyy}"
             : "Create transaction";
 
-    private string SubmitLabel => ViewModel.IsEditing ? "Edit" : "Create";
+    private string SubmitLabel => ViewModel.IsUpdate ? "Update" : "Create";
 
     private void Cancel() => MudDialog.Cancel();
 

@@ -4,7 +4,7 @@ namespace FinanceSplit.Contracts.Transactions.Commands;
 
 public record CreateTransactionCommand(
     string Name,
-    DateOnly Date,
+    DateOnly Month,
     decimal Value,
     Guid PaidByPersonId,
     SplitType SplitType,
@@ -24,4 +24,7 @@ public record RecurrenceTransactionSetup(
         NumberOfRecurrences is not null ? RecurrenceType.NumberOfTimes
         : LastMonth is not null ? RecurrenceType.PeriodOfTime
         : RecurrenceType.Forever;
+
+    public UpdateRecurrence? UpdateRecurrence { get; init; }
+    public Guid? RecurrenceId { get; init; }
 }

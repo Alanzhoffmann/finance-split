@@ -1,5 +1,6 @@
 ﻿using FinanceSplit.Client.Extensions;
 using FinanceSplit.Client.Interfaces;
+using FinanceSplit.Contracts.Transactions.Commands;
 using FinanceSplit.Contracts.Transactions.DTOs;
 using MudBlazor;
 
@@ -14,6 +15,12 @@ public sealed class TransactionDialogService(IDialogService dialogService)
 
     public Task<TransactionDto?> EditTransactionAsync(TransactionDto originalTransaction) =>
         OpenDialogAsync(originalTransaction);
+
+    public async Task<UpdateRecurrence?> GetRecurrenceUpdateTypeAsync() =>
+        await dialogService.ShowDialogWithResultAsync<
+            UpdateRecurrence,
+            TransactionRecurrenceDialog
+        >([], new());
 
     public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction)
     {
