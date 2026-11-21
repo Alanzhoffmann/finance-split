@@ -27,8 +27,11 @@ public partial class DashboardViewModel(
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<ExpenseSettlementDto>? Settlements { get; set; }
 
-    [MemberNotNullWhen(true, nameof(People), nameof(Settlements))]
-    public bool IsLoaded => People is not null && Settlements is not null;
+    [PersistentState(AllowUpdates = true)]
+    public IReadOnlyList<GoalViewModel>? Goals { get; set; }
+
+    [MemberNotNullWhen(true, nameof(People), nameof(Settlements), nameof(Goals))]
+    public bool IsLoaded => People is not null && Settlements is not null && Goals is not null;
 
     public async Task InitializeAsync(DateOnly? targetMonth = null)
     {
@@ -46,6 +49,7 @@ public partial class DashboardViewModel(
         CurrentMonth = targetMonth.Value;
         People = null;
         Settlements = null;
+        Goals = null;
 
         var data = await dashboardService.GetDashboardAsync(CurrentMonth);
 
@@ -56,6 +60,7 @@ public partial class DashboardViewModel(
 
         People = data.MonthSummary.People;
         Settlements = data.MonthSummary.Settlements;
+        Goals = [.. data.Goals.Select(g => new GoalViewModel(g))];
     }
 
     public void ChangeMonth(DateOnly newMonth)

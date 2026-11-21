@@ -72,6 +72,6 @@ internal class DashboardService(
             );
         }
 
-        return new DashboardDto(monthSummary);
+        return new DashboardDto(monthSummary, []);
     }
 }
