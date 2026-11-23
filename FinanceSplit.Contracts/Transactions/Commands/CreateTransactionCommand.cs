@@ -9,11 +9,8 @@ public record CreateTransactionCommand(
     Guid PaidByPersonId,
     SplitType SplitType,
     IReadOnlyCollection<Guid> SharedWithIds,
-    SplitTransactionSetup? SplitSetup = null,
     RecurrenceTransactionSetup? RecurrenceSetup = null
 );
-
-public record SplitTransactionSetup(int NumberOfInstallments);
 
 public record RecurrenceTransactionSetup(
     int? NumberOfRecurrences = null,
@@ -26,5 +23,4 @@ public record RecurrenceTransactionSetup(
         : RecurrenceType.Forever;
 
     public UpdateRecurrence? UpdateRecurrence { get; init; }
-    public Guid? RecurrenceId { get; init; }
 }

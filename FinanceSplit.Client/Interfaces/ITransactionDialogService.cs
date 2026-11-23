@@ -5,8 +5,16 @@ namespace FinanceSplit.Client.Interfaces;
 
 public interface ITransactionDialogService
 {
-    Task<TransactionDto?> CreateTransactionAsync();
-    Task<TransactionDto?> EditTransactionAsync(TransactionDto transaction);
-    Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction);
-    Task<UpdateRecurrence?> GetRecurrenceUpdateTypeAsync();
+    Task<TransactionDto?> CreateTransactionAsync(CancellationToken cancellationToken = default);
+    Task<TransactionDto?> EditTransactionAsync(
+        TransactionDto transaction,
+        CancellationToken cancellationToken = default
+    );
+    Task<bool> ShowDeleteTransactionConfirmationAsync(
+        TransactionDto transaction,
+        CancellationToken cancellationToken = default
+    );
+    Task<UpdateRecurrence?> GetRecurrenceUpdateTypeAsync(
+        CancellationToken cancellationToken = default
+    );
 }

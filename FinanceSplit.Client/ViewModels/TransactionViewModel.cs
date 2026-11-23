@@ -34,6 +34,7 @@ public partial class TransactionViewModel(
             if (transaction.Recurrence is not null)
             {
                 IsRecurring = true;
+                RecurrenceId = transaction.Recurrence.Id;
                 RecurrenceType = transaction.Recurrence.Type;
                 NumberOfRecurrences = transaction.Recurrence.NumberOfRecurrences ?? 0;
                 LastMonth = transaction.Recurrence.LastMonth is null
@@ -85,6 +86,8 @@ public partial class TransactionViewModel(
 
     public bool IsRecurring { get; set; }
 
+    public Guid? RecurrenceId { get; set; }
+
     public RecurrenceType RecurrenceType { get; set; }
 
     public bool IsRecurringPeriodOfTime => RecurrenceType is RecurrenceType.PeriodOfTime;
@@ -106,6 +109,19 @@ public partial class TransactionViewModel(
             SharedWithIds = [SharedWithIds.First()];
         }
 
+        return new CreateTransactionCommand(
+            name,
+            date,
+            Value,
+            PaidByPersonId,
+            SplitType,
+            SharedWithIds,
+            RecurrenceSetup: GetRecurrenceSetup()
+        );
+    }
+
+    private RecurrenceTransactionSetup? GetRecurrenceSetup()
+    {
         RecurrenceTransactionSetup? recurrenceSetup = null;
         if (IsRecurring)
         {
@@ -117,18 +133,10 @@ public partial class TransactionViewModel(
             );
         }
 
-        return new CreateTransactionCommand(
-            name,
-            date,
-            Value,
-            PaidByPersonId,
-            SplitType,
-            SharedWithIds,
-            RecurrenceSetup: recurrenceSetup
-        );
+        return recurrenceSetup;
     }
 
-    public async Task<UpdateTransactionCommand?> GetUpdateCommandAsync()
+    public UpdateTransactionCommand GetUpdateCommand()
     {
         if (!Id.HasValue)
         {
@@ -137,23 +145,6 @@ public partial class TransactionViewModel(
 
         var createCommand = GetCreateCommand();
 
-        if (createCommand.RecurrenceSetup is not null)
-        {
-            var updateRecurrence = await dialogService.GetRecurrenceUpdateTypeAsync();
-            if (updateRecurrence is null)
-            {
-                return null;
-            }
-
-            createCommand = createCommand with
-            {
-                RecurrenceSetup = createCommand.RecurrenceSetup with
-                {
-                    UpdateRecurrence = updateRecurrence,
-                },
-            };
-        }
-
         return new UpdateTransactionCommand(
             Id.Value,
             createCommand.Name,
@@ -161,9 +152,38 @@ public partial class TransactionViewModel(
             createCommand.Value,
             createCommand.PaidByPersonId,
             createCommand.SplitType,
-            createCommand.SharedWithIds,
-            createCommand.SplitSetup,
-            createCommand.RecurrenceSetup
+            createCommand.SharedWithIds
+        );
+    }
+
+    public async Task<UpdateRecurringTransactionCommand?> GetUpdateRecurringTransactionCommandAsync()
+    {
+        if (!Id.HasValue)
+        {
+            throw new NullReferenceException("Id is null");
+        }
+
+        var updateCommand = GetUpdateCommand();
+
+        var updateRecurrence = await dialogService.GetRecurrenceUpdateTypeAsync();
+        if (updateRecurrence is null)
+        {
+            return null;
+        }
+
+        return new UpdateRecurringTransactionCommand(
+            RecurrenceId.Value,
+            Id.Value,
+            updateCommand.Name,
+            updateCommand.Month,
+            updateCommand.Value,
+            updateCommand.PaidByPersonId,
+            updateCommand.SplitType,
+            updateCommand.SharedWithIds,
+            GetRecurrenceSetup() with
+            {
+                UpdateRecurrence = updateRecurrence,
+            }
         );
     }
 
@@ -184,15 +204,25 @@ public partial class TransactionViewModel(
                 cancellationToken
             );
         }
+        else if (RecurrenceId is null)
+        {
+            return await transactionService.UpdateTransactionAsync(
+                GetUpdateCommand(),
+                cancellationToken
+            );
+        }
         else
         {
-            var command = await GetUpdateCommandAsync();
+            var command = await GetUpdateRecurringTransactionCommandAsync();
             if (command is null)
             {
                 return null;
             }
 
-            return await transactionService.UpdateTransactionAsync(command, cancellationToken);
+            return await transactionService.UpdateRecurringTransactionAsync(
+                command,
+                cancellationToken
+            );
         }
     }
 

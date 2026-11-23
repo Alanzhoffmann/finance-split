@@ -17,7 +17,7 @@ public record TransactionDto(
 public record TransactionShareDto(PersonDto Person, decimal Amount);
 
 public record RecurrenceDto(
-    Guid RecurrenceId,
+    Guid Id,
     RecurrenceType Type,
     int? NumberOfRecurrences,
     DateOnly? LastMonth

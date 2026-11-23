@@ -126,7 +126,7 @@ public class Recurrence : Transaction
     private bool IsForMonth(DateOnly month) =>
         Type is RecurrenceType.Forever
         || LastMonth >= month
-        || (NumberOfRecurrences is not null && Month.AddMonths(NumberOfRecurrences.Value) >= month);
+        || (NumberOfRecurrences is not null && Month.AddMonths(NumberOfRecurrences.Value) > month);
 
     public bool CanAddNewTransaction(DateOnly month)
     {
