@@ -1,29 +1,29 @@
 ﻿using System.Text.Json.Serialization;
 using FinanceSplit.Contracts.Enums;
 
-namespace FinanceSplit.Contracts.DTOs;
+namespace FinanceSplit.Contracts.FileImport.Dtos;
 
-public record BackupResponse(
+public record FileBackupResponse(
     string FormatVersion,
     DateTimeOffset ExportedAtUtc,
-    BackupPayload Data
+    FilePayload Data
 );
 
-public record BackupPayload(
-    IReadOnlyList<BackupPerson> People,
-    IReadOnlyList<BackupTransaction> Transactions
+public record FilePayload(
+    IReadOnlyList<FilePerson> People,
+    IReadOnlyList<FileTransaction> Transactions
 );
 
-public record BackupPerson(Guid Id, string Name, IReadOnlyList<BackupIncomeRecord> Salaries);
+public record FilePerson(Guid Id, string Name, IReadOnlyList<FileIncomeRecord> Salaries);
 
-public record BackupIncomeRecord(
+public record FileIncomeRecord(
     Guid Id,
     DateOnly Month,
     decimal Amount,
     [property: JsonConverter(typeof(JsonStringEnumConverter<IncomeType>))] IncomeType Type
 );
 
-public record BackupTransaction(
+public record FileTransaction(
     Guid Id,
     string Name,
     decimal Value,

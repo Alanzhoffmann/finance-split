@@ -1,4 +1,6 @@
-﻿namespace FinanceSplit.Domain.Entities;
+﻿using FinanceSplit.Contracts.Enums;
+
+namespace FinanceSplit.Domain.Entities;
 
 public class Recurrence : BaseEntity
 {

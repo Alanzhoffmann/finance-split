@@ -1,35 +1,35 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.DTOs;
 using FinanceSplit.Contracts.Enums;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.FileImport.Dtos;
+using FinanceSplit.Contracts.FileImport.Services;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
 
-internal partial class BackupService(AppDbContext context, TimeProvider timeProvider)
-    : IBackupService
+internal partial class FileImportService(AppDbContext context, TimeProvider timeProvider)
+    : IFileImportService
 {
-    public async Task<BackupResponse> GetBackupAsync()
+    public async Task<FileBackupResponse> GetBackupAsync(CancellationToken cancellationToken = default)
     {
         var people = await context
             .People.AsNoTracking()
             .OrderBy(p => p.Name.ToLower())
-            .Select(p => new BackupPerson(
+            .Select(p => new FilePerson(
                 p.Id,
                 p.Name,
                 p.IncomeRecords.OrderBy(s => s.Month)
-                    .Select(s => new BackupIncomeRecord(s.Id, s.Month, s.Amount, s.Type))
+                    .Select(s => new FileIncomeRecord(s.Id, s.Month, s.Amount, s.Type))
                     .ToList()
             ))
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var transactions = await context
             .Transactions.AsNoTracking()
             .OrderBy(t => t.Month)
             .ThenBy(t => t.Name.ToLower())
-            .Select(t => new BackupTransaction(
+            .Select(t => new FileTransaction(
                 t.Id,
                 t.Name,
                 t.Value,
@@ -38,16 +38,16 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
                 t.PaidBy.Id,
                 t.SharedWith.OrderBy(r => r.Id).Select(r => r.Id).ToList()
             ))
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        return new BackupResponse(
+        return new FileBackupResponse(
             Backup.Version,
             timeProvider.GetUtcNow(),
-            new BackupPayload(people, transactions)
+            new FilePayload(people, transactions)
         );
     }
 
-    public async Task<BackupImportResponse?> ImportBackupAsync(
+    public async Task<FileImportResponse?> ImportBackupAsync(
         Stream file,
         string contentType,
         string fileName,
@@ -69,7 +69,7 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
             };
     }
 
-    private async Task<BackupImportResponse> HandleAsync(
+    private async Task<FileImportResponse> HandleAsync(
         BackupLegacy legacy,
         CancellationToken cancellationToken = default
     )
@@ -161,15 +161,15 @@ internal partial class BackupService(AppDbContext context, TimeProvider timeProv
 
         await context.SaveChangesAsync(cancellationToken: cancellationToken);
 
-        return new BackupImportResponse();
+        return new FileImportResponse();
     }
 
-    private async Task<BackupImportResponse> HandleAsync(
+    private async Task<FileImportResponse> HandleAsync(
         Backup backup,
         CancellationToken cancellationToken = default
     )
     {
-        return new BackupImportResponse();
+        return new FileImportResponse();
     }
 }
 
@@ -187,7 +187,7 @@ public record BackupObject
 public record Backup : BackupObject
 {
     public const string Version = "finance-split-backup-v2";
-    public required BackupPayload Data { get; set; }
+    public required FilePayload Data { get; set; }
 }
 
 public record BackupLegacy : BackupObject

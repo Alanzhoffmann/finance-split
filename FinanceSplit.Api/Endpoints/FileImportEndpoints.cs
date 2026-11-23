@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.FileImport.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace FinanceSplit.Api.Endpoints;
 
-internal static class BackupEndpoints
+internal static class FileImportEndpoints
 {
     private static readonly JsonSerializerOptions _exportJsonOptions = new()
     {
@@ -16,15 +16,15 @@ internal static class BackupEndpoints
         Converters = { new JsonStringEnumConverter() },
     };
 
-    public static RouteGroupBuilder MapBackupEndpoints(this IEndpointRouteBuilder routes)
+    public static RouteGroupBuilder MapFileImportEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("api/backup").WithTags("Backup").DisableAntiforgery();
+        var group = routes.MapGroup("api/file").WithTags("File").DisableAntiforgery();
 
         group.MapGet(
             "export/download",
-            async (IBackupService service, CancellationToken cancellationToken = default) =>
+            async (IFileImportService service, CancellationToken cancellationToken = default) =>
             {
-                var backup = await service.GetBackupAsync();
+                var backup = await service.GetBackupAsync(cancellationToken);
                 var fileContents = JsonSerializer.SerializeToUtf8Bytes(backup, _exportJsonOptions);
                 var fileName = $"finance-split-backup-{backup.ExportedAtUtc:yyyyMMdd-HHmmss}.json";
                 return Results.File(fileContents, "application/json", fileName);
@@ -35,7 +35,7 @@ internal static class BackupEndpoints
             "import",
             async (
                 [FromForm] IFormFile file,
-                IBackupService service,
+                IFileImportService service,
                 CancellationToken cancellationToken = default
             ) =>
             {

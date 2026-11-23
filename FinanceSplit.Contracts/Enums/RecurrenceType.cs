@@ -1,4 +1,4 @@
-﻿namespace FinanceSplit.Domain.Entities;
+﻿namespace FinanceSplit.Contracts.Enums;
 
 public enum RecurrenceType
 {

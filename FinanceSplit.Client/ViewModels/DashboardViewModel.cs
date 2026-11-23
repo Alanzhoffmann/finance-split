@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.FileImport.Services;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -10,7 +11,7 @@ namespace FinanceSplit.Client.ViewModels;
 
 public partial class DashboardViewModel(
     IDashboardService dashboardService,
-    IBackupService backupService,
+    IFileImportService backupService,
     NavigationManager navigationManager,
     TimeProvider timeProvider
 ) : ObservableObject

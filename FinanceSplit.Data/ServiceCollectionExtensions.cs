@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.FileImport.Services;
+using FinanceSplit.Contracts.Services;
 using FinanceSplit.Data.BackgroundServices;
 using FinanceSplit.Data.Interceptors;
 using FinanceSplit.Data.Interfaces;
@@ -35,7 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonService, PersonService>();
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IDashboardService, DashboardService>();
-        services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<IFileImportService, FileImportService>();
 
         services.AddSingleton<CalculatorBackgroundService>();
         services.AddHostedService(sp => sp.GetRequiredService<CalculatorBackgroundService>());

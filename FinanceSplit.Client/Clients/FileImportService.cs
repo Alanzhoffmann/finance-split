@@ -1,15 +1,15 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.FileImport.Dtos;
+using FinanceSplit.Contracts.FileImport.Services;
 
 namespace FinanceSplit.Client.Clients;
 
-internal partial class BackupService(HttpClient client) : IBackupService
+internal partial class FileImportService(HttpClient client) : IFileImportService
 {
-    public Task<BackupResponse> GetBackupAsync() => throw new NotImplementedException();
+    public Task<FileBackupResponse> GetBackupAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
-    public async Task<BackupImportResponse?> ImportBackupAsync(
+    public async Task<FileImportResponse?> ImportBackupAsync(
         Stream file,
         string contentType,
         string fileName,
@@ -23,15 +23,15 @@ internal partial class BackupService(HttpClient client) : IBackupService
 
         form.Add(fileStream, "file", fileName);
 
-        var response = await client.PostAsync("api/backup/import", form, cancellationToken);
+        var response = await client.PostAsync("api/file/import", form, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync(
-            BackupSerializerContext.Default.BackupImportResponse,
+            BackupSerializerContext.Default.FileImportResponse,
             cancellationToken: cancellationToken
         );
     }
 
-    [JsonSerializable(typeof(BackupImportResponse))]
+    [JsonSerializable(typeof(FileImportResponse))]
     partial class BackupSerializerContext : JsonSerializerContext;
 }

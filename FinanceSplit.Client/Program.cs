@@ -1,5 +1,6 @@
 using FinanceSplit.Client.Clients;
 using FinanceSplit.Client.Extensions;
+using FinanceSplit.Contracts.FileImport.Services;
 using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,7 @@ builder
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IBackupService, BackupService>();
+builder.Services.AddScoped<IFileImportService, FileImportService>();
 
 builder.Services.AddClientDependencies();
 
