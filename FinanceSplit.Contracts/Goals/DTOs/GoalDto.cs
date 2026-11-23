@@ -1,6 +1,6 @@
 ﻿using FinanceSplit.Contracts.Transactions.DTOs;
 
-namespace FinanceSplit.Contracts.Dashboard.DTOs;
+namespace FinanceSplit.Contracts.Goals.DTOs;
 
 public record GoalDto(
     Guid Id,

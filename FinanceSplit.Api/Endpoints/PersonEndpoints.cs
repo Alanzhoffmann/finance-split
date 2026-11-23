@@ -37,7 +37,7 @@ internal static class PersonEndpoints
         group.MapPut(
             "{id:guid}",
             async (
-                Guid Id,
+                Guid id,
                 UpdatePersonCommand command,
                 IPersonService service,
                 CancellationToken cancellationToken
@@ -46,7 +46,7 @@ internal static class PersonEndpoints
                 var person = await service.UpdatePersonAsync(
                     command with
                     {
-                        Id = Id,
+                        Id = id,
                     },
                     cancellationToken
                 );
@@ -57,9 +57,9 @@ internal static class PersonEndpoints
 
         group.MapDelete(
             "{id:guid}",
-            async (Guid Id, IPersonService service, CancellationToken cancellationToken) =>
+            async (Guid id, IPersonService service, CancellationToken cancellationToken) =>
             {
-                await service.DeletePersonAsync(new(Id), cancellationToken);
+                await service.DeletePersonAsync(new(id), cancellationToken);
                 return Results.NoContent();
             }
         );

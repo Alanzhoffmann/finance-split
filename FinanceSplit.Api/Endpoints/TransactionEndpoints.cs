@@ -48,7 +48,7 @@ internal static class TransactionEndpoints
         group.MapPut(
             "{id:guid}",
             async (
-                Guid Id,
+                Guid id,
                 UpdateTransactionCommand command,
                 ITransactionService transactionService,
                 CancellationToken cancellationToken = default
@@ -57,7 +57,7 @@ internal static class TransactionEndpoints
                 var transaction = await transactionService.UpdateTransactionAsync(
                     command with
                     {
-                        Id = Id,
+                        Id = id,
                     },
                     cancellationToken
                 );
@@ -69,12 +69,12 @@ internal static class TransactionEndpoints
         group.MapDelete(
             "{id:guid}",
             async (
-                Guid Id,
+                Guid id,
                 ITransactionService transactionService,
                 CancellationToken cancellationToken = default
             ) =>
             {
-                await transactionService.DeleteTransactionAsync(new(Id), cancellationToken);
+                await transactionService.DeleteTransactionAsync(new(id), cancellationToken);
 
                 return Results.NoContent();
             }

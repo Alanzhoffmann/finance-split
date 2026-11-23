@@ -1,5 +1,6 @@
 ﻿using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.FileImport.Services;
+using FinanceSplit.Contracts.Goals.Services;
 using FinanceSplit.Contracts.People.Services;
 using FinanceSplit.Contracts.Transactions.Services;
 using FinanceSplit.Data.BackgroundServices;
@@ -39,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IFileImportService, FileImportService>();
+        services.AddScoped<IGoalService, GoalService>();
 
         services.AddSingleton<CalculatorBackgroundService>();
         services.AddHostedService(sp => sp.GetRequiredService<CalculatorBackgroundService>());

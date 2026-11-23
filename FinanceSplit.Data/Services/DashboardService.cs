@@ -2,7 +2,6 @@
 using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.Transactions.Services;
 using FinanceSplit.Domain.Entities;
-using FinanceSplit.Domain.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
@@ -20,19 +19,7 @@ internal class DashboardService(
     {
         var monthToCheck = month ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
 
-        return new DashboardDto(
-            await GetMonthSummaryAsync(monthToCheck, cancellationToken),
-            await GetGoalsAsync(cancellationToken)
-        );
-    }
-
-    private async Task<IReadOnlyList<GoalDto>> GetGoalsAsync(CancellationToken cancellationToken)
-    {
-        var goals = await context
-            .Goals.AsNoTrackingWithIdentityResolution()
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        return [.. goals.Select(g => g.ToDto())];
+        return new DashboardDto(await GetMonthSummaryAsync(monthToCheck, cancellationToken));
     }
 
     private async Task<MonthSummaryDto> GetMonthSummaryAsync(

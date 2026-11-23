@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.Dashboard.DTOs;
+﻿using FinanceSplit.Contracts.Goals.DTOs;
 using FinanceSplit.Domain.Entities;
 using FinanceSplit.Domain.Extensions;
 
