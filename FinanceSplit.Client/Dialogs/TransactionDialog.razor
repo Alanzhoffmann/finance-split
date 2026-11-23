@@ -7,7 +7,13 @@
     <DialogContent>
         <MudStack>
             <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
-            <MudDatePicker Label="Date" @bind-Date="@ViewModel.Date" For="@(() => ViewModel.Date)" />
+            <MudDatePicker Label="Month"
+                           OpenTo="OpenTo.Month"
+                           FixDay="1"
+                           DateFormat="MMM/yyyy"
+                           TitleDateFormat="MMM/yyyy"
+                           @bind-Date="@ViewModel.Month"
+                           For="@(() => ViewModel.Month)" />
             <MudNumericField Label="Value" @bind-Value="@ViewModel.Value" For="@(() => ViewModel.Value)" Culture="_enGb" Format="C" />
             <MudSelect Label="Paid by" T="Guid" @bind-Value="@ViewModel.PaidByPersonId" HelperText="Whose bank account will be used for this transaction" For="@(() => ViewModel.PaidByPersonId)">
                 @foreach (var person in ViewModel.People)
@@ -18,15 +24,44 @@
             <MudSelect Label="Split type" @bind-Value="@ViewModel.SplitType" For="@(() => ViewModel.SplitType)">
                 @foreach (var type in TransactionViewModel.SplitTypes)
                 {
-                    <MudSelectItem Value="type">@type</MudSelectItem>
+                    <MudSelectItem Value="type.Value">@type.Name</MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect Label="Shared with" T="Guid" HelperText="Who should be paying for this transaction" MultiSelectionTextFunc="ViewModel.GetMultiSelectionText" MultiSelection="@ViewModel.AllowMultiselect" SelectAll @bind-SelectedValues="@ViewModel.SharedWithIds">
+            <MudSelect Label="Shared with" T="Guid" HelperText="Who should be paying for this transaction" MultiSelectionTextFunc="ViewModel.GetMultiSelectionText" MultiSelection="ViewModel.AllowMultiselect" SelectAll @bind-SelectedValues="ViewModel.SharedWithIds">
                 @foreach (var person in ViewModel.People)
                 {
                     <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
                 }
             </MudSelect>
+            <MudCheckBox Label="Is recurring" @bind-Value="ViewModel.IsRecurring" />
+
+            @if (ViewModel.IsRecurring)
+            {
+                <MudSelect Label="Recurrence type" @bind-Value="@ViewModel.RecurrenceType" For="@(() => ViewModel.RecurrenceType)">
+                    @foreach (var type in TransactionViewModel.RecurrenceTypes)
+                    {
+                        <MudSelectItem Value="type.Value">@type.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                if (ViewModel.IsRecurringNumberOfTimes)
+                {
+                    <MudNumericField Label="Number of times" @bind-Value="ViewModel.NumberOfRecurrences" />
+                }
+
+                if (ViewModel.IsRecurringPeriodOfTime)
+                {
+                    <MudDatePicker Label="Last month"
+                                   OpenTo="OpenTo.Month"
+                                   MinDate="ViewModel.Month"
+                                   FixDay="1"
+                                   DateFormat="MMM/yyyy"
+                                   TitleDateFormat="MMM/yyyy"
+                                   @bind-Date="@ViewModel.LastMonth"
+                                   For="@(() => ViewModel.LastMonth)" />
+                }
+            }
+
         </MudStack>
     </DialogContent>
     <DialogActions>

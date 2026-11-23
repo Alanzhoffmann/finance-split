@@ -19,8 +19,7 @@ internal class DashboardService(
     {
         var monthToCheck = month ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
         var monthSummary = await context
-            .Summaries.AsNoTracking()
-            .Where(s => s.Month == monthToCheck)
+            .Summaries.Where(s => s.Month == monthToCheck)
             .Select(s => new MonthSummaryDto(
                 s.People.Select(p => new PersonSummaryDto(
                         p.Person.Name,

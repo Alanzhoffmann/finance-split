@@ -6,7 +6,7 @@ namespace FinanceSplit.Contracts.Transactions.Commands;
 public record UpdateTransactionCommand(
     [property: JsonIgnore] Guid Id,
     string Name,
-    DateOnly Date,
+    DateOnly Month,
     decimal Value,
     Guid PaidByPersonId,
     SplitType SplitType,

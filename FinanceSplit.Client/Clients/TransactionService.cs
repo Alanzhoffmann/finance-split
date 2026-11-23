@@ -2,6 +2,7 @@
 using FinanceSplit.Contracts.Transactions.Commands;
 using FinanceSplit.Contracts.Transactions.DTOs;
 using FinanceSplit.Contracts.Transactions.Services;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace FinanceSplit.Client.Clients;
 
@@ -65,9 +66,37 @@ internal partial class TransactionService(HttpClient client) : ITransactionServi
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<TransactionDto?> UpdateRecurringTransactionAsync(
+        UpdateRecurringTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var parameters = new Dictionary<string, string?>();
+        if (command.TransactionId.HasValue)
+        {
+            parameters.Add("TransactionId", command.TransactionId.ToString());
+        }
+
+        var response = await client.PutAsJsonAsync(
+            QueryHelpers.AddQueryString(
+                $"api/transaction/recurring/{command.RecurrenceId}",
+                parameters
+            ),
+            command,
+            TransactionSerializerContext.Default.UpdateRecurringTransactionCommand,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync(
+            TransactionSerializerContext.Default.TransactionDto,
+            cancellationToken
+        );
+    }
+
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<TransactionDto>))]
     [JsonSerializable(typeof(CreateTransactionCommand))]
     [JsonSerializable(typeof(UpdateTransactionCommand))]
+    [JsonSerializable(typeof(UpdateRecurringTransactionCommand))]
     partial class TransactionSerializerContext : JsonSerializerContext;
 }

@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Update recurrence options</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudRadioGroup @bind-Value="Value">
+            @foreach (var item in Options)
+            {
+                <MudRadio Value="item.Value">@item.Name</MudRadio>
+            }
+        </MudRadioGroup>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>

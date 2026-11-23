@@ -9,7 +9,7 @@
             <MudSelect Label="Type" @bind-Value="@Model.IncomeType" For="@(() => Model.IncomeType)">
                 @foreach (var type in IncomeTypes)
                 {
-                    <MudSelectItem Value="type">@type</MudSelectItem>
+                    <MudSelectItem Value="type.Value">@type.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudStack>

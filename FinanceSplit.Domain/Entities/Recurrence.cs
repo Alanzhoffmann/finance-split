@@ -2,14 +2,11 @@
 
 namespace FinanceSplit.Domain.Entities;
 
-public class Recurrence : BaseEntity
+public class Recurrence : Transaction
 {
     private readonly List<Transaction> _transactions = [];
 
-    private Recurrence() { }
-
     public RecurrenceType Type { get; init; }
-    public decimal Amount { get; init; }
     public int? NumberOfRecurrences { get; init; }
     public IReadOnlyList<Transaction> Transactions
     {
@@ -19,26 +16,6 @@ public class Recurrence : BaseEntity
 
     public DateOnly? LastMonth { get; init; }
     public bool Ended { get; private set; } = false;
-
-    public static Recurrence ForPeriodOfTime(decimal amount, DateOnly lastMonth)
-    {
-        return new()
-        {
-            Type = RecurrenceType.PeriodOfTime,
-            Amount = amount,
-            LastMonth = lastMonth,
-        };
-    }
-
-    public static Recurrence ForNumberOfTimes(decimal amount, int numberOfTimes)
-    {
-        return new()
-        {
-            Type = RecurrenceType.NumberOfTimes,
-            Amount = amount,
-            NumberOfRecurrences = numberOfTimes,
-        };
-    }
 
     public static Recurrence SplitInstallments(Transaction transaction, int numberOfInstallments)
     {
@@ -68,20 +45,122 @@ public class Recurrence : BaseEntity
 
         return new()
         {
+            Name = transaction.Name,
+            Month = transaction.Month,
+            PaidBy = transaction.PaidBy,
+            SharedWith = transaction.SharedWith,
+            Value = transaction.Value,
+            SplitType = transaction.SplitType,
             NumberOfRecurrences = numberOfInstallments,
-            Amount = transaction.Value,
             Transactions = transactions,
             Ended = true,
         };
     }
 
-    public static Recurrence Forever(decimal amount)
+    public void EndRecurrence(DateOnly month)
     {
-        return new() { Type = RecurrenceType.Forever, Amount = amount };
+        var lastMonth = Type switch
+        {
+            RecurrenceType.NumberOfTimes when NumberOfRecurrences is not null => Month.AddMonths(
+                NumberOfRecurrences.Value
+            ),
+            RecurrenceType.PeriodOfTime when LastMonth is not null => LastMonth,
+            _ => month,
+        };
+
+        if (month < lastMonth)
+        {
+            lastMonth = month;
+        }
+
+        for (var i = Month; i < lastMonth; i = i.AddMonths(1))
+        {
+            var monthTransaction = GetTransactionForMonth(i);
+            if (monthTransaction is null)
+            {
+                continue;
+            }
+
+            if (
+                monthTransaction.Id == default
+                || !Transactions.Any(t => t.Id == monthTransaction.Id)
+            )
+            {
+                _transactions.Add(monthTransaction);
+            }
+        }
+
+        Ended = true;
     }
 
-    public void EndRecurrence()
+    public override void Update(string name, DateOnly month, decimal value, SplitType splitType)
     {
-        Ended = true;
+        base.Update(name, month, value, splitType);
+
+        foreach (var item in Transactions)
+        {
+            item.Update(name, month, value, splitType);
+        }
+    }
+
+    public override void UpdatePaidBy(Person paidByPerson)
+    {
+        base.UpdatePaidBy(paidByPerson);
+
+        foreach (var item in Transactions)
+        {
+            item.UpdatePaidBy(paidByPerson);
+        }
+    }
+
+    public override void UpdateSharedWith(List<Person> sharedWith)
+    {
+        base.UpdateSharedWith(sharedWith);
+
+        foreach (var item in Transactions)
+        {
+            item.UpdateSharedWith(sharedWith);
+        }
+    }
+
+    private bool IsForMonth(DateOnly month) =>
+        Type is RecurrenceType.Forever
+        || LastMonth >= month
+        || (NumberOfRecurrences is not null && Month.AddMonths(NumberOfRecurrences.Value) > month);
+
+    public bool CanAddNewTransaction(DateOnly month)
+    {
+        if (!IsForMonth(month))
+        {
+            return false;
+        }
+
+        // Check if that transaction has been added already
+        return !Transactions.Any(t => t.Month == month);
+    }
+
+    public Transaction? GetTransactionForMonth(DateOnly month)
+    {
+        var transactionForMonth = Transactions.FirstOrDefault(t => t.Month == month);
+        if (transactionForMonth is not null)
+        {
+            return transactionForMonth;
+        }
+
+        if (!CanAddNewTransaction(month))
+        {
+            return null;
+        }
+
+        return new Transaction
+        {
+            Month = month,
+            Name = Name,
+            PaidBy = PaidBy,
+            Value = Value,
+            Recurrence = this,
+            SharedWith = SharedWith,
+            SplitType = SplitType,
+        };
     }
 }

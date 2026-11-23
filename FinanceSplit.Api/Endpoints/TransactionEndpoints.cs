@@ -2,6 +2,7 @@
 using FinanceSplit.Contracts.Transactions.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace FinanceSplit.Api.Endpoints;
@@ -58,6 +59,29 @@ internal static class TransactionEndpoints
                     command with
                     {
                         Id = Id,
+                    },
+                    cancellationToken
+                );
+
+                return transaction is null ? Results.NotFound() : TypedResults.Ok(transaction);
+            }
+        );
+
+        group.MapPut(
+            "recurring/{recurrenceId:guid}",
+            async (
+                Guid recurrenceId,
+                [FromQuery] Guid? transactionId,
+                UpdateRecurringTransactionCommand command,
+                ITransactionService transactionService,
+                CancellationToken cancellationToken = default
+            ) =>
+            {
+                var transaction = await transactionService.UpdateRecurringTransactionAsync(
+                    command with
+                    {
+                        RecurrenceId = recurrenceId,
+                        TransactionId = transactionId,
                     },
                     cancellationToken
                 );

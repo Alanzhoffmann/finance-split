@@ -1,5 +1,6 @@
 ﻿using FinanceSplit.Contracts.Transactions.Commands;
 using FinanceSplit.Contracts.Transactions.DTOs;
+using FinanceSplit.Contracts.Transactions.Enums;
 using FinanceSplit.Contracts.Transactions.Services;
 using FinanceSplit.Domain.Entities;
 using FinanceSplit.Domain.Mappers;
@@ -29,12 +30,42 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         );
 
         var transactions = await context
-            .Transactions.AsNoTrackingWithIdentityResolution()
+            .Transactions.Include(t => t.Recurrence)
+            .AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
             .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        return [.. transactions.Select(t => t.ToDto())];
+        List<TransactionDto> transactionList =
+        [
+            .. transactions.Where(t => t is not Recurrence).Select(t => t.ToDto()),
+        ];
+
+        var recurrences = await context
+            .Recurrences.Where(r => !r.Ended)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        foreach (var month in months)
+        {
+            foreach (var recurrence in recurrences)
+            {
+                var recurringTransactionForMonth = recurrence.GetTransactionForMonth(month);
+                if (
+                    recurringTransactionForMonth is not null
+                    && (
+                        recurringTransactionForMonth.Id == default
+                        || !transactionList.Any(t => t.Id == recurringTransactionForMonth.Id)
+                    )
+                )
+                {
+                    transactionList.Add(recurringTransactionForMonth.ToDto());
+                }
+            }
+        }
+
+        transactionList.Sort((x, y) => x.Name.CompareTo(y.Name));
+        return transactionList;
     }
 
     public async Task<TransactionDto?> CreateTransactionAsync(
@@ -42,33 +73,35 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         CancellationToken cancellationToken = default
     )
     {
-        HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
-        var people = await context
-            .People.Where(p => personIds.Contains(p.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
+        var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+            command.PaidByPersonId,
+            command.SharedWithIds,
+            cancellationToken
+        );
 
-        var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
-        if (paidByPerson is null)
-        {
-            return null;
-        }
+        var newTransaction = command.RecurrenceSetup is { } recurrenceSetup
+            ? new Recurrence
+            {
+                Name = command.Name,
+                Month = command.Month,
+                Value = command.Value,
+                PaidBy = paidByPerson,
+                SplitType = command.SplitType,
+                SharedWith = sharedWith,
+                NumberOfRecurrences = recurrenceSetup.NumberOfRecurrences,
+                LastMonth = recurrenceSetup.LastMonth,
+                Type = recurrenceSetup.Type,
+            }
+            : new Transaction
+            {
+                Name = command.Name,
+                Month = command.Month,
+                Value = command.Value,
+                PaidBy = paidByPerson,
+                SplitType = command.SplitType,
+                SharedWith = sharedWith,
+            };
 
-        var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
-        if (sharedWith.Count < command.SharedWithIds.Count)
-        {
-            // Not every person shared with is accounted for
-            return null;
-        }
-
-        var newTransaction = new Transaction
-        {
-            Name = command.Name,
-            Month = command.Date,
-            Value = command.Value,
-            PaidBy = paidByPerson,
-            SplitType = command.SplitType,
-            SharedWith = sharedWith,
-        };
         context.Transactions.Add(newTransaction);
 
         await context.SaveChangesAsync(cancellationToken);
@@ -87,38 +120,85 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             return null;
         }
 
-        if (
-            transaction.PaidBy.Id != command.PaidByPersonId
-            || !transaction.SharedWith.Select(p => p.Id).SequenceEqual(command.SharedWithIds)
-        )
+        return await UpdateTransactionAsync(
+            command.Name,
+            command.Month,
+            command.Value,
+            command.PaidByPersonId,
+            command.SplitType,
+            command.SharedWithIds,
+            transaction,
+            cancellationToken
+        );
+    }
+
+    public async Task<TransactionDto?> UpdateRecurringTransactionAsync(
+        UpdateRecurringTransactionCommand command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var recurrence = await context.Recurrences.FindAsync(
+            [command.RecurrenceId],
+            cancellationToken
+        );
+        if (recurrence is null)
         {
-            HashSet<Guid> personIds = [command.PaidByPersonId, .. command.SharedWithIds];
-            var people = await context
-                .People.Where(p => personIds.Contains(p.Id))
-                .ToListAsync(cancellationToken: cancellationToken);
-
-            var paidByPerson = people.FirstOrDefault(p => p.Id == command.PaidByPersonId);
-            if (paidByPerson is null)
-            {
-                return null;
-            }
-
-            var sharedWith = people.Where(p => command.SharedWithIds.Contains(p.Id)).ToList();
-            if (sharedWith.Count < command.SharedWithIds.Count)
-            {
-                // Not every person shared with is accounted for
-                return null;
-            }
-
-            transaction.UpdatePaidBy(paidByPerson);
-            transaction.UpdateSharedWith(sharedWith);
+            return null;
         }
 
-        transaction.Update(command.Name, command.Date, command.Value, command.SplitType);
+        Transaction? transaction;
+        if (command.RecurrenceSetup.UpdateRecurrence is UpdateRecurrence.Future)
+        {
+            recurrence.EndRecurrence(command.Month);
 
-        await context.SaveChangesAsync(cancellationToken);
+            var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+                command.PaidByPersonId,
+                command.SharedWithIds,
+                cancellationToken
+            );
 
-        return transaction.ToDto();
+            transaction = new Recurrence
+            {
+                Name = command.Name,
+                Month = command.Month,
+                Value = command.Value,
+                PaidBy = paidByPerson,
+                SplitType = command.SplitType,
+                SharedWith = sharedWith,
+                NumberOfRecurrences =
+                    command.RecurrenceSetup.NumberOfRecurrences - recurrence.Transactions.Count,
+                LastMonth = command.RecurrenceSetup.LastMonth,
+                Type = command.RecurrenceSetup.Type,
+            };
+
+            context.Transactions.Add(transaction);
+
+            return transaction.ToDto();
+        }
+        else if (command.RecurrenceSetup.UpdateRecurrence is UpdateRecurrence.Transaction)
+        {
+            transaction = recurrence.GetTransactionForMonth(command.Month);
+            if (transaction is null)
+            {
+                return null;
+            }
+
+            if (transaction.Id == default)
+            {
+                context.Add(transaction);
+            }
+        }
+
+        return await UpdateTransactionAsync(
+            command.Name,
+            command.Month,
+            command.Value,
+            command.PaidByPersonId,
+            command.SplitType,
+            command.SharedWithIds,
+            recurrence,
+            cancellationToken
+        );
     }
 
     public async Task DeleteTransactionAsync(
@@ -139,5 +219,57 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         context.Remove(transactionToDelete);
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<(Person PaidByPerson, List<Person> SharedWith)> GetPeopleForTransaction(
+        Guid paidByPersonId,
+        IReadOnlyCollection<Guid> sharedWithIds,
+        CancellationToken cancellationToken
+    )
+    {
+        HashSet<Guid> personIds = [paidByPersonId, .. sharedWithIds];
+        var people = await context
+            .People.Where(p => personIds.Contains(p.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var paidByPerson = people.FirstOrDefault(p => p.Id == paidByPersonId);
+        var sharedWith = people.Where(p => sharedWithIds.Contains(p.Id)).ToList();
+
+        return paidByPerson is not null && sharedWith.Count == sharedWithIds.Count
+            ? (paidByPerson, sharedWith)
+            : throw new InvalidOperationException("Missing people in the database");
+    }
+
+    private async Task<TransactionDto?> UpdateTransactionAsync(
+        string name,
+        DateOnly month,
+        decimal value,
+        Guid paidByPersonId,
+        SplitType splitType,
+        IReadOnlyCollection<Guid> sharedWithIds,
+        Transaction transaction,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (
+            transaction.PaidBy.Id != paidByPersonId
+            || !transaction.SharedWith.Select(p => p.Id).SequenceEqual(sharedWithIds)
+        )
+        {
+            var (paidByPerson, sharedWith) = await GetPeopleForTransaction(
+                paidByPersonId,
+                sharedWithIds,
+                cancellationToken
+            );
+
+            transaction.UpdatePaidBy(paidByPerson);
+            transaction.UpdateSharedWith(sharedWith);
+        }
+
+        transaction.Update(name, month, value, splitType);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return transaction.ToDto();
     }
 }

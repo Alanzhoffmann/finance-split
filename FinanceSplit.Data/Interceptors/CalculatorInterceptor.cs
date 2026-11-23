@@ -36,14 +36,23 @@ internal partial class CalculatorInterceptor(
 
         var updatedTransactions = context
             .ChangeTracker.Entries<Transaction>()
-            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Where(e =>
+                e.Entity is not Recurrence
+                && e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted
+            )
             .Select(i => new TransactionChanged(i.Entity.Month));
+
+        var updatedRecurrences = context
+            .ChangeTracker.Entries<Recurrence>()
+            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Select(i => new RecurrenceChanged(i.Entity.Month));
 
         _calculatorEvents =
         [
             .. updatedIncomeMonths,
             .. deletedIncomeMonths,
             .. updatedTransactions,
+            .. updatedRecurrences,
         ];
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
