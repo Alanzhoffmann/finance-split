@@ -1,5 +1,4 @@
-﻿using FinanceSplit.Contracts.People.DTOs;
-using FinanceSplit.Contracts.Transactions.DTOs;
+﻿using FinanceSplit.Contracts.Transactions.DTOs;
 using FinanceSplit.Domain.Entities;
 using FinanceSplit.Domain.Extensions;
 
@@ -17,13 +16,19 @@ public static class TransactionMapper
             transaction.Value,
             transaction.Month,
             transaction.SplitType,
-            new PersonDto(transaction.PaidBy.Id, transaction.PaidBy.Name),
-            [
-                .. transaction.SharedWith.Select(s => new TransactionShareDto(
-                    new PersonDto(s.Id, s.Name),
-                    calculatedShares.GetValueOrDefault(s)
-                )),
-            ]
+            transaction.PaidBy.ToDto(),
+            transaction.SharedWith.ToSharedWithDto(calculatedShares)
         );
     }
+
+    public static IReadOnlyList<TransactionShareDto> ToSharedWithDto(
+        this IEnumerable<Person> sharedWith,
+        IReadOnlyDictionary<Person, decimal> calculatedShares
+    ) =>
+        [
+            .. sharedWith.Select(s => new TransactionShareDto(
+                s.ToDto(),
+                calculatedShares.GetValueOrDefault(s)
+            )),
+        ];
 }

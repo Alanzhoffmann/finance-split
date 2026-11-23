@@ -10,7 +10,7 @@ public record TransactionDto(
     DateOnly Month,
     SplitType SplitType,
     PersonDto PaidBy,
-    List<TransactionShareDto> SharedWith
+    IReadOnlyList<TransactionShareDto> SharedWith
 );
 
 public record TransactionShareDto(PersonDto Person, decimal Amount);

@@ -49,6 +49,7 @@ public class Transaction : BaseEntity, ISharedAmount
     }
 
     public Recurrence? Recurrence { get; init; }
+    public Goal? Goal { get; init; }
 
     public void Update(string name, DateOnly month, decimal value, SplitType splitType)
     {

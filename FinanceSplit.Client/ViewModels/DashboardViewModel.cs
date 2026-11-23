@@ -28,7 +28,7 @@ public partial class DashboardViewModel(
     public IReadOnlyList<ExpenseSettlementDto>? Settlements { get; set; }
 
     [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<GoalViewModel>? Goals { get; set; }
+    public IReadOnlyList<GoalDto>? Goals { get; set; }
 
     [MemberNotNullWhen(true, nameof(People), nameof(Settlements), nameof(Goals))]
     public bool IsLoaded => People is not null && Settlements is not null && Goals is not null;
@@ -60,7 +60,7 @@ public partial class DashboardViewModel(
 
         People = data.MonthSummary.People;
         Settlements = data.MonthSummary.Settlements;
-        Goals = [.. data.Goals.Select(g => new GoalViewModel(g))];
+        Goals = data.Goals;
     }
 
     public void ChangeMonth(DateOnly newMonth)

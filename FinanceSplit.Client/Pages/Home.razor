@@ -99,47 +99,8 @@
                 </MudGrid>
             }
 
-            if (ViewModel.Goals.Count > 0)
-            {
-                <MudGrid>
-                    @foreach (var goal in ViewModel.Goals)
-                    {
-                        <MudItem md="6" xs="12">
-                            <MudCard Outlined>
-                                <MudCardHeader>
-                                    <MudText Typo="Typo.h5">@goal.Title - @goal.Month.ToString("MMM/yyyy", _enGb)</MudText>
-                                </MudCardHeader>
-                                <MudCardContent>
-                                    <MudText Typo="Typo.h5">@goal.Progress.Completed.ToString("C", _enGb) / @goal.Amount.ToString("C", _enGb)</MudText>
-                                    <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="goal.Progress.Percentage">
-                                        <MudText Typo="Typo.subtitle1">
-                                            <b>@goal.Progress.Percentage%</b>
-                                        </MudText>
-                                    </MudProgressLinear>
-                                    <br />
-                                    <br />
-                                    <MudSimpleTable Dense Class="no-border-table" Elevation="0">
-                                        @foreach (var person in goal.People)
-                                        {
-                                            <MudTr>
-                                                <MudTd>@person.Name</MudTd>
-                                                <MudTd Style="width: 100%;">
-                                                    <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="person.Progress.Percentage">
-                                                        <MudText Typo="Typo.subtitle1">
-                                                            <b>@person.Progress.Percentage%</b>
-                                                        </MudText>
-                                                    </MudProgressLinear>
-                                                </MudTd>
-                                                <MudTd Style="white-space: nowrap;">@person.Progress.Completed.ToString("C", _enGb) / @person.Progress.Amount.ToString("C", _enGb)</MudTd>
-                                            </MudTr>
-                                        }
-                                    </MudSimpleTable>
-                                </MudCardContent>
-                            </MudCard>
-                        </MudItem>
-                    }
-                </MudGrid>
-            }
+                <GoalList Goals="ViewModel.Goals" />
+            
         }
     </MudStack>
 </MudContainer>

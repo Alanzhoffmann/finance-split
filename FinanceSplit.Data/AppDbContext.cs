@@ -9,6 +9,7 @@ internal class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(
     public DbSet<IncomeRecord> IncomeRecords => Set<IncomeRecord>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<MonthSummary> Summaries => Set<MonthSummary>();
+    public DbSet<Goal> Goals => Set<Goal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

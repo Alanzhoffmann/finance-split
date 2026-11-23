@@ -3,6 +3,7 @@
 namespace FinanceSplit.Contracts.Dashboard.DTOs;
 
 public record GoalDto(
+    Guid Id,
     string Name,
     DateOnly Month,
     decimal Amount,
