@@ -1,10 +1,16 @@
 ﻿using FinanceSplit.Contracts.Dashboard.DTOs;
 using FinanceSplit.Contracts.Dashboard.Services;
+using FinanceSplit.Contracts.Transactions.Services;
+using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
 
-internal class DashboardService(AppDbContext context, TimeProvider timeProvider) : IDashboardService
+internal class DashboardService(
+    AppDbContext context,
+    ITransactionService transactionService,
+    TimeProvider timeProvider
+) : IDashboardService
 {
     public async Task<DashboardDto?> GetDashboardAsync(
         DateOnly? month = null,
@@ -12,10 +18,10 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
     )
     {
         var monthToCheck = month ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
-        return await context
+        var monthSummary = await context
             .Summaries.AsNoTracking()
             .Where(s => s.Month == monthToCheck)
-            .Select(s => new DashboardDto(
+            .Select(s => new MonthSummaryDto(
                 s.People.Select(p => new PersonSummaryDto(
                         p.Person.Name,
                         p.Income,
@@ -32,5 +38,40 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
                     .ToList()
             ))
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (monthSummary is null)
+        {
+            // calculate if missing
+            // TODO move this to a dedicated factory
+            var people = await context.People.AsNoTracking().ToListAsync(cancellationToken);
+            var transactions = await transactionService.GetTransactionsAsync(
+                [monthToCheck],
+                cancellationToken
+            );
+
+            var projectedMonthSummary = new MonthSummary() { Month = monthToCheck };
+            projectedMonthSummary.Update(people, transactions);
+
+            monthSummary = new MonthSummaryDto(
+                [
+                    .. projectedMonthSummary.People.Select(p => new PersonSummaryDto(
+                        p.Person.Name,
+                        p.Income,
+                        p.SharedExpenses,
+                        p.PersonalExpenses,
+                        p.TotalPaid
+                    )),
+                ],
+                [
+                    .. projectedMonthSummary.Settlements.Select(st => new ExpenseSettlementDto(
+                        new(st.From.Id, st.From.Name),
+                        new(st.To.Id, st.To.Name),
+                        st.Amount
+                    )),
+                ]
+            );
+        }
+
+        return new DashboardDto(monthSummary);
     }
 }

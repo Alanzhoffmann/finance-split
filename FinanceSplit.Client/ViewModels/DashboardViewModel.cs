@@ -54,8 +54,8 @@ public partial class DashboardViewModel(
             return;
         }
 
-        People = data.People;
-        Settlements = data.Settlements;
+        People = data.MonthSummary.People;
+        Settlements = data.MonthSummary.Settlements;
     }
 
     public void ChangeMonth(DateOnly newMonth)
