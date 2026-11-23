@@ -114,7 +114,7 @@ public class Transaction : BaseEntity
             .Select(p => new { Person = p, Income = p.GetIncomeForMonth(Month) })
             .ToArray();
 
-        if (incomePerPerson.Any(x => x.Income <= 0))
+        if (incomePerPerson.Any(x => x.Income < 0))
         {
             throw new InvalidOperationException(
                 "Ratio split requires positive income for all participants in the month."

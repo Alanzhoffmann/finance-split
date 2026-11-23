@@ -4,9 +4,9 @@
     </TitleContent>
     <DialogContent>
         <MudStack>
-            <MudNumericField Label="Amount" @bind-Value="@Model.Amount" For="@(() => Model.Amount)" Culture="_enGb" Format="C" />
-            <MudDatePicker Label="Month" @bind-Date="@Model.Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => Model.Month)" />
-            <MudSelect Label="Type" @bind-Value="@Model.IncomeType" For="@(() => Model.IncomeType)">
+            <MudNumericField Label="Amount" @bind-Value="@ViewModel.Amount" For="@(() => ViewModel.Amount)" Culture="_enGb" Format="C" />
+            <MudDatePicker Label="Month" @bind-Date="@ViewModel.Month" OpenTo="OpenTo.Month" FixDay="1" DateFormat="MMM/yyyy" For="@(() => ViewModel.Month)" />
+            <MudSelect Label="Type" @bind-Value="@ViewModel.IncomeType" For="@(() => ViewModel.IncomeType)">
                 @foreach (var type in IncomeTypes)
                 {
                     <MudSelectItem Value="type">@type</MudSelectItem>
