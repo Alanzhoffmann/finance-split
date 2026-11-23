@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Enums;
+using FinanceSplit.Contracts.People.Enums;
+using FinanceSplit.Contracts.Transactions.Enums;
 
-namespace FinanceSplit.Contracts.FileImport.Dtos;
+namespace FinanceSplit.Contracts.FileImport.DTOs;
 
 public record FileBackupResponse(
     string FormatVersion,

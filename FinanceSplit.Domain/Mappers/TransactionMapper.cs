@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.Transactions.DTOs;
 using FinanceSplit.Domain.Entities;
 
 namespace FinanceSplit.Domain.Mappers;

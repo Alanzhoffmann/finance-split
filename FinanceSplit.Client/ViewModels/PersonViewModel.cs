@@ -2,8 +2,8 @@
 using CommunityToolkit.Mvvm.Messaging;
 using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Client.ViewModels.Messages;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
 
 namespace FinanceSplit.Client.ViewModels;
 
@@ -15,7 +15,7 @@ public partial class PersonViewModel(
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
-    public List<IncomeRecordResponse> Incomes { get; private set; } = [];
+    public List<IncomeRecordDto> Incomes { get; private set; } = [];
 
     private PersonDto Person => new(Id, Name) { Incomes = Incomes };
 
@@ -59,7 +59,7 @@ public partial class PersonViewModel(
     }
 
     [RelayCommand]
-    private async Task EditIncomeRecordAsync(IncomeRecordResponse incomeRecord)
+    private async Task EditIncomeRecordAsync(IncomeRecordDto incomeRecord)
     {
         var editedIncome = await dialogService.EditIncomeAsync(Person, incomeRecord);
         if (editedIncome is not null)
@@ -73,7 +73,7 @@ public partial class PersonViewModel(
     }
 
     [RelayCommand]
-    private async Task DeleteIncomeRecordAsync(IncomeRecordResponse incomeRecord)
+    private async Task DeleteIncomeRecordAsync(IncomeRecordDto incomeRecord)
     {
         var result = await dialogService.ShowDeleteIncomeConfirmationAsync(Person, incomeRecord);
         if (result == true)

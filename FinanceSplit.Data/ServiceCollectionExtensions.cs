@@ -1,5 +1,7 @@
-﻿using FinanceSplit.Contracts.FileImport.Services;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Dashboard.Services;
+using FinanceSplit.Contracts.FileImport.Services;
+using FinanceSplit.Contracts.People.Services;
+using FinanceSplit.Contracts.Transactions.Services;
 using FinanceSplit.Data.BackgroundServices;
 using FinanceSplit.Data.Interceptors;
 using FinanceSplit.Data.Interfaces;

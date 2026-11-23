@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Transactions.Services;
 using FinanceSplit.Data.Internal;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

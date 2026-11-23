@@ -1,13 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.FileImport.Dtos;
+using FinanceSplit.Contracts.FileImport.DTOs;
 using FinanceSplit.Contracts.FileImport.Services;
 
 namespace FinanceSplit.Client.Clients;
 
 internal partial class FileImportService(HttpClient client) : IFileImportService
 {
-    public Task<FileBackupResponse> GetBackupAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public Task<FileBackupResponse> GetBackupAsync(CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
     public async Task<FileImportResponse?> ImportBackupAsync(
         Stream file,

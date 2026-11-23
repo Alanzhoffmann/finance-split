@@ -1,13 +1,14 @@
 ﻿using System.Text.Json.Serialization;
+using FinanceSplit.Contracts.People.DTOs;
 
-namespace FinanceSplit.Contracts.DTOs;
+namespace FinanceSplit.Contracts.Dashboard.DTOs;
 
-public record DashboardResponse(
-    IReadOnlyList<DashboardPersonResponse> People,
+public record DashboardDto(
+    IReadOnlyList<PersonSummaryDto> People,
     IReadOnlyList<ExpenseSettlementDto> Settlements
 );
 
-public record DashboardPersonResponse(
+public record PersonSummaryDto(
     string Name,
     decimal Income,
     decimal SharedExpenses,

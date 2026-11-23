@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.Commands;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

@@ -1,4 +1,4 @@
-﻿namespace FinanceSplit.Contracts.Enums;
+﻿namespace FinanceSplit.Contracts.Transactions.Enums;
 
 public enum SplitType
 {

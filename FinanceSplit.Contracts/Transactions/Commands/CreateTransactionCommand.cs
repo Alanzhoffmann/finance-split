@@ -1,6 +1,6 @@
-﻿using FinanceSplit.Contracts.Enums;
+﻿using FinanceSplit.Contracts.Transactions.Enums;
 
-namespace FinanceSplit.Contracts.Commands;
+namespace FinanceSplit.Contracts.Transactions.Commands;
 
 public record CreateTransactionCommand(
     string Name,

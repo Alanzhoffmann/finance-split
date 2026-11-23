@@ -1,7 +1,7 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.Transactions.Commands;
+using FinanceSplit.Contracts.Transactions.DTOs;
 
-namespace FinanceSplit.Contracts.Services;
+namespace FinanceSplit.Contracts.Transactions.Services;
 
 public interface ITransactionService
 {

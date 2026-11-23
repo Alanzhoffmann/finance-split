@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.People.DTOs;
 
 namespace FinanceSplit.Client.Interfaces;
 
@@ -10,15 +10,9 @@ public interface IPersonDialogService
 
     Task<bool> ShowDeletePersonConfirmationAsync(PersonDto person);
 
-    Task<IncomeRecordResponse?> CreateIncomeAsync(PersonDto person);
+    Task<IncomeRecordDto?> CreateIncomeAsync(PersonDto person);
 
-    Task<IncomeRecordResponse?> EditIncomeAsync(
-        PersonDto person,
-        IncomeRecordResponse incomeRecord
-    );
+    Task<IncomeRecordDto?> EditIncomeAsync(PersonDto person, IncomeRecordDto incomeRecord);
 
-    Task<bool> ShowDeleteIncomeConfirmationAsync(
-        PersonDto person,
-        IncomeRecordResponse incomeRecord
-    );
+    Task<bool> ShowDeleteIncomeConfirmationAsync(PersonDto person, IncomeRecordDto incomeRecord);
 }

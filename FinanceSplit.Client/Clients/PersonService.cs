@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.Commands;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
 
 namespace FinanceSplit.Client.Clients;
 
@@ -61,7 +61,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
+    public async Task<IncomeRecordDto?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     )
@@ -74,12 +74,12 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            PersonSerializerContext.Default.IncomeRecordResponse,
+            PersonSerializerContext.Default.IncomeRecordDto,
             cancellationToken
         );
     }
 
-    public async Task<IncomeRecordResponse?> UpdateIncomeRecordAsync(
+    public async Task<IncomeRecordDto?> UpdateIncomeRecordAsync(
         UpdateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     )
@@ -92,7 +92,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
         );
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync(
-            PersonSerializerContext.Default.IncomeRecordResponse,
+            PersonSerializerContext.Default.IncomeRecordDto,
             cancellationToken
         );
     }

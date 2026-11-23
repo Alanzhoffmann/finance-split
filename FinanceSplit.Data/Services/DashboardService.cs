@@ -1,12 +1,12 @@
-﻿using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.Dashboard.DTOs;
+using FinanceSplit.Contracts.Dashboard.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceSplit.Data.Services;
 
 internal class DashboardService(AppDbContext context, TimeProvider timeProvider) : IDashboardService
 {
-    public async Task<DashboardResponse?> GetDashboardAsync(
+    public async Task<DashboardDto?> GetDashboardAsync(
         DateOnly? month = null,
         CancellationToken cancellationToken = default
     )
@@ -15,8 +15,8 @@ internal class DashboardService(AppDbContext context, TimeProvider timeProvider)
         return await context
             .Summaries.AsNoTracking()
             .Where(s => s.Month == monthToCheck)
-            .Select(s => new DashboardResponse(
-                s.People.Select(p => new DashboardPersonResponse(
+            .Select(s => new DashboardDto(
+                s.People.Select(p => new PersonSummaryDto(
                         p.Person.Name,
                         p.Income,
                         p.SharedExpenses,

@@ -1,6 +1,6 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+﻿using FinanceSplit.Contracts.People.Commands;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +18,7 @@ internal class PersonService(AppDbContext context) : IPersonService
                 Incomes = p
                     .IncomeRecords.OrderBy(i => i.Month)
                     .ThenBy(i => i.Type)
-                    .Select(i => new IncomeRecordResponse(i.Id, i.Month, i.Amount, i.Type))
+                    .Select(i => new IncomeRecordDto(i.Id, i.Month, i.Amount, i.Type))
                     .ToList(),
             })
             .ToListAsync(cancellationToken: cancellationToken);
@@ -73,7 +73,7 @@ internal class PersonService(AppDbContext context) : IPersonService
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
+    public async Task<IncomeRecordDto?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     )
@@ -97,7 +97,7 @@ internal class PersonService(AppDbContext context) : IPersonService
         return new(newIncome.Id, newIncome.Month, newIncome.Amount, newIncome.Type);
     }
 
-    public async Task<IncomeRecordResponse?> UpdateIncomeRecordAsync(
+    public async Task<IncomeRecordDto?> UpdateIncomeRecordAsync(
         UpdateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     )

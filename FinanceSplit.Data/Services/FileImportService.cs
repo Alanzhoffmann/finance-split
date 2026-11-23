@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Enums;
-using FinanceSplit.Contracts.FileImport.Dtos;
+using FinanceSplit.Contracts.FileImport.DTOs;
 using FinanceSplit.Contracts.FileImport.Services;
+using FinanceSplit.Contracts.People.Enums;
+using FinanceSplit.Contracts.Transactions.Enums;
 using FinanceSplit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,9 @@ namespace FinanceSplit.Data.Services;
 internal partial class FileImportService(AppDbContext context, TimeProvider timeProvider)
     : IFileImportService
 {
-    public async Task<FileBackupResponse> GetBackupAsync(CancellationToken cancellationToken = default)
+    public async Task<FileBackupResponse> GetBackupAsync(
+        CancellationToken cancellationToken = default
+    )
     {
         var people = await context
             .People.AsNoTracking()

@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.FileImport.Dtos;
+﻿using FinanceSplit.Contracts.FileImport.DTOs;
 
 namespace FinanceSplit.Contracts.FileImport.Services;
 

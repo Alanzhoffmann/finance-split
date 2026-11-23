@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Enums;
+using FinanceSplit.Contracts.People.Enums;
 
-namespace FinanceSplit.Contracts.Commands;
+namespace FinanceSplit.Contracts.People.Commands;
 
 public record UpdateIncomeRecordCommand(
     [property: JsonIgnore] Guid Id,

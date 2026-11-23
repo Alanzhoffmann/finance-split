@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.Dashboard.DTOs;
+using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.FileImport.Services;
-using FinanceSplit.Contracts.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -22,7 +22,7 @@ public partial class DashboardViewModel(
     public partial DateOnly CurrentMonth { get; set; }
 
     [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<DashboardPersonResponse>? People { get; set; }
+    public IReadOnlyList<PersonSummaryDto>? People { get; set; }
 
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<ExpenseSettlementDto>? Settlements { get; set; }

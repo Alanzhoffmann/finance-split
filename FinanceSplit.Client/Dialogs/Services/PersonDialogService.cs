@@ -1,6 +1,6 @@
 ﻿using FinanceSplit.Client.Extensions;
 using FinanceSplit.Client.Interfaces;
-using FinanceSplit.Contracts.DTOs;
+using FinanceSplit.Contracts.People.DTOs;
 using MudBlazor;
 
 namespace FinanceSplit.Client.Dialogs.Services;
@@ -25,17 +25,15 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
         return result == true;
     }
 
-    public Task<IncomeRecordResponse?> CreateIncomeAsync(PersonDto person) =>
+    public Task<IncomeRecordDto?> CreateIncomeAsync(PersonDto person) =>
         OpenIncomeDialogAsync(person);
 
-    public Task<IncomeRecordResponse?> EditIncomeAsync(
-        PersonDto person,
-        IncomeRecordResponse incomeRecord
-    ) => OpenIncomeDialogAsync(person, incomeRecord);
+    public Task<IncomeRecordDto?> EditIncomeAsync(PersonDto person, IncomeRecordDto incomeRecord) =>
+        OpenIncomeDialogAsync(person, incomeRecord);
 
     public async Task<bool> ShowDeleteIncomeConfirmationAsync(
         PersonDto person,
-        IncomeRecordResponse incomeRecord
+        IncomeRecordDto incomeRecord
     )
     {
         bool? result = await dialogService.ShowMessageBoxAsync(
@@ -54,11 +52,11 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
             _dialogOptions
         );
 
-    private async Task<IncomeRecordResponse?> OpenIncomeDialogAsync(
+    private async Task<IncomeRecordDto?> OpenIncomeDialogAsync(
         PersonDto person,
-        IncomeRecordResponse? incomeRecord = null
+        IncomeRecordDto? incomeRecord = null
     ) =>
-        await dialogService.ShowDialogWithResultAsync<IncomeRecordResponse, IncomeRecordDialog>(
+        await dialogService.ShowDialogWithResultAsync<IncomeRecordDto, IncomeRecordDialog>(
             new DialogParameters { ["Person"] = person, ["IncomeRecord"] = incomeRecord },
             _dialogOptions
         );

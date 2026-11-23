@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Enums;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.Commands;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Enums;
+using FinanceSplit.Contracts.People.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -20,7 +20,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
     public PersonDto Person { get; set; }
 
     [Parameter]
-    public IncomeRecordResponse? IncomeRecord { get; set; }
+    public IncomeRecordDto? IncomeRecord { get; set; }
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
@@ -73,7 +73,7 @@ public partial class IncomeRecordDialog(IPersonService personService)
 
     class IncomeRecordModel
     {
-        public IncomeRecordModel(PersonDto person, IncomeRecordResponse? incomeRecord = null)
+        public IncomeRecordModel(PersonDto person, IncomeRecordDto? incomeRecord = null)
         {
             PersonId = person.Id;
 

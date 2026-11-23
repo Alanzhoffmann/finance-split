@@ -1,7 +1,9 @@
 using FinanceSplit.Client.Clients;
 using FinanceSplit.Client.Extensions;
+using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.FileImport.Services;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.Services;
+using FinanceSplit.Contracts.Transactions.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;

@@ -1,7 +1,7 @@
-﻿using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
+﻿using FinanceSplit.Contracts.People.Commands;
+using FinanceSplit.Contracts.People.DTOs;
 
-namespace FinanceSplit.Contracts.Services;
+namespace FinanceSplit.Contracts.People.Services;
 
 public interface IPersonService
 {
@@ -22,12 +22,12 @@ public interface IPersonService
         CancellationToken cancellationToken = default
     );
 
-    Task<IncomeRecordResponse?> CreateIncomeRecordAsync(
+    Task<IncomeRecordDto?> CreateIncomeRecordAsync(
         CreateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     );
 
-    Task<IncomeRecordResponse?> UpdateIncomeRecordAsync(
+    Task<IncomeRecordDto?> UpdateIncomeRecordAsync(
         UpdateIncomeRecordCommand command,
         CancellationToken cancellationToken = default
     );

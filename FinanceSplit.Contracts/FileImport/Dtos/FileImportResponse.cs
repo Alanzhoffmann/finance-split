@@ -1,3 +1,3 @@
-﻿namespace FinanceSplit.Contracts.FileImport.Dtos;
+﻿namespace FinanceSplit.Contracts.FileImport.DTOs;
 
 public class FileImportResponse { }

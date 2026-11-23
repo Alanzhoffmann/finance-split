@@ -1,4 +1,4 @@
-﻿using FinanceSplit.Contracts.Enums;
+﻿using FinanceSplit.Contracts.People.Enums;
 
 namespace FinanceSplit.Domain.Entities;
 

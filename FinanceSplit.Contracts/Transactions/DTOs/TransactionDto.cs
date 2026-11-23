@@ -1,6 +1,7 @@
-﻿using FinanceSplit.Contracts.Enums;
+﻿using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.Transactions.Enums;
 
-namespace FinanceSplit.Contracts.DTOs;
+namespace FinanceSplit.Contracts.Transactions.DTOs;
 
 public record TransactionDto(
     Guid Id,

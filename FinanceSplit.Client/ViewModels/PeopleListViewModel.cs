@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Client.ViewModels.Messages;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace FinanceSplit.Client.ViewModels;

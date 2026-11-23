@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.Transactions.Commands;
+using FinanceSplit.Contracts.Transactions.DTOs;
+using FinanceSplit.Contracts.Transactions.Services;
 
 namespace FinanceSplit.Client.Clients;
 

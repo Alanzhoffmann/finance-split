@@ -1,4 +1,4 @@
-﻿namespace FinanceSplit.Contracts.Enums;
+﻿namespace FinanceSplit.Contracts.People.Enums;
 
 public enum IncomeType
 {

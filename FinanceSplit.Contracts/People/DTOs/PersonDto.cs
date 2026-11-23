@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FinanceSplit.Contracts.DTOs;
+namespace FinanceSplit.Contracts.People.DTOs;
 
 public record PersonDto(Guid Id, string Name)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public IReadOnlyList<IncomeRecordResponse> Incomes { get; init; } = [];
+    public IReadOnlyList<IncomeRecordDto> Incomes { get; init; } = [];
 }

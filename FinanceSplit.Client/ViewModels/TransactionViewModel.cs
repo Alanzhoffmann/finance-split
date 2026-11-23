@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FinanceSplit.Contracts.Commands;
-using FinanceSplit.Contracts.DTOs;
-using FinanceSplit.Contracts.Enums;
-using FinanceSplit.Contracts.Services;
+using FinanceSplit.Contracts.People.DTOs;
+using FinanceSplit.Contracts.People.Services;
+using FinanceSplit.Contracts.Transactions.Commands;
+using FinanceSplit.Contracts.Transactions.DTOs;
+using FinanceSplit.Contracts.Transactions.Enums;
+using FinanceSplit.Contracts.Transactions.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
