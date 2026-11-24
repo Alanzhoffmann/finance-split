@@ -1,11 +1,12 @@
 using System.Globalization;
 using FinanceSplit.Client.ViewModels;
+using FinanceSplit.Client.ViewModels.Factories;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace FinanceSplit.Client.Dialogs;
 
-public partial class GoalDialog
+public partial class GoalDialog(GoalViewModelFactory viewModelFactory)
 {
     private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
 
@@ -13,7 +14,11 @@ public partial class GoalDialog
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter]
-    public GoalViewModel ViewModel { get; set; } = default!;
+    public GoalViewModel ViewModel
+    {
+        get => field ??= viewModelFactory.CreateGoalViewModel();
+        set;
+    }
 
     private string Title => ViewModel.IsEditing ? $"Edit goal {ViewModel.Name}" : "Create goal";
 

@@ -5,8 +5,6 @@ namespace FinanceSplit.Client.Components;
 
 public partial class GoalList(GoalListViewModel viewModel)
 {
-    private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
-
     public GoalListViewModel ViewModel { get; } = viewModel;
 
     protected override async Task OnInitializedAsync()

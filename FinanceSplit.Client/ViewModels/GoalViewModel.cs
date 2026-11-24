@@ -1,4 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using FinanceSplit.Client.Interfaces;
+using FinanceSplit.Client.ViewModels.Messages;
 using FinanceSplit.Contracts.Goals.Commands;
 using FinanceSplit.Contracts.Goals.DTOs;
 using FinanceSplit.Contracts.Goals.Services;
@@ -6,12 +10,19 @@ using FinanceSplit.Contracts.Transactions.Enums;
 
 namespace FinanceSplit.Client.ViewModels;
 
-public class GoalViewModel(IGoalService goalService)
+public partial class GoalViewModel(
+    IGoalService goalService,
+    IGoalDialogService dialogService,
+    IMessenger messenger
+)
 {
+    private GoalDto? _dto;
+
     public void Initialize(GoalDto? dto = null)
     {
         if (dto is not null)
         {
+            _dto = dto;
             Id = dto.Id;
             Name = dto.Name;
             Amount = dto.Amount;
@@ -32,6 +43,20 @@ public class GoalViewModel(IGoalService goalService)
             ];
         }
     }
+
+    [MemberNotNullWhen(true, nameof(Id))]
+    public bool IsEditing => Id is not null;
+
+    public Guid? Id { get; set; }
+    public string? Name { get; set; }
+    public decimal Amount { get; set; }
+    public DateOnly? InitialMonth { get; set; }
+    public DateOnly? FinalMonth { get; set; }
+    public SplitType SplitType { get; set; }
+    public IReadOnlyCollection<Guid> SharedWith { get; set; } = [];
+    public IReadOnlyList<GoalPersonModel> People { get; set; } = [];
+
+    public GoalProgressModel Progress => new(Amount, People.Sum(p => p.Progress.Completed));
 
     internal async Task<GoalDto?> SaveGoalAsync(CancellationToken cancellationToken = default)
     {
@@ -92,19 +117,31 @@ public class GoalViewModel(IGoalService goalService)
         }
     }
 
-    [MemberNotNullWhen(true, nameof(Id))]
-    public bool IsEditing => Id is not null;
+    [RelayCommand]
+    private async Task EditGoalAsync()
+    {
+        var editedPerson = await dialogService.EditGoalAsync(this);
+        if (editedPerson is not null)
+        {
+            Initialize(editedPerson);
+        }
+    }
 
-    public Guid? Id { get; set; }
-    public string? Name { get; set; }
-    public decimal Amount { get; set; }
-    public DateOnly? InitialMonth { get; set; }
-    public DateOnly? FinalMonth { get; set; }
-    public SplitType SplitType { get; set; }
-    public IReadOnlyCollection<Guid> SharedWith { get; set; } = [];
-    public IReadOnlyList<GoalPersonModel> People { get; set; } = [];
+    [RelayCommand]
+    private async Task DeleteGoalAsync()
+    {
+        if (_dto is null || Id is null)
+        {
+            return;
+        }
 
-    public GoalProgressModel Progress => new(Amount, People.Sum(p => p.Progress.Completed));
+        var result = await dialogService.ShowDeleteGoalConfirmationAsync(_dto);
+        if (result == true)
+        {
+            await goalService.DeleteGoalAsync(new(Id.Value));
+            messenger.Send(new GoalDeletedMessage(Id.Value));
+        }
+    }
 }
 
 public record GoalPersonModel(string Name, GoalProgressModel Progress);

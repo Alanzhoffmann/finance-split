@@ -32,7 +32,7 @@ public partial class PersonViewModel(
         var editedPerson = await dialogService.EditPersonAsync(Person);
         if (editedPerson is not null)
         {
-            Name = editedPerson.Name;
+            Initialize(editedPerson);
         }
     }
 

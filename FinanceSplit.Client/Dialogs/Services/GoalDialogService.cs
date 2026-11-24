@@ -1,16 +1,12 @@
 ﻿using FinanceSplit.Client.Extensions;
 using FinanceSplit.Client.Interfaces;
 using FinanceSplit.Client.ViewModels;
-using FinanceSplit.Client.ViewModels.Factories;
 using FinanceSplit.Contracts.Goals.DTOs;
 using MudBlazor;
 
 namespace FinanceSplit.Client.Dialogs.Services;
 
-public sealed class GoalDialogService(
-    IDialogService dialogService,
-    GoalViewModelFactory viewModelFactory
-) : IGoalDialogService
+public sealed class GoalDialogService(IDialogService dialogService) : IGoalDialogService
 {
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
 
@@ -32,10 +28,7 @@ public sealed class GoalDialogService(
 
     private async Task<GoalDto?> OpenDialogAsync(GoalViewModel? viewModel = null) =>
         await dialogService.ShowDialogWithResultAsync<GoalDto, GoalDialog>(
-            new DialogParameters
-            {
-                ["ViewModel"] = viewModel ?? viewModelFactory.CreateGoalViewModel(),
-            },
+            new DialogParameters { ["ViewModel"] = viewModel },
             _dialogOptions
         );
 }
