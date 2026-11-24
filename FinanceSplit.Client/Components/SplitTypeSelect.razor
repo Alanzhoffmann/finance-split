@@ -1,0 +1,8 @@
+@using FinanceSplit.Contracts.Transactions.Enums
+
+<MudSelect T="SplitType" Label="@(Label ?? "Split type")" Value="Value" ValueChanged="ValueChanged" Strict>
+    @foreach (var type in SplitTypes)
+    {
+        <MudSelectItem Value="@type">@type</MudSelectItem>
+    }
+</MudSelect>

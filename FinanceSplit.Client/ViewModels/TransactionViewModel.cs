@@ -16,8 +16,6 @@ public partial class TransactionViewModel(
     ITransactionService transactionService
 ) : ObservableObject
 {
-    public static IReadOnlyList<SplitType> SplitTypes => Enum.GetValues<SplitType>();
-
     public async Task InitAsync(TransactionDto? transaction = null)
     {
         People = await personService.GetPeopleAsync() ?? [];
@@ -47,6 +45,7 @@ public partial class TransactionViewModel(
 
     [PersistentState]
     public IReadOnlyList<PersonDto> People { get; set; } = [];
+
     public Guid? Id { get; set; }
 
     [Required]

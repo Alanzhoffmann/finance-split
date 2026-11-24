@@ -8,6 +8,9 @@ public partial class MonthDatePicker
     public DateOnly? Month { get; set; }
 
     [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
     public EventCallback<DateOnly?> MonthChanged { get; set; }
 
     DateTime? Date

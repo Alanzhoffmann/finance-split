@@ -1,0 +1,16 @@
+<MudSelect Label="@Label"
+           T="Guid"
+           HelperText="@HelperText"
+           MultiSelectionTextFunc="GetMultiSelectionText"
+           MultiSelection="@MultiSelection"
+           SelectAll
+           Value="Value"
+           ValueChanged="ValueChanged"
+           SelectedValues="SelectedValues"
+           SelectedValuesChanged="SelectedValuesChanged"
+           Strict>
+    @foreach (var person in People ?? [])
+    {
+        <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
+    }
+</MudSelect>
