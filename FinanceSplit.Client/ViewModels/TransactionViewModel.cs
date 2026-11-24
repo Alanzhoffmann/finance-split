@@ -26,7 +26,7 @@ public partial class TransactionViewModel(
         {
             Id = transaction.Id;
             Name = transaction.Name;
-            Date = transaction.Month.ToDateTime(TimeOnly.MinValue);
+            Month = transaction.Month;
             Amount = transaction.Amount;
             SplitType = transaction.SplitType;
             PaidByPersonId = transaction.PaidBy.Id;
@@ -53,7 +53,7 @@ public partial class TransactionViewModel(
     public string? Name { get; set; }
 
     [Required]
-    public DateTime? Date { get; set; } = DateTime.Today;
+    public DateOnly? Month { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     public decimal Amount { get; set; }
 
     [ObservableProperty]
@@ -69,19 +69,14 @@ public partial class TransactionViewModel(
     {
         get
         {
-            var name = Name ?? throw new NullReferenceException("Name is null");
-            var date = Date is null
-                ? throw new NullReferenceException("Date is null")
-                : DateOnly.FromDateTime(Date.Value);
-
             if (SplitType is SplitType.None && SharedWithIds.Count > 1)
             {
                 SharedWithIds = [SharedWithIds.First()];
             }
 
             return new CreateTransactionCommand(
-                name,
-                date,
+                Name ?? throw new NullReferenceException("Name is null"),
+                Month ?? throw new NullReferenceException("Month is null"),
                 Amount,
                 PaidByPersonId,
                 SplitType,
@@ -94,14 +89,9 @@ public partial class TransactionViewModel(
     {
         get
         {
-            if (!Id.HasValue)
-            {
-                throw new NullReferenceException("Id is null");
-            }
-
             var createCommand = CreateCommand;
             return new UpdateTransactionCommand(
-                Id.Value,
+                Id ?? throw new NullReferenceException("Id is null"),
                 createCommand.Name,
                 createCommand.Date,
                 createCommand.Value,

@@ -20,13 +20,7 @@
             </MudFileUpload>
         </div>
 
-        <MudDatePicker Label="Month"
-                       OpenTo="OpenTo.Month"
-                       FixDay="1"
-                       DateFormat="MMM/yyyy"
-                       TitleDateFormat="MMM/yyyy"
-                       Date="@(ViewModel.CurrentMonth.ToDateTime(TimeOnly.MinValue))"
-                       DateChanged="OnMonthSelected" />
+        <MonthDatePicker Month="ViewModel.CurrentMonth" MonthChanged="OnMonthSelected" />
 
         @if (!ViewModel.IsLoaded)
         {

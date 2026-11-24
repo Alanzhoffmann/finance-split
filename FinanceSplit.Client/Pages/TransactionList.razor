@@ -5,13 +5,7 @@
 <MudContainer>
     <MudStack>
         <MudText Typo="Typo.h3" GutterBottom="true">Transactions</MudText>
-        <MudDatePicker Label="Month"
-                       OpenTo="OpenTo.Month"
-                       FixDay="1"
-                       DateFormat="MMM/yyyy"
-                       TitleDateFormat="MMM/yyyy"
-                       Date="@(ViewModel.CurrentMonth.ToDateTime(TimeOnly.MinValue))"
-                       DateChanged="OnMonthSelected" />
+        <MonthDatePicker Month="ViewModel.CurrentMonth" MonthChanged="OnMonthSelected" />
         <div>
             <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => ViewModel.CreateTransactionCommand.ExecuteAsync(null)">Add transaction</MudButton>
         </div>

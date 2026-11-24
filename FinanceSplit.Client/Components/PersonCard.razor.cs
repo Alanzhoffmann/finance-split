@@ -4,7 +4,7 @@ using FinanceSplit.Contracts.People.DTOs;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace FinanceSplit.Client.Pages;
+namespace FinanceSplit.Client.Components;
 
 public partial class PersonCard(PersonViewModel viewModel)
 {

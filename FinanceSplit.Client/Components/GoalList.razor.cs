@@ -1,7 +1,7 @@
 using System.Globalization;
 using FinanceSplit.Client.ViewModels;
 
-namespace FinanceSplit.Client.Pages;
+namespace FinanceSplit.Client.Components;
 
 public partial class GoalList(GoalListViewModel viewModel)
 {

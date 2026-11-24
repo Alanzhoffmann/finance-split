@@ -7,7 +7,7 @@
     <DialogContent>
         <MudStack>
             <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
-            <MudDatePicker Label="Date" @bind-Date="@ViewModel.Date" For="@(() => ViewModel.Date)" />
+            <MonthDatePicker @bind-Month="ViewModel.Month" />
             <MudNumericField Label="Amount" @bind-Value="@ViewModel.Amount" For="@(() => ViewModel.Amount)" Culture="_enGb" Format="C" />
             <MudSelect Label="Paid by" T="Guid" @bind-Value="@ViewModel.PaidByPersonId" HelperText="Whose bank account will be used for this transaction" For="@(() => ViewModel.PaidByPersonId)">
                 @foreach (var person in ViewModel.People)

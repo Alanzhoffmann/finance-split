@@ -17,7 +17,7 @@ public partial class IncomeRecordViewModel(IPersonService personService) : Obser
         {
             Id = incomeRecord.Id;
             Amount = incomeRecord.Amount;
-            Month = new DateTime(incomeRecord.Month, TimeOnly.MinValue);
+            Month = incomeRecord.Month;
             IncomeType = incomeRecord.Type;
         }
     }
@@ -30,7 +30,7 @@ public partial class IncomeRecordViewModel(IPersonService personService) : Obser
     public decimal Amount { get; set; }
 
     [Required]
-    public DateTime? Month { get; set; } = DateTime.Today;
+    public DateOnly? Month { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
     public IncomeType IncomeType { get; set; } = IncomeType.Salary;
 
@@ -67,7 +67,7 @@ public partial class IncomeRecordViewModel(IPersonService personService) : Obser
             throw new ArgumentNullException(nameof(Month));
         }
 
-        var month = DateOnly.FromDateTime(Month.Value);
+        var month = Month.Value;
         return new CreateIncomeRecordCommand(PersonId, Amount, month, IncomeType);
     }
 
@@ -83,7 +83,7 @@ public partial class IncomeRecordViewModel(IPersonService personService) : Obser
             throw new ArgumentNullException(nameof(Month));
         }
 
-        var month = DateOnly.FromDateTime(Month.Value);
+        var month = Month.Value;
         return new UpdateIncomeRecordCommand(Id.Value, PersonId, Amount, month, IncomeType);
     }
 }
