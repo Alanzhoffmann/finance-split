@@ -1,0 +1,14 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
+        <MonthDatePicker Label="Initial month" @bind-Month="ViewModel.InitialMonth" />
+        <MonthDatePicker Label="Final month" @bind-Month="ViewModel.FinalMonth" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SaveGoal">@SubmitLabel</MudButton>
+    </DialogActions>
+</MudDialog>

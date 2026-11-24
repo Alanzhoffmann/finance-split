@@ -20,8 +20,10 @@ public static class GoalMapper
         return new GoalDto(
             goal.Id,
             goal.Name,
+            goal.InitialMonth,
             goal.FinalMonth,
             goal.Value,
+            goal.SplitType,
             goal.SharedWith.ToSharedWithDto(calculatedShares),
             goal.SharedWith.ToSharedWithDto(completedShares)
         );

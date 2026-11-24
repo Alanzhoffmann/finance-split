@@ -1,3 +1,7 @@
+<div>
+    <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => ViewModel.CreateGoalCommand.ExecuteAsync(null)">Add goal</MudButton>
+</div>
+
 @if (!ViewModel.IsLoaded)
 {
     <MudProgressCircular Indeterminate />
@@ -10,7 +14,7 @@ else if (ViewModel.Goals.Count > 0)
             <MudItem md="6" xs="12">
                 <MudCard Outlined>
                     <MudCardHeader>
-                        <MudText Typo="Typo.h5">@goal.Title - @goal.Month.ToString("MMM/yyyy", _enGb)</MudText>
+                        <MudText Typo="Typo.h5">@goal.Name - @goal.FinalMonth?.ToString("MMM/yyyy", _enGb)</MudText>
                     </MudCardHeader>
                     <MudCardContent>
                         <MudText Typo="Typo.h5">@goal.Progress.Completed.ToString("C", _enGb) / @goal.Amount.ToString("C", _enGb)</MudText>
