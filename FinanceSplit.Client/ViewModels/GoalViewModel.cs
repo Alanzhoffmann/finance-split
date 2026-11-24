@@ -136,7 +136,7 @@ public partial class GoalViewModel(
         }
 
         var result = await dialogService.ShowDeleteGoalConfirmationAsync(_dto);
-        if (result == true)
+        if (result)
         {
             await goalService.DeleteGoalAsync(new(Id.Value));
             messenger.Send(new GoalDeletedMessage(Id.Value));

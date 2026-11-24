@@ -13,17 +13,8 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
 
     public Task<PersonDto?> EditPersonAsync(PersonDto person) => OpenPersonDialogAsync(person);
 
-    public async Task<bool> ShowDeletePersonConfirmationAsync(PersonDto person)
-    {
-        bool? result = await dialogService.ShowMessageBoxAsync(
-            "Warning",
-            "Deleting can not be undone!",
-            yesText: "Delete!",
-            cancelText: "Cancel"
-        );
-
-        return result == true;
-    }
+    public async Task<bool> ShowDeletePersonConfirmationAsync(PersonDto person) =>
+        await dialogService.ShowGenericDeleteWarning();
 
     public Task<IncomeRecordDto?> CreateIncomeAsync(PersonDto person) =>
         OpenIncomeDialogAsync(person);
@@ -34,17 +25,7 @@ public sealed class PersonDialogService(IDialogService dialogService) : IPersonD
     public async Task<bool> ShowDeleteIncomeConfirmationAsync(
         PersonDto person,
         IncomeRecordDto incomeRecord
-    )
-    {
-        bool? result = await dialogService.ShowMessageBoxAsync(
-            "Warning",
-            "Deleting can not be undone!",
-            yesText: "Delete!",
-            cancelText: "Cancel"
-        );
-
-        return result == true;
-    }
+    ) => await dialogService.ShowGenericDeleteWarning();
 
     private async Task<PersonDto?> OpenPersonDialogAsync(PersonDto? person = null) =>
         await dialogService.ShowDialogWithResultAsync<PersonDto, PersonDialog>(

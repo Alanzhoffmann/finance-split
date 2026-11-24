@@ -14,17 +14,8 @@ public sealed class GoalDialogService(IDialogService dialogService) : IGoalDialo
 
     public Task<GoalDto?> EditGoalAsync(GoalViewModel viewModel) => OpenDialogAsync(viewModel);
 
-    public async Task<bool> ShowDeleteGoalConfirmationAsync(GoalDto goal)
-    {
-        bool? result = await dialogService.ShowMessageBoxAsync(
-            "Warning",
-            "Deleting can not be undone!",
-            yesText: "Delete!",
-            cancelText: "Cancel"
-        );
-
-        return result == true;
-    }
+    public async Task<bool> ShowDeleteGoalConfirmationAsync(GoalDto goal) =>
+        await dialogService.ShowGenericDeleteWarning();
 
     private async Task<GoalDto?> OpenDialogAsync(GoalViewModel? viewModel = null) =>
         await dialogService.ShowDialogWithResultAsync<GoalDto, GoalDialog>(
