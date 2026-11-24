@@ -1,8 +1,6 @@
-﻿using System.Xml.Linq;
-using FinanceSplit.Contracts.Goals.Commands;
+﻿using FinanceSplit.Contracts.Goals.Commands;
 using FinanceSplit.Contracts.Goals.DTOs;
 using FinanceSplit.Contracts.Goals.Services;
-using FinanceSplit.Contracts.Transactions.Enums;
 using FinanceSplit.Domain.Entities;
 using FinanceSplit.Domain.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +28,12 @@ internal sealed class GoalService(AppDbContext context) : IGoalService
         var people = await context
             .People.Where(p => command.SharedWithIds.Contains(p.Id))
             .ToListAsync(cancellationToken: cancellationToken);
+
+        if (people.Count < command.SharedWithIds.Count)
+        {
+            // Not every person shared with is accounted for
+            return null;
+        }
 
         var newGoal = new Goal
         {

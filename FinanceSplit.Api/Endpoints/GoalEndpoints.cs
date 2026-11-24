@@ -35,7 +35,7 @@ internal static class GoalEndpoints
         );
 
         group.MapPut(
-            "{id: guid}",
+            "{id:guid}",
             async (
                 Guid id,
                 UpdateGoalCommand command,

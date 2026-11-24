@@ -25,5 +25,6 @@ public static class ApplicationBuilderExtensions
         endpoints.MapTransactionEndpoints();
         endpoints.MapDashboardEndpoints();
         endpoints.MapFileImportEndpoints();
+        endpoints.MapGoalEndpoints();
     }
 }

@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using FinanceSplit.Contracts.Dashboard.DTOs;
 using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.FileImport.Services;
-using FinanceSplit.Contracts.Goals.DTOs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -28,9 +27,6 @@ public partial class DashboardViewModel(
     [PersistentState(AllowUpdates = true)]
     public IReadOnlyList<ExpenseSettlementDto>? Settlements { get; set; }
 
-    [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<GoalDto>? Goals { get; set; }
-
     [MemberNotNullWhen(true, nameof(People), nameof(Settlements))]
     public bool IsLoaded => People is not null && Settlements is not null;
 
@@ -50,7 +46,6 @@ public partial class DashboardViewModel(
         CurrentMonth = targetMonth.Value;
         People = null;
         Settlements = null;
-        Goals = null;
 
         var data = await dashboardService.GetDashboardAsync(CurrentMonth);
 
