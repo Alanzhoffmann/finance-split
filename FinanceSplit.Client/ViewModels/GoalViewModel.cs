@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FinanceSplit.Client.Interfaces;
@@ -6,6 +7,7 @@ using FinanceSplit.Client.ViewModels.Messages;
 using FinanceSplit.Contracts.Goals.Commands;
 using FinanceSplit.Contracts.Goals.DTOs;
 using FinanceSplit.Contracts.Goals.Services;
+using FinanceSplit.Contracts.People.DTOs;
 using FinanceSplit.Contracts.Transactions.Enums;
 
 namespace FinanceSplit.Client.ViewModels;
@@ -14,7 +16,7 @@ public partial class GoalViewModel(
     IGoalService goalService,
     IGoalDialogService dialogService,
     IMessenger messenger
-)
+) : ObservableObject
 {
     private GoalDto? _dto;
 
@@ -29,7 +31,7 @@ public partial class GoalViewModel(
             InitialMonth = dto.InitialMonth;
             FinalMonth = dto.FinalMonth;
             SplitType = dto.SplitType;
-            SharedWith = [.. dto.SharedWith.Select(s => s.Person.Id)];
+            SharedWith = [.. dto.SharedWith.Select(s => s.Person)];
             People =
             [
                 .. dto.SharedWith.Select(item => new GoalPersonModel(
@@ -53,7 +55,9 @@ public partial class GoalViewModel(
     public DateOnly? InitialMonth { get; set; }
     public DateOnly? FinalMonth { get; set; }
     public SplitType SplitType { get; set; }
-    public IReadOnlyCollection<Guid> SharedWith { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyCollection<PersonDto> SharedWith { get; set; } = [];
     public IReadOnlyList<GoalPersonModel> People { get; set; } = [];
 
     public GoalProgressModel Progress => new(Amount, People.Sum(p => p.Progress.Completed));
@@ -85,8 +89,9 @@ public partial class GoalViewModel(
                 InitialMonth.Value,
                 FinalMonth.Value,
                 SplitType,
-                SharedWith
+                [.. SharedWith.Select(p => p.Id)]
             );
+
             var updatedGoal = await goalService.UpdateGoalAsync(updateCommand, cancellationToken);
             if (updatedGoal is null)
             {
@@ -104,8 +109,9 @@ public partial class GoalViewModel(
                 InitialMonth.Value,
                 FinalMonth.Value,
                 SplitType,
-                SharedWith
+                [.. SharedWith.Select(p => p.Id)]
             );
+
             var createdGoal = await goalService.CreateGoalAsync(createCommand, cancellationToken);
             if (createdGoal is null)
             {

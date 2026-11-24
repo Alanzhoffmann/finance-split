@@ -1,0 +1,9 @@
+@if (Goals?.Count > 0)
+{
+    <MudSelect Label="@Label" Clearable Value="Value" ValueChanged="ValueChanged" ToStringFunc="@(x => x?.Name ?? string.Empty)">
+        @foreach (var goal in Goals)
+        {
+            <MudSelectItem Value="goal">@goal.Name</MudSelectItem>
+        }
+    </MudSelect>
+}

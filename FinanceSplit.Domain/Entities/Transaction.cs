@@ -11,6 +11,7 @@ public class Transaction : BaseEntity, ISharedAmount
     private Person? _paidBy;
     private List<Person> _sharedWith = [];
     private SplitType _splitType = SplitType.Even;
+    private Goal? _goal;
 
     public required string Name
     {
@@ -49,7 +50,11 @@ public class Transaction : BaseEntity, ISharedAmount
     }
 
     public Recurrence? Recurrence { get; init; }
-    public Goal? Goal { get; init; }
+    public Goal? Goal
+    {
+        get => _goal;
+        init => _goal = value;
+    }
 
     public void Update(string name, DateOnly month, decimal value, SplitType splitType)
     {
@@ -77,6 +82,11 @@ public class Transaction : BaseEntity, ISharedAmount
         }
 
         _sharedWith = sharedWith;
+    }
+
+    public void UpdateGoal(Goal? goal)
+    {
+        _goal = goal;
     }
 
     public void AddValue(decimal value) => _value += value;

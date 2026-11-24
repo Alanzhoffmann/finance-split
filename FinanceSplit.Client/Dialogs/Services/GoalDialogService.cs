@@ -15,7 +15,7 @@ public sealed class GoalDialogService(IDialogService dialogService) : IGoalDialo
     public Task<GoalDto?> EditGoalAsync(GoalViewModel viewModel) => OpenDialogAsync(viewModel);
 
     public async Task<bool> ShowDeleteGoalConfirmationAsync(GoalDto goal) =>
-        await dialogService.ShowGenericDeleteWarning();
+        await dialogService.ShowGenericDeleteWarning(title: $"Warning - {goal.Name}");
 
     private async Task<GoalDto?> OpenDialogAsync(GoalViewModel? viewModel = null) =>
         await dialogService.ShowDialogWithResultAsync<GoalDto, GoalDialog>(

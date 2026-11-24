@@ -16,16 +16,16 @@ public partial class PersonSelect(IPersonService personService)
     public bool MultiSelection { get; set; }
 
     [Parameter]
-    public Guid Value { get; set; }
+    public PersonDto? Value { get; set; }
 
     [Parameter]
-    public EventCallback<Guid> ValueChanged { get; set; }
+    public EventCallback<PersonDto> ValueChanged { get; set; }
 
     [Parameter]
-    public IReadOnlyCollection<Guid>? SelectedValues { get; set; }
+    public IReadOnlyCollection<PersonDto>? SelectedValues { get; set; }
 
     [Parameter]
-    public EventCallback<IReadOnlyCollection<Guid>?> SelectedValuesChanged { get; set; }
+    public EventCallback<IReadOnlyCollection<PersonDto>?> SelectedValuesChanged { get; set; }
 
     [PersistentState]
     public IReadOnlyList<PersonDto>? People { get; set; }

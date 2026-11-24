@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FinanceSplit.Contracts.Goals.DTOs;
 using FinanceSplit.Contracts.People.DTOs;
 using FinanceSplit.Contracts.People.Services;
 using FinanceSplit.Contracts.Transactions.Commands;
@@ -7,7 +8,6 @@ using FinanceSplit.Contracts.Transactions.DTOs;
 using FinanceSplit.Contracts.Transactions.Enums;
 using FinanceSplit.Contracts.Transactions.Services;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace FinanceSplit.Client.ViewModels;
 
@@ -27,17 +27,17 @@ public partial class TransactionViewModel(
             Month = transaction.Month;
             Amount = transaction.Amount;
             SplitType = transaction.SplitType;
-            PaidByPersonId = transaction.PaidBy.Id;
-            SharedWithIds = [.. transaction.SharedWith.Select(p => p.Person.Id)];
+            PaidByPerson = transaction.PaidBy;
+            SharedWith = [.. transaction.SharedWith.Select(p => p.Person)];
         }
         else
         {
             SplitType = SplitType.None;
         }
 
-        if (PaidByPersonId == default && People.Count > 0)
+        if (PaidByPerson == default && People.Count > 0)
         {
-            PaidByPersonId = People[0].Id;
+            PaidByPerson = People[0];
         }
     }
 
@@ -56,11 +56,12 @@ public partial class TransactionViewModel(
     public decimal Amount { get; set; }
 
     [ObservableProperty]
-    public partial Guid PaidByPersonId { get; set; }
+    public partial PersonDto PaidByPerson { get; set; }
 
     [ObservableProperty]
     public partial SplitType SplitType { get; set; }
-    public IReadOnlyCollection<Guid> SharedWithIds { get; set; } = [];
+    public IReadOnlyCollection<PersonDto> SharedWith { get; set; } = [];
+    public GoalDto? Goal { get; set; } = null;
 
     public bool AllowMultiselect => SplitType is not SplitType.None;
 
@@ -68,18 +69,19 @@ public partial class TransactionViewModel(
     {
         get
         {
-            if (SplitType is SplitType.None && SharedWithIds.Count > 1)
+            if (SplitType is SplitType.None && SharedWith.Count > 1)
             {
-                SharedWithIds = [SharedWithIds.First()];
+                SharedWith = [SharedWith.First()];
             }
 
             return new CreateTransactionCommand(
                 Name ?? throw new NullReferenceException("Name is null"),
                 Month ?? throw new NullReferenceException("Month is null"),
                 Amount,
-                PaidByPersonId,
+                PaidByPerson.Id,
                 SplitType,
-                SharedWithIds
+                [.. SharedWith.Select(p => p.Id)],
+                Goal?.Id
             );
         }
     }
@@ -96,16 +98,11 @@ public partial class TransactionViewModel(
                 createCommand.Value,
                 createCommand.PaidByPersonId,
                 createCommand.SplitType,
-                createCommand.SharedWithIds
+                createCommand.SharedWithIds,
+                createCommand.GoalId
             );
         }
     }
-
-    public string GetMultiSelectionText(IReadOnlyList<string> selectedValues) =>
-        string.Join(
-            ", ",
-            People.Where(p => selectedValues.Contains(p.Id.ToString())).Select(p => p.Name).Order()
-        );
 
     public async Task<TransactionDto?> SaveTransactionAsync(
         CancellationToken cancellationToken = default
@@ -118,15 +115,15 @@ public partial class TransactionViewModel(
     {
         if (value is not SplitType.None && People.Count == 2)
         {
-            SharedWithIds = [.. People.Select(p => p.Id)];
+            SharedWith = [.. People];
         }
     }
 
-    partial void OnPaidByPersonIdChanged(Guid value)
+    partial void OnPaidByPersonChanged(PersonDto value)
     {
         if (SplitType is SplitType.None)
         {
-            SharedWithIds = [value];
+            SharedWith = [value];
         }
     }
 }

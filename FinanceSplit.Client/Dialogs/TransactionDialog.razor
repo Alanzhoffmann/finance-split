@@ -7,9 +7,10 @@
             <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
             <MonthDatePicker @bind-Month="ViewModel.Month" />
             <MudNumericField Label="Amount" @bind-Value="@ViewModel.Amount" For="@(() => ViewModel.Amount)" Culture="_enGb" Format="C" />
-            <PersonSelect Label="Paid by" HelperText="Whose bank account will be used for this transaction" @bind-Value="@ViewModel.PaidByPersonId" />
+            <PersonSelect Label="Paid by" HelperText="Whose bank account will be used for this transaction" @bind-Value="@ViewModel.PaidByPerson" />
             <SplitTypeSelect @bind-Value="@ViewModel.SplitType" />
-            <PersonSelect Label="Shared with" HelperText="Who should be paying for this transaction" MultiSelection="@ViewModel.AllowMultiselect" @bind-SelectedValues="@ViewModel.SharedWithIds" />
+            <PersonSelect Label="Shared with" HelperText="Who should be paying for this transaction" MultiSelection="@ViewModel.AllowMultiselect" @bind-SelectedValues="@ViewModel.SharedWith" />
+            <GoalSelect @bind-Value="ViewModel.Goal" />
         </MudStack>
     </DialogContent>
     <DialogActions>

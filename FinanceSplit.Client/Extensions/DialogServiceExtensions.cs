@@ -21,11 +21,14 @@ public static class DialogServiceExtensions
                 : default;
         }
 
-        public async Task<bool> ShowGenericDeleteWarning()
+        public async Task<bool> ShowGenericDeleteWarning(
+            string title = "Warning",
+            string message = "Deleting can not be undone!"
+        )
         {
             bool? result = await dialogService.ShowMessageBoxAsync(
-                "Warning",
-                "Deleting can not be undone!",
+                title,
+                message,
                 yesText: "Delete!",
                 cancelText: "Cancel"
             );
