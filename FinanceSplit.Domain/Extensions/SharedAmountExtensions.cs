@@ -65,6 +65,12 @@ public static class SharedAmountExtensions
 
         var totalIncome = incomePerPerson.Sum(x => x.Income);
 
+        // if no incomes available, return even split
+        if (totalIncome == 0)
+        {
+            return CalculateEvenShares(sharedAmount);
+        }
+
         // Highest earner is the adjustment person: their share is the remainder after
         // all others receive their proportional share floored to 2dp.
         var ordered = incomePerPerson

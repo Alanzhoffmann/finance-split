@@ -1,3 +1,4 @@
+using System.Globalization;
 using FinanceSplit.Client.ViewModels;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -6,6 +7,8 @@ namespace FinanceSplit.Client.Dialogs;
 
 public partial class GoalDialog
 {
+    private static readonly CultureInfo _enGb = CultureInfo.GetCultureInfo("en-GB");
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
 

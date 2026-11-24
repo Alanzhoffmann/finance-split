@@ -101,7 +101,7 @@ public class GoalViewModel(IGoalService goalService)
     public DateOnly? InitialMonth { get; set; }
     public DateOnly? FinalMonth { get; set; }
     public SplitType SplitType { get; set; }
-    public IReadOnlyList<Guid> SharedWith { get; set; } = [];
+    public IReadOnlyCollection<Guid> SharedWith { get; set; } = [];
     public IReadOnlyList<GoalPersonModel> People { get; set; } = [];
 
     public GoalProgressModel Progress => new(Amount, People.Sum(p => p.Progress.Completed));
