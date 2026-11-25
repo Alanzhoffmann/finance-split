@@ -29,5 +29,5 @@ public static class GoalMapper
         );
     }
 
-    public static GoalListDto ToSimpleDto(this Goal goal) => new(goal.Id, goal.Name);
+    public static GoalListDto ToListDto(this Goal goal) => new(goal.Id, goal.Name);
 }

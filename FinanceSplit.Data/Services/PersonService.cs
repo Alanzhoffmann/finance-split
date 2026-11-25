@@ -23,6 +23,14 @@ internal class PersonService(AppDbContext context) : IPersonService
             })
             .ToListAsync(cancellationToken: cancellationToken);
 
+    public async Task<IReadOnlyList<PersonListDto>?> GetPeopleListAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await context
+            .People.OrderBy(p => p.Name)
+            .Select(p => new PersonListDto(p.Id, p.Name))
+            .ToListAsync(cancellationToken: cancellationToken);
+
     public async Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default

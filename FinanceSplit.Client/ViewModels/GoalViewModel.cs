@@ -57,7 +57,7 @@ public partial class GoalViewModel(
     public SplitType SplitType { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyCollection<PersonDto> SharedWith { get; set; } = [];
+    public partial IReadOnlyCollection<PersonListDto> SharedWith { get; set; } = [];
     public IReadOnlyList<GoalPersonModel> People { get; set; } = [];
 
     public GoalProgressModel Progress => new(Amount, People.Sum(p => p.Progress.Completed));

@@ -7,7 +7,7 @@ namespace FinanceSplit.Client.Components;
 public partial class PersonSelect(IPersonService personService)
 {
     [Parameter]
-    public string? Label { get; set; }
+    public string Label { get; set; } = "Person";
 
     [Parameter]
     public string? HelperText { get; set; }
@@ -16,31 +16,22 @@ public partial class PersonSelect(IPersonService personService)
     public bool MultiSelection { get; set; }
 
     [Parameter]
-    public PersonDto? Value { get; set; }
+    public PersonListDto? Value { get; set; }
 
     [Parameter]
-    public EventCallback<PersonDto> ValueChanged { get; set; }
+    public EventCallback<PersonListDto> ValueChanged { get; set; }
 
     [Parameter]
-    public IReadOnlyCollection<PersonDto>? SelectedValues { get; set; }
+    public IReadOnlyCollection<PersonListDto>? SelectedValues { get; set; }
 
     [Parameter]
-    public EventCallback<IReadOnlyCollection<PersonDto>?> SelectedValuesChanged { get; set; }
+    public EventCallback<IReadOnlyCollection<PersonListDto>> SelectedValuesChanged { get; set; }
 
     [PersistentState]
-    public IReadOnlyList<PersonDto>? People { get; set; }
+    public IReadOnlyList<PersonListDto>? People { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        People = await personService.GetPeopleAsync() ?? [];
+        People ??= await personService.GetPeopleListAsync() ?? [];
     }
-
-    private string GetMultiSelectionText(IReadOnlyList<string> selectedValues) =>
-        string.Join(
-            ", ",
-            (People ?? [])
-                .Where(p => selectedValues.Contains(p.Id.ToString()))
-                .Select(p => p.Name)
-                .Order()
-        );
 }

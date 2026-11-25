@@ -21,6 +21,15 @@ internal static class PersonEndpoints
             }
         );
 
+        group.MapGet(
+            "list",
+            async (IPersonService service, CancellationToken cancellationToken = default) =>
+            {
+                var people = await service.GetPeopleListAsync(cancellationToken);
+                return TypedResults.Ok(people);
+            }
+        );
+
         group.MapPost(
             "",
             async (

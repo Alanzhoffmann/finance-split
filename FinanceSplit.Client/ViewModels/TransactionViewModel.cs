@@ -18,7 +18,7 @@ public partial class TransactionViewModel(
 {
     public async Task InitAsync(TransactionDto? transaction = null)
     {
-        People = await personService.GetPeopleAsync() ?? [];
+        People = await personService.GetPeopleListAsync() ?? [];
 
         if (transaction is not null)
         {
@@ -45,7 +45,7 @@ public partial class TransactionViewModel(
     public bool IsEditing => Id is not null;
 
     [PersistentState]
-    public IReadOnlyList<PersonDto> People { get; set; } = [];
+    public IReadOnlyList<PersonListDto> People { get; set; } = [];
 
     public Guid? Id { get; set; }
 
@@ -57,11 +57,11 @@ public partial class TransactionViewModel(
     public decimal Amount { get; set; }
 
     [ObservableProperty]
-    public partial PersonDto PaidByPerson { get; set; }
+    public partial PersonListDto PaidByPerson { get; set; }
 
     [ObservableProperty]
     public partial SplitType SplitType { get; set; }
-    public IReadOnlyCollection<PersonDto> SharedWith { get; set; } = [];
+    public IReadOnlyCollection<PersonListDto> SharedWith { get; set; } = [];
     public GoalListDto? Goal { get; set; } = null;
 
     public bool AllowMultiselect => SplitType is not SplitType.None;
@@ -120,7 +120,7 @@ public partial class TransactionViewModel(
         }
     }
 
-    partial void OnPaidByPersonChanged(PersonDto value)
+    partial void OnPaidByPersonChanged(PersonListDto value)
     {
         if (SplitType is SplitType.None)
         {

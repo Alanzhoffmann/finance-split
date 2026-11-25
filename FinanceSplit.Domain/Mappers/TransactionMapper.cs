@@ -16,9 +16,9 @@ public static class TransactionMapper
             transaction.Value,
             transaction.Month,
             transaction.SplitType,
-            transaction.PaidBy.ToDto(),
+            transaction.PaidBy.ToListDto(),
             transaction.SharedWith.ToSharedWithDto(calculatedShares),
-            transaction.Goal?.ToSimpleDto()
+            transaction.Goal?.ToListDto()
         );
     }
 
@@ -28,7 +28,7 @@ public static class TransactionMapper
     ) =>
         [
             .. sharedWith.Select(s => new TransactionShareDto(
-                s.ToDto(),
+                s.ToListDto(),
                 calculatedShares.GetValueOrDefault(s)
             )),
         ];

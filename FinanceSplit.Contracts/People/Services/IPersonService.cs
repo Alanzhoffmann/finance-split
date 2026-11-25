@@ -7,6 +7,10 @@ public interface IPersonService
 {
     Task<IReadOnlyList<PersonDto>?> GetPeopleAsync(CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PersonListDto>?> GetPeopleListAsync(
+        CancellationToken cancellationToken = default
+    );
+
     Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default

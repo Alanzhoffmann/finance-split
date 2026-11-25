@@ -10,9 +10,9 @@ public record TransactionDto(
     decimal Amount,
     DateOnly Month,
     SplitType SplitType,
-    PersonDto PaidBy,
+    PersonListDto PaidBy,
     IReadOnlyList<TransactionShareDto> SharedWith,
     GoalListDto? Goal
 );
 
-public record TransactionShareDto(PersonDto Person, decimal Amount);
+public record TransactionShareDto(PersonListDto Person, decimal Amount);

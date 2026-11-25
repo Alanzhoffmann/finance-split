@@ -36,9 +36,6 @@ public partial class TransactionDialog(TransactionViewModel viewModel)
         if (transactionSaved is not null)
         {
             MudDialog.Close(DialogResult.Ok(transactionSaved));
-            return;
         }
-
-        MudDialog.Cancel();
     }
 }

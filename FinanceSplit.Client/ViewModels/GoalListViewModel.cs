@@ -56,6 +56,9 @@ public partial class GoalListViewModel(
     private async Task CreateGoalAsync()
     {
         var newGoal = await dialogService.CreateGoalAsync();
-        Goals = [.. Goals ?? [], viewModelFactory.CreateGoalViewModel(newGoal)];
+        if (newGoal is not null)
+        {
+            Goals = [.. Goals ?? [], viewModelFactory.CreateGoalViewModel(newGoal)];
+        }
     }
 }

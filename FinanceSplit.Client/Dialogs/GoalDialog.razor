@@ -8,7 +8,7 @@
         <MonthDatePicker Label="Initial month" @bind-Month="ViewModel.InitialMonth" />
         <MonthDatePicker Label="Final month" @bind-Month="ViewModel.FinalMonth" />
         <SplitTypeSelect Label="Split type" @bind-Value="ViewModel.SplitType" />
-        <PersonSelect Label="Shared with" MultiSelection @bind-SelectedValues="@ViewModel.SharedWith" />
+        <PersonSelect Label="Shared with" MultiSelection @bind-SelectedValues="ViewModel.SharedWith" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

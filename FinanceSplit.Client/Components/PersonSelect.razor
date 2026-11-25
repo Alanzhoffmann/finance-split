@@ -6,8 +6,7 @@
            ValueChanged="ValueChanged"
            SelectedValues="SelectedValues"
            SelectedValuesChanged="SelectedValuesChanged"
-           ToStringFunc="x => x?.Name"
-           Strict>
+           ToStringFunc="@(x => x?.Name ?? string.Empty)">
     @foreach (var person in People ?? [])
     {
         <MudSelectItem Value="person">@person.Name</MudSelectItem>
