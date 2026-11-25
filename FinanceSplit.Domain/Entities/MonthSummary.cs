@@ -81,7 +81,10 @@ public sealed class MonthSummary
         IEnumerable<TransactionDto> transactions
     )
     {
-        var totalSharedPerPersonId = GetTotalSharedPerPerson(transactions);
+        var transactionList = transactions.ToList();
+        var totalSharedPerPersonId = GetTotalSharedPerPerson(transactionList);
+        var personalExpensesPerPersonId = GetPersonalExpensesPerPerson(transactionList);
+        var totalPaidPerPersonId = GetTotalPaidPerPerson(transactionList);
 
         return
         [
@@ -90,13 +93,8 @@ public sealed class MonthSummary
                 Person = p,
                 Income = p.GetIncomeForMonth(Month),
                 SharedExpenses = totalSharedPerPersonId.GetValueOrDefault(p.Id),
-                PersonalExpenses = p
-                    .Transactions.Where(t =>
-                        t.SplitType is SplitType.None
-                        && (t.SharedWith.Count == 0 || t.SharedWith[0].Id == t.PaidBy.Id)
-                    )
-                    .Sum(t => t.Value),
-                TotalPaid = p.Transactions.Sum(t => t.Value),
+                PersonalExpenses = personalExpensesPerPersonId.GetValueOrDefault(p.Id),
+                TotalPaid = totalPaidPerPersonId.GetValueOrDefault(p.Id),
             }),
         ];
     }
@@ -176,9 +174,32 @@ public sealed class MonthSummary
         IEnumerable<TransactionDto> transactions
     ) =>
         transactions
-            .Where(t => t.Month == Month && t.SplitType is not SplitType.None)
+            .Where(t =>
+                t.Month == Month
+                && (t.SharedWith.Count > 1 || t.SharedWith[0].Person.Id != t.PaidBy.Id)
+            )
             .DistinctBy(t => t.Id)
             .SelectMany(t => t.SharedWith)
             .GroupBy(g => g.Person.Id)
+            .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Amount));
+
+    private Dictionary<Guid, decimal> GetPersonalExpensesPerPerson(
+        IEnumerable<TransactionDto> transactions
+    ) =>
+        transactions
+            .Where(t =>
+                t.Month == Month
+                && t.SplitType is SplitType.None
+                && (t.SharedWith.Count == 0 || t.SharedWith[0].Person.Id == t.PaidBy.Id)
+            )
+            .GroupBy(t => t.PaidBy.Id)
+            .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Amount));
+
+    private Dictionary<Guid, decimal> GetTotalPaidPerPerson(
+        IEnumerable<TransactionDto> transactions
+    ) =>
+        transactions
+            .Where(t => t.Month == Month)
+            .GroupBy(t => t.PaidBy.Id)
             .ToDictionary(g => g.Key, g => g.Sum(g1 => g1.Amount));
 }

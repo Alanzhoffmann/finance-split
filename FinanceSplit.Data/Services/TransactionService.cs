@@ -31,7 +31,9 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         var transactions = await context
             .Transactions.IgnoreAutoIncludes()
             .Include(t => t.PaidBy)
+                .ThenInclude(p => p.IncomeRecords)
             .Include(t => t.SharedWith)
+                .ThenInclude(p => p.IncomeRecords)
             .Include(t => t.Goal)
             .AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
