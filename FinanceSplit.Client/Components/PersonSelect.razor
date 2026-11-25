@@ -1,0 +1,14 @@
+<MudSelect Label="@Label"
+           HelperText="@HelperText"
+           MultiSelection="@MultiSelection"
+           SelectAll
+           Value="Value"
+           ValueChanged="ValueChanged"
+           SelectedValues="SelectedValues"
+           SelectedValuesChanged="SelectedValuesChanged"
+           ToStringFunc="@(x => x?.Name ?? string.Empty)">
+    @foreach (var person in People ?? [])
+    {
+        <MudSelectItem Value="person">@person.Name</MudSelectItem>
+    }
+</MudSelect>

@@ -1,0 +1,41 @@
+<MudItem md="6" xs="12">
+    <MudCard Outlined>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5">@ViewModel.Name - @ViewModel.FinalMonth?.ToString("MMM/yyyy", _enGb)</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="edit" OnClick="@(() => ViewModel.EditGoalCommand.ExecuteAsync(null))" />
+                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" aria-label="delete" OnClick="@(() => ViewModel.DeleteGoalCommand.ExecuteAsync(null))" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudText Typo="Typo.h5">@ViewModel.Progress.Completed.ToString("C", _enGb) / @ViewModel.Amount.ToString("C", _enGb)</MudText>
+            <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="ViewModel.Progress.Percentage">
+                <MudText Typo="Typo.subtitle1">
+                    <b>@ViewModel.Progress.Percentage%</b>
+                </MudText>
+            </MudProgressLinear>
+            <br />
+            <br />
+            <MudSimpleTable Dense Class="no-border-table" Elevation="0">
+                @foreach (var person in ViewModel.People)
+                {
+                    <MudTr>
+                        <MudTd>@person.Name</MudTd>
+                        <MudTd Style="width: 100%;">
+                            <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="person.Progress.Percentage">
+                                <MudText Typo="Typo.subtitle1">
+                                    <b>@person.Progress.Percentage%</b>
+                                </MudText>
+                            </MudProgressLinear>
+                        </MudTd>
+                        <MudTd Style="white-space: nowrap;">@person.Progress.Completed.ToString("C", _enGb) / @person.Progress.Amount.ToString("C", _enGb)</MudTd>
+                    </MudTr>
+                }
+            </MudSimpleTable>
+        </MudCardContent>
+    </MudCard>
+</MudItem>
+
+                                    

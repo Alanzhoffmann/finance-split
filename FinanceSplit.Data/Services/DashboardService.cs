@@ -18,6 +18,15 @@ internal class DashboardService(
     )
     {
         var monthToCheck = month ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
+
+        return new DashboardDto(await GetMonthSummaryAsync(monthToCheck, cancellationToken));
+    }
+
+    private async Task<MonthSummaryDto> GetMonthSummaryAsync(
+        DateOnly monthToCheck,
+        CancellationToken cancellationToken
+    )
+    {
         var monthSummary = await context
             .Summaries.AsNoTracking()
             .Where(s => s.Month == monthToCheck)
@@ -72,6 +81,6 @@ internal class DashboardService(
             );
         }
 
-        return new DashboardDto(monthSummary);
+        return monthSummary;
     }
 }

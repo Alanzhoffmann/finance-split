@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
+        <MudNumericField Label="Amount" @bind-Value="@ViewModel.Amount" For="@(() => ViewModel.Amount)" Culture="_enGb" Format="C" />
+        <MonthDatePicker Label="Initial month" @bind-Month="ViewModel.InitialMonth" />
+        <MonthDatePicker Label="Final month" @bind-Month="ViewModel.FinalMonth" />
+        <SplitTypeSelect Label="Split type" @bind-Value="ViewModel.SplitType" />
+        <PersonSelect Label="Shared with" MultiSelection @bind-SelectedValues="ViewModel.SharedWith" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SaveGoal">@SubmitLabel</MudButton>
+    </DialogActions>
+</MudDialog>

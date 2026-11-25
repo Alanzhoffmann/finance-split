@@ -1,32 +1,16 @@
-﻿@using FinanceSplit.Client.ViewModels
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">@Title</MudText>
     </TitleContent>
     <DialogContent>
         <MudStack>
             <MudTextField Label="Name" @bind-Value="@ViewModel.Name" For="@(() => ViewModel.Name)" />
-            <MudDatePicker Label="Date" @bind-Date="@ViewModel.Date" For="@(() => ViewModel.Date)" />
-            <MudNumericField Label="Value" @bind-Value="@ViewModel.Value" For="@(() => ViewModel.Value)" Culture="_enGb" Format="C" />
-            <MudSelect Label="Paid by" T="Guid" @bind-Value="@ViewModel.PaidByPersonId" HelperText="Whose bank account will be used for this transaction" For="@(() => ViewModel.PaidByPersonId)">
-                @foreach (var person in ViewModel.People)
-                {
-                    <MudSelectItem Value="person.Id">@person.Name</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect Label="Split type" @bind-Value="@ViewModel.SplitType" For="@(() => ViewModel.SplitType)">
-                @foreach (var type in TransactionViewModel.SplitTypes)
-                {
-                    <MudSelectItem Value="type">@type</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect Label="Shared with" T="Guid" HelperText="Who should be paying for this transaction" MultiSelectionTextFunc="ViewModel.GetMultiSelectionText" MultiSelection="@ViewModel.AllowMultiselect" SelectAll @bind-SelectedValues="@ViewModel.SharedWithIds">
-                @foreach (var person in ViewModel.People)
-                {
-                    <MudSelectItem T="Guid" Value="person.Id">@person.Name</MudSelectItem>
-                }
-            </MudSelect>
+            <MonthDatePicker @bind-Month="ViewModel.Month" />
+            <MudNumericField Label="Amount" @bind-Value="@ViewModel.Amount" For="@(() => ViewModel.Amount)" Culture="_enGb" Format="C" />
+            <PersonSelect Label="Paid by" HelperText="Whose bank account will be used for this transaction" @bind-Value="@ViewModel.PaidByPerson" />
+            <SplitTypeSelect @bind-Value="@ViewModel.SplitType" />
+            <PersonSelect Label="Shared with" HelperText="Who should be paying for this transaction" MultiSelection="@ViewModel.AllowMultiselect" @bind-SelectedValues="@ViewModel.SharedWith" />
+            <GoalSelect @bind-Value="ViewModel.Goal" />
         </MudStack>
     </DialogContent>
     <DialogActions>

@@ -20,5 +20,20 @@ public static class DialogServiceExtensions
                 ? editedData
                 : default;
         }
+
+        public async Task<bool> ShowGenericDeleteWarning(
+            string title = "Warning",
+            string message = "Deleting can not be undone!"
+        )
+        {
+            bool? result = await dialogService.ShowMessageBoxAsync(
+                title,
+                message,
+                yesText: "Delete!",
+                cancelText: "Cancel"
+            );
+
+            return result == true;
+        }
     }
 }

@@ -15,12 +15,39 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261111153041_InitialMigration";
+    public override string LastMigrationId => "20261123192152_AddGoals";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
         modelBuilder.HasAnnotation("ProductVersion", "11.0.0");
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.Goal", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
+
+                b.Property<DateOnly>("FinalMonth")
+                    .HasColumnType("TEXT");
+
+                b.Property<DateOnly>("InitialMonth")
+                    .HasColumnType("TEXT");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<int>("SplitType")
+                    .HasColumnType("INTEGER");
+
+                b.Property<decimal>("Value")
+                    .HasColumnType("TEXT");
+
+                b.HasKey("Id");
+
+                b.ToTable("Goals");
+            });
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.IncomeRecord", b =>
             {
@@ -104,6 +131,9 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("TEXT");
 
+                b.Property<Guid?>("GoalId")
+                    .HasColumnType("TEXT");
+
                 b.Property<DateOnly>("Month")
                     .HasColumnType("TEXT");
 
@@ -125,11 +155,28 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("Id");
 
+                b.HasIndex("GoalId");
+
                 b.HasIndex("PaidById");
 
                 b.HasIndex("RecurrenceId");
 
                 b.ToTable("Transactions");
+            });
+
+        modelBuilder.Entity("GoalPerson", b =>
+            {
+                b.Property<Guid>("GoalId")
+                    .HasColumnType("TEXT");
+
+                b.Property<Guid>("SharedWithId")
+                    .HasColumnType("TEXT");
+
+                b.HasKey("GoalId", "SharedWithId");
+
+                b.HasIndex("SharedWithId");
+
+                b.ToTable("GoalPerson");
             });
 
         modelBuilder.Entity("PersonTransaction", b =>
@@ -243,6 +290,10 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Transaction", b =>
             {
+                b.HasOne("FinanceSplit.Domain.Entities.Goal", "Goal")
+                    .WithMany("Transactions")
+                    .HasForeignKey("GoalId");
+
                 b.HasOne("FinanceSplit.Domain.Entities.Person", "PaidBy")
                     .WithMany("Transactions")
                     .HasForeignKey("PaidById");
@@ -251,9 +302,26 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Transactions")
                     .HasForeignKey("RecurrenceId");
 
+                b.Navigation("Goal");
+
                 b.Navigation("PaidBy");
 
                 b.Navigation("Recurrence");
+            });
+
+        modelBuilder.Entity("GoalPerson", b =>
+            {
+                b.HasOne("FinanceSplit.Domain.Entities.Goal", null)
+                    .WithMany()
+                    .HasForeignKey("GoalId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("FinanceSplit.Domain.Entities.Person", null)
+                    .WithMany()
+                    .HasForeignKey("SharedWithId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
             });
 
         modelBuilder.Entity("PersonTransaction", b =>
@@ -269,6 +337,11 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("SharedWithId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
+            });
+
+        modelBuilder.Entity("FinanceSplit.Domain.Entities.Goal", b =>
+            {
+                b.Navigation("Transactions");
             });
 
         modelBuilder.Entity("FinanceSplit.Domain.Entities.Person", b =>

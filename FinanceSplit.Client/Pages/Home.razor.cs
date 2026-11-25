@@ -28,12 +28,11 @@ public partial class Home(DashboardViewModel viewModel)
         await ViewModel.InitializeAsync(targetMonth);
     }
 
-    private void OnMonthSelected(DateTime? selectedDate)
+    private void OnMonthSelected(DateOnly? selectedDate)
     {
         if (selectedDate.HasValue)
         {
-            var newMonth = DateOnly.FromDateTime(selectedDate.Value);
-            ViewModel.ChangeMonth(newMonth);
+            ViewModel.ChangeMonth(selectedDate.Value);
         }
     }
 }

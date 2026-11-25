@@ -16,6 +16,15 @@ internal partial class PersonService(HttpClient client) : IPersonService
             cancellationToken: cancellationToken
         );
 
+    public async Task<IReadOnlyList<PersonListDto>?> GetPeopleListAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await client.GetFromJsonAsync(
+            "api/person/list",
+            PersonSerializerContext.Default.IReadOnlyListPersonListDto,
+            cancellationToken: cancellationToken
+        );
+
     public async Task<PersonDto?> CreatePersonAsync(
         CreatePersonCommand command,
         CancellationToken cancellationToken = default
@@ -111,6 +120,7 @@ internal partial class PersonService(HttpClient client) : IPersonService
 
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<PersonDto>))]
+    [JsonSerializable(typeof(IReadOnlyList<PersonListDto>))]
     [JsonSerializable(typeof(CreatePersonCommand))]
     [JsonSerializable(typeof(UpdatePersonCommand))]
     [JsonSerializable(typeof(CreateIncomeRecordCommand))]

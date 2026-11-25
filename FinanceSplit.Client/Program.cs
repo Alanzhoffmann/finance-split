@@ -2,6 +2,7 @@ using FinanceSplit.Client.Clients;
 using FinanceSplit.Client.Extensions;
 using FinanceSplit.Contracts.Dashboard.Services;
 using FinanceSplit.Contracts.FileImport.Services;
+using FinanceSplit.Contracts.Goals.Services;
 using FinanceSplit.Contracts.People.Services;
 using FinanceSplit.Contracts.Transactions.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IFileImportService, FileImportService>();
+builder.Services.AddScoped<IGoalService, GoalService>();
 
 builder.Services.AddClientDependencies();
 

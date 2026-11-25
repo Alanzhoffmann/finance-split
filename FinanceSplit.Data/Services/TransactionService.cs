@@ -29,7 +29,11 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         );
 
         var transactions = await context
-            .Transactions.AsNoTrackingWithIdentityResolution()
+            .Transactions.IgnoreAutoIncludes()
+            .Include(t => t.PaidBy)
+            .Include(t => t.SharedWith)
+            .Include(t => t.Goal)
+            .AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
             .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);
@@ -60,6 +64,10 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             return null;
         }
 
+        var goal = command.GoalId is not null
+            ? await context.Goals.FindAsync([command.GoalId.Value], cancellationToken)
+            : null;
+
         var newTransaction = new Transaction
         {
             Name = command.Name,
@@ -68,6 +76,7 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
             PaidBy = paidByPerson,
             SplitType = command.SplitType,
             SharedWith = sharedWith,
+            Goal = goal,
         };
         context.Transactions.Add(newTransaction);
 
@@ -81,7 +90,9 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         CancellationToken cancellationToken = default
     )
     {
-        var transaction = await context.Transactions.FindAsync([command.Id], cancellationToken);
+        var transaction = await context
+            .Transactions.Include(t => t.Goal)
+            .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
         if (transaction is null)
         {
             return null;
@@ -112,6 +123,15 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
 
             transaction.UpdatePaidBy(paidByPerson);
             transaction.UpdateSharedWith(sharedWith);
+        }
+
+        if (command.GoalId != transaction.Goal?.Id)
+        {
+            var goal = command.GoalId is not null
+                ? await context.Goals.FindAsync([command.GoalId.Value], cancellationToken)
+                : null;
+
+            transaction.UpdateGoal(goal);
         }
 
         transaction.Update(command.Name, command.Date, command.Value, command.SplitType);

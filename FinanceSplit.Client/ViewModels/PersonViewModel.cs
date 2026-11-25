@@ -32,7 +32,7 @@ public partial class PersonViewModel(
         var editedPerson = await dialogService.EditPersonAsync(Person);
         if (editedPerson is not null)
         {
-            Name = editedPerson.Name;
+            Initialize(editedPerson);
         }
     }
 
@@ -40,7 +40,7 @@ public partial class PersonViewModel(
     private async Task DeletePersonAsync()
     {
         var result = await dialogService.ShowDeletePersonConfirmationAsync(Person);
-        if (result == true)
+        if (result)
         {
             await personService.DeletePersonAsync(new(Id));
             messenger.Send(new PersonDeletedMessage(Id));
@@ -76,7 +76,7 @@ public partial class PersonViewModel(
     private async Task DeleteIncomeRecordAsync(IncomeRecordDto incomeRecord)
     {
         var result = await dialogService.ShowDeleteIncomeConfirmationAsync(Person, incomeRecord);
-        if (result == true)
+        if (result)
         {
             await personService.DeleteIncomeRecordAsync(new(incomeRecord.Id, Id));
             var index = Incomes.FindIndex(i => i.Id == incomeRecord.Id);

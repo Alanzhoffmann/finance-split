@@ -15,17 +15,8 @@ public sealed class TransactionDialogService(IDialogService dialogService)
     public Task<TransactionDto?> EditTransactionAsync(TransactionDto originalTransaction) =>
         OpenDialogAsync(originalTransaction);
 
-    public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction)
-    {
-        bool? result = await dialogService.ShowMessageBoxAsync(
-            "Warning",
-            "Deleting can not be undone!",
-            yesText: "Delete!",
-            cancelText: "Cancel"
-        );
-
-        return result == true;
-    }
+    public async Task<bool> ShowDeleteTransactionConfirmationAsync(TransactionDto transaction) =>
+        await dialogService.ShowGenericDeleteWarning();
 
     private async Task<TransactionDto?> OpenDialogAsync(TransactionDto? transaction = null) =>
         await dialogService.ShowDialogWithResultAsync<TransactionDto, TransactionDialog>(

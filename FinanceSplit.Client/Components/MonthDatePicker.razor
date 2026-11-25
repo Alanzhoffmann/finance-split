@@ -1,0 +1,7 @@
+<MudDatePicker Label="@(Label ?? "Month")"
+               OpenTo="OpenTo.Month"
+               FixDay="1"
+               DateFormat="MMM/yyyy"
+               TitleDateFormat="MMM/yyyy"
+               @bind-Date="Date"
+               @bind-Date:after="OnDateSelectedAsync" />

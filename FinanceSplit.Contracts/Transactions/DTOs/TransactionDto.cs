@@ -1,4 +1,5 @@
-﻿using FinanceSplit.Contracts.People.DTOs;
+﻿using FinanceSplit.Contracts.Goals.DTOs;
+using FinanceSplit.Contracts.People.DTOs;
 using FinanceSplit.Contracts.Transactions.Enums;
 
 namespace FinanceSplit.Contracts.Transactions.DTOs;
@@ -6,11 +7,12 @@ namespace FinanceSplit.Contracts.Transactions.DTOs;
 public record TransactionDto(
     Guid Id,
     string Name,
-    decimal Value,
+    decimal Amount,
     DateOnly Month,
     SplitType SplitType,
-    PersonDto PaidBy,
-    List<TransactionShareDto> SharedWith
+    PersonListDto PaidBy,
+    IReadOnlyList<TransactionShareDto> SharedWith,
+    GoalListDto? Goal
 );
 
-public record TransactionShareDto(PersonDto Person, decimal Amount);
+public record TransactionShareDto(PersonListDto Person, decimal Amount);
