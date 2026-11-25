@@ -17,7 +17,8 @@ public static class TransactionMapper
             transaction.Month,
             transaction.SplitType,
             transaction.PaidBy.ToDto(),
-            transaction.SharedWith.ToSharedWithDto(calculatedShares)
+            transaction.SharedWith.ToSharedWithDto(calculatedShares),
+            transaction.Goal?.ToSimpleDto()
         );
     }
 

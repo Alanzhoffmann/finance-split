@@ -29,7 +29,8 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         );
 
         var transactions = await context
-            .Transactions.AsNoTrackingWithIdentityResolution()
+            .Transactions.Include(t => t.Goal)
+            .AsNoTrackingWithIdentityResolution()
             .OrderBy(t => t.Name)
             .Where(t => normalizedMonths.Contains(t.Month))
             .ToListAsync(cancellationToken: cancellationToken);

@@ -20,6 +20,13 @@ internal sealed class GoalService(AppDbContext context) : IGoalService
         return [.. goals.Select(g => g.ToDto())];
     }
 
+    public async Task<IReadOnlyList<GoalListDto>?> GetGoalsListAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await context
+            .Goals.Select(g => new GoalListDto(g.Id, g.Name))
+            .ToListAsync(cancellationToken: cancellationToken);
+
     public async Task<GoalDto?> CreateGoalAsync(
         CreateGoalCommand command,
         CancellationToken cancellationToken = default

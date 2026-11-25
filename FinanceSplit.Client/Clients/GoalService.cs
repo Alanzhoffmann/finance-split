@@ -16,6 +16,15 @@ internal partial class GoalService(HttpClient client) : IGoalService
             cancellationToken
         );
 
+    public async Task<IReadOnlyList<GoalListDto>?> GetGoalsListAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await client.GetFromJsonAsync(
+            "api/goals/list",
+            GoalSerializerContext.Default.IReadOnlyListGoalListDto,
+            cancellationToken
+        );
+
     public async Task<GoalDto?> CreateGoalAsync(
         CreateGoalCommand command,
         CancellationToken cancellationToken = default
@@ -63,6 +72,7 @@ internal partial class GoalService(HttpClient client) : IGoalService
 
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     [JsonSerializable(typeof(IReadOnlyList<GoalDto>))]
+    [JsonSerializable(typeof(IReadOnlyList<GoalListDto>))]
     [JsonSerializable(typeof(CreateGoalCommand))]
     [JsonSerializable(typeof(UpdateGoalCommand))]
     partial class GoalSerializerContext : JsonSerializerContext;

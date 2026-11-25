@@ -7,19 +7,19 @@ namespace FinanceSplit.Client.Components;
 public partial class GoalSelect(IGoalService goalService)
 {
     [PersistentState(AllowUpdates = true)]
-    public IReadOnlyList<GoalDto>? Goals { get; set; }
+    public IReadOnlyList<GoalListDto>? Goals { get; set; }
 
     [Parameter]
     public string Label { get; set; } = "Goal";
 
     [Parameter]
-    public GoalDto? Value { get; set; }
+    public GoalListDto? Value { get; set; }
 
     [Parameter]
-    public EventCallback<GoalDto> ValueChanged { get; set; }
+    public EventCallback<GoalListDto> ValueChanged { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Goals ??= await goalService.GetGoalsAsync() ?? [];
+        Goals ??= await goalService.GetGoalsListAsync() ?? [];
     }
 }

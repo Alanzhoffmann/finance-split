@@ -21,6 +21,15 @@ internal static class GoalEndpoints
             }
         );
 
+        group.MapGet(
+            "list",
+            async (IGoalService service, CancellationToken cancellationToken = default) =>
+            {
+                var goals = await service.GetGoalsListAsync(cancellationToken);
+                return TypedResults.Ok(goals);
+            }
+        );
+
         group.MapPost(
             "",
             async (

@@ -29,6 +29,7 @@ public partial class TransactionViewModel(
             SplitType = transaction.SplitType;
             PaidByPerson = transaction.PaidBy;
             SharedWith = [.. transaction.SharedWith.Select(p => p.Person)];
+            Goal = transaction.Goal;
         }
         else
         {
@@ -61,7 +62,7 @@ public partial class TransactionViewModel(
     [ObservableProperty]
     public partial SplitType SplitType { get; set; }
     public IReadOnlyCollection<PersonDto> SharedWith { get; set; } = [];
-    public GoalDto? Goal { get; set; } = null;
+    public GoalListDto? Goal { get; set; } = null;
 
     public bool AllowMultiselect => SplitType is not SplitType.None;
 

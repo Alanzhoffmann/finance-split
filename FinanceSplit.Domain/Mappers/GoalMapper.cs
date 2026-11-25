@@ -28,4 +28,6 @@ public static class GoalMapper
             goal.SharedWith.ToSharedWithDto(completedShares)
         );
     }
+
+    public static GoalListDto ToSimpleDto(this Goal goal) => new(goal.Id, goal.Name);
 }
