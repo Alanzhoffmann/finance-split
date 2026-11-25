@@ -10,11 +10,6 @@ public interface ITransactionService
         CancellationToken cancellationToken = default
     );
 
-    Task<IReadOnlyList<TransactionDto>> GetTransactionsAsync(
-        IEnumerable<DateOnly> months,
-        CancellationToken cancellationToken = default
-    ) => Task.FromResult<IReadOnlyList<TransactionDto>>([]);
-
     Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
         CancellationToken cancellationToken = default

@@ -19,30 +19,6 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         return await GetTransactionsAsync([month.Value], cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TransactionDto>> GetTransactionsAsync(
-        IEnumerable<DateOnly> months,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var normalizedMonths = months.Select(m =>
-            m.Day == 1 ? m : new DateOnly(m.Year, m.Month, 1)
-        );
-
-        var transactions = await context
-            .Transactions.IgnoreAutoIncludes()
-            .Include(t => t.PaidBy)
-                .ThenInclude(p => p.IncomeRecords)
-            .Include(t => t.SharedWith)
-                .ThenInclude(p => p.IncomeRecords)
-            .Include(t => t.Goal)
-            .AsNoTrackingWithIdentityResolution()
-            .OrderBy(t => t.Name)
-            .Where(t => normalizedMonths.Contains(t.Month))
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        return [.. transactions.Select(t => t.ToDto())];
-    }
-
     public async Task<TransactionDto?> CreateTransactionAsync(
         CreateTransactionCommand command,
         CancellationToken cancellationToken = default
@@ -161,5 +137,29 @@ internal class TransactionService(AppDbContext context, TimeProvider timeProvide
         context.Remove(transactionToDelete);
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<TransactionDto>> GetTransactionsAsync(
+        IEnumerable<DateOnly> months,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var normalizedMonths = months.Select(m =>
+            m.Day == 1 ? m : new DateOnly(m.Year, m.Month, 1)
+        );
+
+        var transactions = await context
+            .Transactions.IgnoreAutoIncludes()
+            .Include(t => t.PaidBy)
+                .ThenInclude(p => p.IncomeRecords)
+            .Include(t => t.SharedWith)
+                .ThenInclude(p => p.IncomeRecords)
+            .Include(t => t.Goal)
+            .AsNoTrackingWithIdentityResolution()
+            .OrderBy(t => t.Name)
+            .Where(t => normalizedMonths.Contains(t.Month))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        return [.. transactions.Select(t => t.ToDto())];
     }
 }

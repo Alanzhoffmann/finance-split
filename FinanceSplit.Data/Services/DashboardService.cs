@@ -54,12 +54,12 @@ internal class DashboardService(
             // TODO move this to a dedicated factory
             var people = await context.People.AsNoTracking().ToListAsync(cancellationToken);
             var transactions = await transactionService.GetTransactionsAsync(
-                [monthToCheck],
+                monthToCheck,
                 cancellationToken
             );
 
             var projectedMonthSummary = new MonthSummary() { Month = monthToCheck };
-            projectedMonthSummary.Update(people, transactions);
+            projectedMonthSummary.Update(people, transactions ?? []);
 
             monthSummary = new MonthSummaryDto(
                 [

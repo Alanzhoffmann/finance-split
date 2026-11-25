@@ -28,23 +28,26 @@ internal partial class CalculatorBackgroundService(
                 switch (key)
                 {
                     case IncomeRecordChanged incomeRecordChanged:
-                        await CalculateIncomeRecordChanged(
+                        await CalculateIncomeRecordChangedAsync(
                             scope.ServiceProvider,
                             incomeRecordChanged,
                             stoppingToken
                         );
                         break;
                     case IncomeRecordDeleted incomeRecordDeleted:
-                        await CalculateIncomeRecordDeleted(
+                        await CalculateIncomeRecordDeletedAsync(
                             scope.ServiceProvider,
                             incomeRecordDeleted,
                             stoppingToken
                         );
                         break;
                     case TransactionChanged transactionChanged:
-                        await CalculateTransactionChanged(
+                        CalculateTransactionChanged(transactionChanged);
+                        break;
+                    case CalculateSummary calculateSummary:
+                        await RunCalculateSummary(
                             scope.ServiceProvider,
-                            transactionChanged,
+                            calculateSummary,
                             stoppingToken
                         );
                         break;
@@ -57,49 +60,18 @@ internal partial class CalculatorBackgroundService(
         }
     }
 
-    private static async Task RecalculateSummaryFromDates(
-        AppDbContext context,
-        ITransactionService transactionService,
-        IReadOnlyCollection<DateOnly> months,
-        IEnumerable<Person>? people = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var summaries = await context
-            .Summaries.Where(s => months.Contains(s.Month))
-            .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
-
-        var transactions = await transactionService.GetTransactionsAsync(months, cancellationToken);
-
-        people ??= await context.People.ToListAsync(cancellationToken);
-
-        foreach (var month in months)
-        {
-            var summary = summaries.GetValueOrDefault(month);
-            if (summary is null)
-            {
-                summary = new MonthSummary() { Month = month };
-                context.Add(summary);
-            }
-
-            summary.Update(people, transactions);
-        }
-
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
     private static HashSet<DateOnly> GetAllMonthsBetween(DateOnly start, DateOnly end)
     {
-        HashSet<DateOnly> monthsToCalculate = [start];
+        HashSet<DateOnly> months = [start];
         for (DateOnly i = start; i <= end; i = i.AddMonths(1))
         {
-            monthsToCalculate.Add(i);
+            months.Add(i);
         }
 
-        return monthsToCalculate;
+        return months;
     }
 
-    private async Task CalculateIncomeRecordChanged(
+    private async Task CalculateIncomeRecordChangedAsync(
         IServiceProvider serviceProvider,
         IncomeRecordChanged incomeRecordChanged,
         CancellationToken cancellationToken = default
@@ -109,25 +81,20 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
-        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
+
+        var lastSummaryMonth = await context
+            .Summaries.Select(s => s.Month)
+            .DefaultIfEmpty()
+            .MaxAsync(cancellationToken: cancellationToken);
 
         // Get all months after income record changed, all can be affected
-        var summaries = await context
-            .Summaries.Where(s => s.Month >= incomeRecordChanged.Month)
-            .ToDictionaryAsync(s => s.Month, cancellationToken: cancellationToken);
-
-        var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
-        var monthsToCalculate = GetAllMonthsBetween(incomeRecordChanged.Month, today);
-
-        await RecalculateSummaryFromDates(
-            context,
-            transactionService,
-            monthsToCalculate,
-            cancellationToken: cancellationToken
-        );
+        foreach (var month in GetAllMonthsBetween(incomeRecordChanged.Month, lastSummaryMonth))
+        {
+            Queue.TryEnqueue(new CalculateSummary(month));
+        }
     }
 
-    private async Task CalculateIncomeRecordDeleted(
+    private async Task CalculateIncomeRecordDeletedAsync(
         IServiceProvider serviceProvider,
         IncomeRecordDeleted incomeRecordDeleted,
         CancellationToken cancellationToken = default
@@ -137,51 +104,75 @@ internal partial class CalculatorBackgroundService(
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var timeProvider = serviceProvider.GetRequiredService<TimeProvider>();
-        var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
-
-        var people = await context.People.ToListAsync(cancellationToken);
 
         // Get all months since previous income, all can be affected
-        DateOnly previousIncomeMonth = people.Min(p =>
-            p.IncomeRecords.OrderByDescending(i => i.Month)
-                .FirstOrDefault(i => i.Month < incomeRecordDeleted.Month)
-                ?.Month
-            ?? DateOnly.MaxValue
-        );
+        DateOnly previousIncomeMonth = await context
+            .People.Select(p =>
+                p.IncomeRecords.OrderByDescending(i => i.Month)
+                    .FirstOrDefault(i => i.Month < incomeRecordDeleted.Month)
+            )
+            .MinAsync(
+                i => i == null ? DateOnly.MaxValue : i.Month,
+                cancellationToken: cancellationToken
+            );
+
         if (previousIncomeMonth == DateOnly.MaxValue)
         {
             previousIncomeMonth = incomeRecordDeleted.Month;
         }
 
-        var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().Date);
-        var monthsToCalculate = GetAllMonthsBetween(previousIncomeMonth, today);
+        var lastSummaryMonth = await context
+            .Summaries.Select(s => s.Month)
+            .DefaultIfEmpty()
+            .MaxAsync(cancellationToken: cancellationToken);
 
-        await RecalculateSummaryFromDates(
-            context,
-            transactionService,
-            monthsToCalculate,
-            people,
-            cancellationToken
-        );
+        foreach (var month in GetAllMonthsBetween(previousIncomeMonth, lastSummaryMonth))
+        {
+            Queue.TryEnqueue(new CalculateSummary(month));
+        }
     }
 
-    private async Task CalculateTransactionChanged(
+    private void CalculateTransactionChanged(TransactionChanged transactionChanged)
+    {
+        LogCalculatingSummaryForTransactionChanged(transactionChanged);
+
+        Queue.TryEnqueue(new CalculateSummary(transactionChanged.Month));
+    }
+
+    private async Task RunCalculateSummary(
         IServiceProvider serviceProvider,
-        TransactionChanged transactionChanged,
+        CalculateSummary calculateSummary,
         CancellationToken cancellationToken = default
     )
     {
-        LogCalculatingSummaryForTransactionChanged(transactionChanged);
+        LogCalculatingSummary(calculateSummary.Month);
 
         var context = serviceProvider.GetRequiredService<AppDbContext>();
         var transactionService = serviceProvider.GetRequiredService<ITransactionService>();
 
-        await RecalculateSummaryFromDates(
-            context,
-            transactionService,
-            [transactionChanged.Month],
-            cancellationToken: cancellationToken
+        var summary = await context
+            .Summaries.AsSingleQuery()
+            .FirstOrDefaultAsync(
+                s => calculateSummary.Month == s.Month,
+                cancellationToken: cancellationToken
+            );
+
+        var transactions = await transactionService.GetTransactionsAsync(
+            calculateSummary.Month,
+            cancellationToken
         );
+
+        var people = await context.People.ToListAsync(cancellationToken);
+
+        if (summary is null)
+        {
+            summary = new MonthSummary() { Month = calculateSummary.Month };
+            context.Add(summary);
+        }
+
+        summary.Update(people, transactions ?? []);
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     [LoggerMessage(
@@ -217,4 +208,7 @@ internal partial class CalculatorBackgroundService(
         Message = "Calculating summary for transaction changed {TransactionChanged}"
     )]
     partial void LogCalculatingSummaryForTransactionChanged(TransactionChanged transactionChanged);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Calculating summary for month {Month}")]
+    partial void LogCalculatingSummary(DateOnly month);
 }
